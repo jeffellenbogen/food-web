@@ -98,6 +98,16 @@
         }
         .sidebar-item:active { cursor: grabbing; transform: scale(0.95); }
 
+        /* Link Handle */
+        .link-handle {
+            position: absolute; right: -10px; top: 50%; transform: translateY(-50%);
+            width: 24px; height: 24px; background: var(--pencil-blue); border-radius: 50%;
+            display: none; align-items: center; justify-content: center; color: white;
+            cursor: crosshair; font-size: 12px; border: 2px solid white; z-index: 30;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        .link-mode-active .link-handle { display: flex; }
+
         .btn-ink {
             border: 2px solid var(--ink-color); border-radius: 5px 15px 5px 10px / 10px 5px 15px 5px;
             padding: 0.6rem 1.8rem; transition: all 0.2s; font-weight: bold; background: transparent;
@@ -166,7 +176,7 @@
 
         <header class="flex flex-col md:flex-row justify-between items-center mb-16 border-b-2 border-stone-300 pb-8">
             <div>
-                <h1 class="text-6xl font-bold handwritten tracking-tighter text-stone-800">Colorado Food Web Journal</h1>
+                <h1 class="text-6xl font-bold handwritten tracking-tighter text-stone-800" id="main-title">Colorado Food Web Journal</h1>
                 <div class="flex items-center gap-4 mt-3">
                     <span class="typewriter text-xs opacity-50 uppercase tracking-widest">Naturalist:</span>
                     <span id="user-name" class="handwritten text-3xl text-blue-900 border-b-2 border-dashed border-stone-400 px-6 editable-name" contenteditable="true">Your Name</span>
@@ -198,7 +208,9 @@
                         <p class="text-[10px] typewriter uppercase tracking-widest mb-6 border-b border-stone-300 pb-2">Drag to Sort</p>
                         <div id="organism-pool" class="space-y-4 min-h-[200px]"></div>
                         <div class="mt-8 pt-4 border-t border-stone-300">
-                            <h4 class="typewriter text-[10px] uppercase font-bold mb-2">Tools</h4>
+                            <h4 class="typewriter text-[10px] uppercase font-bold mb-2">Reference</h4>
+                            <button id="btn-food-web-101" class="btn-ink w-full text-[10px] mb-2 uppercase">Food Web 101</button>
+                            <h4 class="typewriter text-[10px] uppercase font-bold mt-4 mb-2">Tools</h4>
                             <button id="btn-toggle-link" class="btn-ink w-full text-[10px] mb-2 uppercase">Draw Energy Link</button>
                             <button id="btn-clear-links" class="btn-ink w-full text-[10px] uppercase opacity-60">Clear All Links</button>
                         </div>
@@ -229,6 +241,25 @@
                 <h3 class="typewriter text-xl border-b-2 border-stone-800 mb-4 pb-2">Field Research Notes</h3>
                 <div id="field-guide-content" class="space-y-4 max-h-[60vh] overflow-y-auto pr-4"></div>
                 <button class="btn-ink mt-8 w-full closeModal">Close Researcher's Log</button>
+            </div>
+        </div>
+
+        <div id="modal-food-web-101" class="overlay">
+            <div class="modal-paper">
+                <h3 class="typewriter text-xl border-b-2 border-stone-800 mb-4 pb-2">Food Web 101</h3>
+                <div class="space-y-4 text-sm leading-relaxed max-h-[60vh] overflow-y-auto pr-4">
+                    <p><strong>Energy Flow:</strong> In a food web, the arrows represent the flow of energy. The arrow always points from the organism being eaten to the organism that eats it (Prey &rarr; Predator).</p>
+                    <p><strong>Producers:</strong> These organisms (like plants and lichen) get their energy directly from the sun. They are the foundation of any food web.</p>
+                    <p><strong>Consumers:</strong> Organisms that eat other organisms to get energy.
+                        <ul class="list-disc pl-5 mt-2">
+                            <li><em>Primary:</em> Eat producers (herbivores).</li>
+                            <li><em>Secondary:</em> Eat primary consumers (carnivores or omnivores).</li>
+                            <li><em>Tertiary:</em> Eat secondary consumers (apex predators).</li>
+                        </ul>
+                    </p>
+                    <p><strong>Complexity:</strong> Real food webs are messy! A predator might eat prey from multiple levels, and some prey have many different predators.</p>
+                </div>
+                <button class="btn-ink mt-8 w-full closeModal">Back to Field Work</button>
             </div>
         </div>
 
@@ -317,13 +348,14 @@
 
             cacheDOM() {
                 this.screens = { cover: document.getElementById('screen-cover'), workspace: document.getElementById('screen-workspace') };
-                this.modals = { guide: document.getElementById('modal-field-guide'), feedback: document.getElementById('modal-feedback') };
+                this.modals = { guide: document.getElementById('modal-field-guide'), logic: document.getElementById('modal-food-web-101'), feedback: document.getElementById('modal-feedback') };
                 this.btnToCover = document.getElementById('btn-to-cover');
                 this.pool = document.getElementById('organism-pool');
                 this.habitatTitle = document.getElementById('current-habitat-name');
                 this.shelves = document.querySelectorAll('.trophic-shelf');
                 this.svgLayer = document.getElementById('connection-layer');
                 this.tempPath = document.getElementById('temp-link');
+                this.workspaceEl = document.getElementById('screen-workspace');
             },
 
             renderPatches() {
@@ -352,6 +384,7 @@
             bindEvents() {
                 this.btnToCover.addEventListener('click', () => this.goToScreen('cover'));
                 document.getElementById('btn-field-guide').addEventListener('click', () => this.showFieldGuide());
+                document.getElementById('btn-food-web-101').addEventListener('click', () => this.modals.logic.classList.add('active'));
                 document.getElementById('btn-check').addEventListener('click', () => this.checkJournal());
                 document.getElementById('btn-toggle-link').addEventListener('click', () => this.toggleLinkMode());
                 document.getElementById('btn-clear-links').addEventListener('click', () => this.clearLinks());
@@ -365,6 +398,7 @@
                     shelf.addEventListener('drop', (e) => {
                         e.preventDefault(); shelf.classList.remove('shelf-drag-over');
                         const id = e.dataTransfer.getData('text/plain');
+                        if (!id) return;
                         const el = document.querySelector(`[data-id="${id}"]`);
                         if (el) { zone.appendChild(el); this.drawArrows(); }
                     });
@@ -374,6 +408,7 @@
                 this.pool.addEventListener('drop', (e) => {
                     e.preventDefault();
                     const id = e.dataTransfer.getData('text/plain');
+                    if (!id) return;
                     const el = document.querySelector(`[data-id="${id}"]`);
                     if (el) { 
                         this.pool.appendChild(el); 
@@ -384,7 +419,7 @@
 
                 window.addEventListener('mousemove', (e) => {
                     if (this.state.isDraggingLink && this.state.linkingSource) {
-                        const workspaceRect = this.screens.workspace.getBoundingClientRect();
+                        const workspaceRect = this.workspaceEl.getBoundingClientRect();
                         const startEl = document.querySelector(`[data-id="${this.state.linkingSource}"]`);
                         const sRect = startEl.getBoundingClientRect();
                         const x1 = (sRect.left + sRect.width / 2) - workspaceRect.left;
@@ -408,7 +443,7 @@
             toggleLinkMode() {
                 this.state.linkMode = !this.state.linkMode;
                 document.getElementById('btn-toggle-link').classList.toggle('active-tool', this.state.linkMode);
-                document.querySelectorAll('.sidebar-item').forEach(el => el.classList.toggle('can-be-linked', this.state.linkMode));
+                document.getElementById('shelves-container').classList.toggle('link-mode-active', this.state.linkMode);
             },
 
             createLink(sourceId, targetId) {
@@ -423,7 +458,7 @@
             drawArrows() {
                 const paths = this.svgLayer.querySelectorAll('.connection-group');
                 paths.forEach(p => p.remove());
-                const workspaceRect = this.screens.workspace.getBoundingClientRect();
+                const workspaceRect = this.workspaceEl.getBoundingClientRect();
 
                 this.state.connections.forEach((conn, index) => {
                     const sourceEl = document.querySelector(`[data-id="${conn.sourceId}"]`);
@@ -438,11 +473,12 @@
                     const y2 = (tRect.top + tRect.height / 2) - workspaceRect.top;
 
                     const angle = Math.atan2(y2 - y1, x2 - x1);
-                    const padding = 55;
+                    const paddingX = 70;
+                    const paddingY = 40;
                     const startX = x1 + Math.cos(angle) * 30;
                     const startY = y1 + Math.sin(angle) * 15;
-                    const endX = x2 - Math.cos(angle) * padding;
-                    const endY = y2 - Math.sin(angle) * (padding/2);
+                    const endX = x2 - Math.cos(angle) * paddingX;
+                    const endY = y2 - Math.sin(angle) * paddingY;
 
                     const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
                     g.setAttribute("class", "connection-group");
@@ -479,16 +515,20 @@
                     el.className = 'sidebar-item flex items-center gap-4 p-4';
                     el.draggable = true;
                     el.dataset.id = org.id;
-                    el.innerHTML = `<span class="text-3xl">${org.icon}</span> <span class="font-bold handwritten text-2xl">${org.name}</span>`;
+                    el.innerHTML = `
+                        <span class="text-3xl">${org.icon}</span> 
+                        <span class="font-bold handwritten text-2xl">${org.name}</span>
+                        <div class="link-handle" title="Drag to draw link">✎</div>
+                    `;
                     
                     el.addEventListener('dragstart', (e) => {
                         e.dataTransfer.setData('text/plain', org.id);
                     });
 
-                    el.addEventListener('mousedown', (e) => {
-                        if (this.state.linkMode && el.closest('.trophic-shelf')) {
-                            // If in link mode, only block drag if they click the center.
-                            // This allows them to still drag from the edges if needed.
+                    const handle = el.querySelector('.link-handle');
+                    handle.addEventListener('mousedown', (e) => {
+                        e.stopPropagation();
+                        if (this.state.linkMode) {
                             this.state.isDraggingLink = true;
                             this.state.linkingSource = org.id;
                             el.classList.add('linking-source');
@@ -503,7 +543,6 @@
                     
                     this.pool.appendChild(el);
                 });
-                if (this.state.linkMode) document.querySelectorAll('.sidebar-item').forEach(el => el.classList.add('can-be-linked'));
             },
 
             goToScreen(screenId) {
@@ -553,7 +592,6 @@
                     }
                 });
 
-                // Check for invalid links
                 this.state.connections.forEach(c => {
                     const source = currentData.organisms.find(o => o.id === c.sourceId);
                     if (!source.predators.includes(c.targetId)) {
@@ -561,7 +599,6 @@
                     }
                 });
 
-                // Check for missing links
                 currentData.organisms.forEach(source => {
                     source.predators.forEach(predId => {
                         const hasLink = this.state.connections.some(c => c.sourceId === source.id && c.targetId === predId);
@@ -595,7 +632,6 @@
                         this.renderPatches();
                     }
                 }
-
                 this.modals.feedback.classList.add('active');
             },
 
