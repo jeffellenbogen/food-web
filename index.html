@@ -138,7 +138,6 @@
         .delete-btn circle { fill: var(--error-red); stroke: #fff; }
         .delete-btn text { fill: white; font-family: sans-serif; font-size: 10px; font-weight: bold; pointer-events: none; }
 
-        /* Temp line while dragging a link */
         #temp-link { fill: none; stroke: var(--pencil-blue); stroke-width: 2; stroke-dasharray: 5,5; pointer-events: none; }
         
         .can-be-linked { cursor: crosshair !important; }
@@ -383,7 +382,6 @@
                     }
                 });
 
-                // Global mouse move for temp link
                 window.addEventListener('mousemove', (e) => {
                     if (this.state.isDraggingLink && this.state.linkingSource) {
                         const workspaceRect = this.screens.workspace.getBoundingClientRect();
@@ -489,21 +487,12 @@
 
                     el.addEventListener('mousedown', (e) => {
                         if (this.state.linkMode && el.closest('.trophic-shelf')) {
-                            e.preventDefault();
+                            // If in link mode, only block drag if they click the center.
+                            // This allows them to still drag from the edges if needed.
                             this.state.isDraggingLink = true;
                             this.state.linkingSource = org.id;
                             el.classList.add('linking-source');
                         }
-                    });
-
-                    el.addEventListener('mouseenter', () => {
-                        if (this.state.isDraggingLink && this.state.linkingSource !== org.id) {
-                            el.style.boxShadow = "0 0 15px var(--success-green)";
-                        }
-                    });
-
-                    el.addEventListener('mouseleave', () => {
-                        if (this.state.isDraggingLink) el.style.boxShadow = "";
                     });
 
                     el.addEventListener('mouseup', (e) => {
@@ -542,44 +531,69 @@
 
             checkJournal() {
                 const currentData = habitatData[this.state.activeHabitat];
-                let errors = [];
-                let unplaced = 0;
-                let correctCount = 0;
+                let shelfErrors = [];
+                let linkErrors = [];
+                let missingLinks = [];
+                let unplacedCount = 0;
+                let correctPlacementCount = 0;
 
                 currentData.organisms.forEach(org => {
                     const el = document.querySelector(`[data-id="${org.id}"]`);
                     const shelf = el.closest('.trophic-shelf');
-                    if (!shelf) unplaced++;
-                    else if (parseInt(shelf.dataset.level) === org.level) {
-                        el.classList.add('correct'); el.classList.remove('incorrect'); correctCount++;
-                    } else {
-                        el.classList.add('incorrect'); el.classList.remove('correct');
-                        errors.push(`The ${org.name} is on the wrong level. Check the guide to see what it eats!`);
+                    if (!shelf) { unplacedCount++; el.classList.remove('correct', 'incorrect'); }
+                    else {
+                        const level = parseInt(shelf.dataset.level);
+                        if (level === org.level) {
+                            el.classList.add('correct'); el.classList.remove('incorrect');
+                            correctPlacementCount++;
+                        } else {
+                            el.classList.add('incorrect'); el.classList.remove('correct');
+                            shelfErrors.push(`The ${org.name} is on the wrong shelf. Its field notes mention what it eats!`);
+                        }
                     }
                 });
 
-                const linkErrors = this.state.connections.filter(c => {
+                // Check for invalid links
+                this.state.connections.forEach(c => {
                     const source = currentData.organisms.find(o => o.id === c.sourceId);
-                    return !source.predators.includes(c.targetId);
+                    if (!source.predators.includes(c.targetId)) {
+                        linkErrors.push("One of your arrows suggests an interaction that isn't in my field notes.");
+                    }
+                });
+
+                // Check for missing links
+                currentData.organisms.forEach(source => {
+                    source.predators.forEach(predId => {
+                        const hasLink = this.state.connections.some(c => c.sourceId === source.id && c.targetId === predId);
+                        if (!hasLink) {
+                            const pred = currentData.organisms.find(o => o.id === predId);
+                            missingLinks.push(`I think the ${pred.name} might hunt more than what is currently linked.`);
+                        }
+                    });
                 });
 
                 const title = document.getElementById('feedback-title');
                 const text = document.getElementById('feedback-text');
-                const status = document.getElementById('feedback-status');
 
-                if (unplaced > 0) {
-                    title.textContent = "Almost Done!";
-                    text.textContent = "You still have some organisms in the Specimens list. Make sure to sketch them all in!";
-                } else if (errors.length > 0) {
-                    title.textContent = "Something is Off...";
-                    text.textContent = errors[0]; // Give just the first specific error to avoid overwhelming them
+                if (unplacedCount > 0) {
+                    title.textContent = "Observations Incomplete";
+                    text.textContent = `I still have ${unplacedCount} specimens in the sidebar that need to be sketched into the journal.`;
+                } else if (shelfErrors.length > 0) {
+                    title.textContent = "Hierarchy Error";
+                    text.textContent = shelfErrors[0];
                 } else if (linkErrors.length > 0) {
                     title.textContent = "Energy Flow Error";
-                    text.textContent = "One of your energy links doesn't seem right. Remember: the arrow shows where the energy goes (Prey -> Predator).";
-                } else if (correctCount === currentData.organisms.length) {
+                    text.textContent = linkErrors[0];
+                } else if (missingLinks.length > 0) {
+                    title.textContent = "Food Web Incomplete";
+                    text.textContent = missingLinks[0];
+                } else if (correctPlacementCount === currentData.organisms.length) {
                     title.textContent = "Master Naturalist!";
-                    text.textContent = "Your energy map for this habitat is perfect. You've earned your ribbon!";
-                    if (!this.state.completed.includes(this.state.activeHabitat)) this.state.completed.push(this.state.activeHabitat);
+                    text.textContent = "A perfect recording of this habitat! The web of life is clearly mapped and correct.";
+                    if (!this.state.completed.includes(this.state.activeHabitat)) {
+                        this.state.completed.push(this.state.activeHabitat);
+                        this.renderPatches();
+                    }
                 }
 
                 this.modals.feedback.classList.add('active');
@@ -590,7 +604,8 @@
                 const btn = document.getElementById('btn-download');
                 btn.classList.add('hidden');
                 html2canvas(root, { backgroundColor: '#1a1a1a', scale: 2 }).then(canvas => {
-                    const name = document.getElementById('user-name').innerText.trim().replace(/\s+/g, '_');
+                    const rawName = document.getElementById('user-name').innerText.trim();
+                    const name = rawName === 'Your Name' ? 'Young_Naturalist' : rawName.replace(/\s+/g, '_');
                     const link = document.createElement('a');
                     link.download = `Colorado_Food_Web_Journal_${name}.png`;
                     link.href = canvas.toDataURL('image/png');
