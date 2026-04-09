@@ -169,6 +169,21 @@
             opacity: 0.4;
             pointer-events: none;
         }
+
+        /* Certificate Capture Class */
+        .snapshot-mode {
+            width: 1100px !important;
+            height: 850px !important;
+            min-height: 850px !important;
+            padding: 60px !important;
+            margin: 0 !important;
+            transform: scale(1) !important;
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            z-index: 9999 !important;
+            overflow: hidden !important;
+        }
     </style>
 </head>
 <body class="p-4 md:p-8 flex justify-center">
@@ -216,7 +231,7 @@
                     <p id="download-hint" class="text-xs typewriter opacity-50 mt-4 text-center">Master at least one habitat to download your certificate.</p>
                 </div>
             </div>
-            <div class="version-tag">v1.0.2</div>
+            <div class="version-tag">v1.0.3</div>
         </div>
 
         <!-- Workspace Screen: Habitat Challenge -->
@@ -396,14 +411,20 @@
                     const isCompleted = this.state.completed.includes(key);
                     const container = document.createElement('div');
                     container.className = 'patch-container';
-                    // Added crossorigin="anonymous" to fix html2canvas gray circles
+                    
+                    // Critical for capture: Images must have crossorigin anonymous set correctly
+                    const img = new Image();
+                    img.crossOrigin = "anonymous";
+                    img.src = data.img;
+                    img.className = "patch-image";
+                    img.alt = data.name;
+
                     container.innerHTML = `
                         ${isCompleted ? '<div class="ribbon"></div>' : ''}
-                        <div class="patch-slot" onclick="app.startHabitat('${key}')">
-                            <img src="${data.img}" crossorigin="anonymous" class="patch-image" alt="${data.name}">
-                        </div>
+                        <div class="patch-slot" onclick="app.startHabitat('${key}')"></div>
                         <span class="patch-label">${data.name.split(' ')[0]}</span>
                     `;
+                    container.querySelector('.patch-slot').appendChild(img);
                     grid.appendChild(container);
                 });
 
@@ -554,11 +575,6 @@
                 });
             },
 
-            clearLinks() {
-                this.state.connections = [];
-                this.drawArrows();
-            },
-
             loadHabitat(id) {
                 const data = habitatData[id];
                 this.habitatTitle.textContent = data.name;
@@ -692,40 +708,39 @@
                 const btnDownload = document.getElementById('btn-download');
                 const hint = document.getElementById('download-hint');
                 
-                // Save original styles
-                const originalStyle = root.style.cssText;
-                
-                // Hide interactive UI elements from snapshot
+                // Hide interactive UI elements
                 btnDownload.style.display = 'none';
                 hint.style.display = 'none';
 
-                // Standard letter landscape dimensions at 200dpi scale
-                // 11 inches * 200 = 2200px wide
-                // 8.5 inches * 200 = 1700px high
-                const snapshotWidth = 1100; // Layout width
-                const snapshotHeight = 850; // Layout height
+                // Standard letter landscape Layout
+                const snapshotWidth = 1100;
+                const snapshotHeight = 850;
 
-                // Temporarily force layout for snapshot
-                root.style.width = snapshotWidth + "px";
-                root.style.height = snapshotHeight + "px";
-                root.style.minHeight = snapshotHeight + "px";
-                root.style.overflow = "hidden";
+                // Save original styles
+                const originalStyle = root.getAttribute('style') || "";
                 
-                // Force scroll to top to ensure canvas captures from origin
-                window.scrollTo(0, 0);
+                // Apply strict printing dimensions for snapshot
+                root.classList.add('snapshot-mode');
+                
+                // Force layout recalculation
+                void root.offsetWidth;
 
                 html2canvas(root, { 
                     backgroundColor: '#1a1a1a', 
-                    scale: 2, // Doubles resolution for 2200x1700 output
+                    scale: 2, 
                     useCORS: true,
                     allowTaint: false,
-                    logging: false,
                     width: snapshotWidth,
                     height: snapshotHeight,
+                    windowWidth: snapshotWidth,
+                    windowHeight: snapshotHeight,
                     scrollX: 0,
                     scrollY: 0,
-                    x: 0,
-                    y: 0
+                    onclone: (clonedDoc) => {
+                        // Ensure cloned elements are visible
+                        const clonedRoot = clonedDoc.getElementById('journal-root');
+                        clonedRoot.style.display = 'block';
+                    }
                 }).then(canvas => {
                     const rawName = document.getElementById('user-name').innerText.trim();
                     const name = rawName === 'Your Name' || rawName === '' ? 'Young_Naturalist' : rawName.replace(/\s+/g, '_');
@@ -734,13 +749,15 @@
                     link.href = canvas.toDataURL('image/png', 1.0);
                     link.click();
                     
-                    // Restore original styles and UI
-                    root.style.cssText = originalStyle;
+                    // Cleanup
+                    root.classList.remove('snapshot-mode');
+                    root.setAttribute('style', originalStyle);
                     btnDownload.style.display = '';
                     hint.style.display = '';
                 }).catch(err => {
                     console.error("Certificate Generation Failed:", err);
-                    root.style.cssText = originalStyle;
+                    root.classList.remove('snapshot-mode');
+                    root.setAttribute('style', originalStyle);
                     btnDownload.style.display = '';
                     hint.style.display = '';
                 });
