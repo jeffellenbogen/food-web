@@ -169,21 +169,6 @@
             opacity: 0.4;
             pointer-events: none;
         }
-
-        /* Certificate Capture Class */
-        .snapshot-mode {
-            width: 1100px !important;
-            height: 850px !important;
-            min-height: 850px !important;
-            padding: 60px !important;
-            margin: 0 !important;
-            transform: scale(1) !important;
-            position: fixed !important;
-            top: 0 !important;
-            left: 0 !important;
-            z-index: 9999 !important;
-            overflow: hidden !important;
-        }
     </style>
 </head>
 <body class="p-4 md:p-8 flex justify-center">
@@ -208,7 +193,7 @@
             <div class="ring"></div><div class="ring"></div><div class="ring"></div>
         </div>
 
-        <header class="flex flex-col md:flex-row justify-between items-center mb-16 border-b-2 border-stone-300 pb-8">
+        <header id="journal-header" class="flex flex-col md:flex-row justify-between items-center mb-16 border-b-2 border-stone-300 pb-8">
             <div>
                 <h1 class="text-6xl font-bold handwritten tracking-tighter text-stone-800" id="main-title">Colorado Food Web Journal</h1>
                 <div class="flex items-center gap-4 mt-3">
@@ -225,13 +210,13 @@
                 <h2 class="text-3xl font-bold typewriter mb-16 px-12 py-3 bg-stone-800 text-white rounded-sm transform rotate-1">Expedition Merit Badges</h2>
                 <div class="grid grid-cols-2 md:grid-cols-5 gap-12 w-full max-w-5xl" id="patch-grid"></div>
                 
-                <div class="mt-20 flex flex-col items-center">
+                <div id="download-zone" class="mt-20 flex flex-col items-center">
                     <div id="progress-summary" class="typewriter text-sm mb-4">Earned 0 of 5 badges</div>
                     <button id="btn-download" class="btn-ink text-sm uppercase bg-blue-900 text-white shadow-xl hover:bg-blue-800 hidden">Download Master Naturalist Certificate</button>
                     <p id="download-hint" class="text-xs typewriter opacity-50 mt-4 text-center">Master at least one habitat to download your certificate.</p>
                 </div>
             </div>
-            <div class="version-tag">v1.0.3</div>
+            <div class="version-tag">v1.0.4</div>
         </div>
 
         <!-- Workspace Screen: Habitat Challenge -->
@@ -412,19 +397,13 @@
                     const container = document.createElement('div');
                     container.className = 'patch-container';
                     
-                    // Critical for capture: Images must have crossorigin anonymous set correctly
-                    const img = new Image();
-                    img.crossOrigin = "anonymous";
-                    img.src = data.img;
-                    img.className = "patch-image";
-                    img.alt = data.name;
-
                     container.innerHTML = `
                         ${isCompleted ? '<div class="ribbon"></div>' : ''}
-                        <div class="patch-slot" onclick="app.startHabitat('${key}')"></div>
+                        <div class="patch-slot" onclick="app.startHabitat('${key}')">
+                            <img src="${data.img}" crossorigin="anonymous" class="patch-image" alt="${data.name}">
+                        </div>
                         <span class="patch-label">${data.name.split(' ')[0]}</span>
                     `;
-                    container.querySelector('.patch-slot').appendChild(img);
                     grid.appendChild(container);
                 });
 
@@ -575,6 +554,11 @@
                 });
             },
 
+            clearLinks() {
+                this.state.connections = [];
+                this.drawArrows();
+            },
+
             loadHabitat(id) {
                 const data = habitatData[id];
                 this.habitatTitle.textContent = data.name;
@@ -705,61 +689,61 @@
 
             downloadCertificate() {
                 const root = this.rootEl;
-                const btnDownload = document.getElementById('btn-download');
-                const hint = document.getElementById('download-hint');
+                const downloadBtn = document.getElementById('btn-download');
+                const downloadHint = document.getElementById('download-hint');
                 
-                // Hide interactive UI elements
-                btnDownload.style.display = 'none';
-                hint.style.display = 'none';
+                // 1. Hide UI elements
+                downloadBtn.style.visibility = 'hidden';
+                downloadHint.style.visibility = 'hidden';
 
-                // Standard letter landscape Layout
-                const snapshotWidth = 1100;
-                const snapshotHeight = 850;
+                // 2. High-res Letter Landscape parameters
+                // 11 inches wide x 8.5 inches high
+                const targetWidth = 1100;
+                const targetHeight = 850;
 
-                // Save original styles
-                const originalStyle = root.getAttribute('style') || "";
-                
-                // Apply strict printing dimensions for snapshot
-                root.classList.add('snapshot-mode');
-                
-                // Force layout recalculation
-                void root.offsetWidth;
-
-                html2canvas(root, { 
-                    backgroundColor: '#1a1a1a', 
-                    scale: 2, 
+                // Capture using a temporary forced-style clone
+                html2canvas(root, {
+                    backgroundColor: '#1a1a1a',
+                    scale: 2, // Double resolution for clear printing
                     useCORS: true,
                     allowTaint: false,
-                    width: snapshotWidth,
-                    height: snapshotHeight,
-                    windowWidth: snapshotWidth,
-                    windowHeight: snapshotHeight,
-                    scrollX: 0,
-                    scrollY: 0,
+                    width: targetWidth,
+                    height: targetHeight,
+                    windowWidth: targetWidth,
+                    windowHeight: targetHeight,
                     onclone: (clonedDoc) => {
-                        // Ensure cloned elements are visible
                         const clonedRoot = clonedDoc.getElementById('journal-root');
+                        
+                        // Force fixed dimensions on the clone
+                        clonedRoot.style.width = targetWidth + 'px';
+                        clonedRoot.style.height = targetHeight + 'px';
+                        clonedRoot.style.minHeight = targetHeight + 'px';
+                        clonedRoot.style.padding = '60px';
+                        clonedRoot.style.margin = '0';
                         clonedRoot.style.display = 'block';
+                        clonedRoot.style.overflow = 'hidden';
+                        clonedRoot.style.borderLeft = '15px solid #3d2b1f';
+                        
+                        // Ensure header is visible and correct
+                        const clonedHeader = clonedDoc.getElementById('journal-header');
+                        clonedHeader.style.marginBottom = '40px';
                     }
                 }).then(canvas => {
                     const rawName = document.getElementById('user-name').innerText.trim();
                     const name = rawName === 'Your Name' || rawName === '' ? 'Young_Naturalist' : rawName.replace(/\s+/g, '_');
+                    
                     const link = document.createElement('a');
                     link.download = `Colorado_Food_Web_Journal_${name}.png`;
                     link.href = canvas.toDataURL('image/png', 1.0);
                     link.click();
                     
-                    // Cleanup
-                    root.classList.remove('snapshot-mode');
-                    root.setAttribute('style', originalStyle);
-                    btnDownload.style.display = '';
-                    hint.style.display = '';
+                    // Restore UI
+                    downloadBtn.style.visibility = 'visible';
+                    downloadHint.style.visibility = 'visible';
                 }).catch(err => {
                     console.error("Certificate Generation Failed:", err);
-                    root.classList.remove('snapshot-mode');
-                    root.setAttribute('style', originalStyle);
-                    btnDownload.style.display = '';
-                    hint.style.display = '';
+                    downloadBtn.style.visibility = 'visible';
+                    downloadHint.style.visibility = 'visible';
                 });
             }
         };
