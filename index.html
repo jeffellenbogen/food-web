@@ -38,294 +38,110 @@
         }
 
         .spiral {
-            position: absolute;
-            left: -25px;
-            top: 50px;
-            bottom: 50px;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-around;
-            z-index: 10;
+            position: absolute; left: -25px; top: 50px; bottom: 50px;
+            display: flex; flex-direction: column; justify-content: space-around; z-index: 10;
         }
         .ring {
-            width: 40px;
-            height: 12px;
+            width: 40px; height: 12px;
             background: linear-gradient(to bottom, #888, #eee, #888);
-            border-radius: 10px;
-            box-shadow: 2px 2px 5px rgba(0,0,0,0.3);
+            border-radius: 10px; box-shadow: 2px 2px 5px rgba(0,0,0,0.3);
         }
 
-        .patch-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 0.75rem;
-            position: relative;
-        }
-
+        .patch-container { display: flex; flex-direction: column; align-items: center; gap: 0.75rem; position: relative; }
         .patch-slot {
-            width: 140px;
-            height: 140px;
-            border-radius: 50%;
-            position: relative;
-            cursor: pointer;
+            width: 140px; height: 140px; border-radius: 50%; position: relative; cursor: pointer;
             transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            background-color: #eee;
-            border: 8px solid #3d2b1f;
+            background-color: #eee; border: 8px solid #3d2b1f;
             box-shadow: 0 6px 12px rgba(0,0,0,0.3), inset 0 0 15px rgba(0,0,0,0.2);
             overflow: hidden;
-            filter: brightness(1);
         }
+        .patch-slot:hover { transform: scale(1.15) rotate(5deg); border-color: #fff; box-shadow: 0 0 30px 10px var(--highlight-glow); }
+        .patch-image { width: 100%; height: 100%; object-fit: cover; filter: saturate(1.4) contrast(1.1); }
 
-        .patch-slot::after {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            border: 4px dashed rgba(255,255,255,0.4);
-            border-radius: 50%;
-            pointer-events: none;
-            z-index: 2;
-        }
-
-        .patch-slot:hover {
-            transform: scale(1.15) rotate(5deg);
-            border-color: #fff;
-            box-shadow: 0 0 30px 10px var(--highlight-glow), 0 15px 30px rgba(0,0,0,0.4);
-        }
-
-        .patch-image {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            filter: saturate(1.4) contrast(1.1);
-        }
-
-        /* Ribbon Style */
         .ribbon {
-            position: absolute;
-            top: -10px;
-            right: -10px;
-            width: 50px;
-            height: 70px;
-            background: var(--ribbon-blue);
-            z-index: 10;
+            position: absolute; top: -10px; right: -10px; width: 50px; height: 70px;
+            background: var(--ribbon-blue); z-index: 10;
             clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 85%, 0 100%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border: 1px solid rgba(255,255,255,0.3);
-            box-shadow: 2px 2px 5px rgba(0,0,0,0.3);
-            transform: rotate(15deg);
+            display: flex; align-items: center; justify-content: center; transform: rotate(15deg);
         }
-
-        .ribbon::after {
-            content: '★';
-            color: gold;
-            font-size: 1.2rem;
-            margin-bottom: 10px;
-        }
+        .ribbon::after { content: '★'; color: gold; font-size: 1.2rem; margin-bottom: 10px; }
 
         .patch-label {
-            font-family: 'Special Elite', cursive;
-            font-size: 0.8rem;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-            background: #fff;
-            padding: 3px 12px;
-            border: 1px solid #3d2b1f;
-            box-shadow: 3px 3px 0 rgba(0,0,0,0.1);
-            transform: rotate(-1deg);
-            transition: all 0.2s;
-            font-weight: bold;
-        }
-        
-        .patch-slot:hover + .patch-label {
-            background-color: #3d2b1f;
-            color: #fff;
-            transform: rotate(0deg) scale(1.1);
+            font-family: 'Special Elite', cursive; font-size: 0.8rem; text-transform: uppercase;
+            letter-spacing: 0.1em; background: #fff; padding: 3px 12px; border: 1px solid #3d2b1f;
+            box-shadow: 3px 3px 0 rgba(0,0,0,0.1); transform: rotate(-1deg); font-weight: bold;
         }
 
         .handwritten { font-family: 'Caveat', cursive; }
         .typewriter { font-family: 'Special Elite', cursive; }
 
-        .editable-name {
-            cursor: text;
-            min-width: 150px;
-            display: inline-block;
-            outline: none;
-        }
-        .editable-name:hover {
-            background: rgba(255,255,255,0.5);
-        }
-
-        .sketch-border {
-            border: 2px solid var(--ink-color);
-            border-radius: 255px 15px 225px 15px/15px 225px 15px 255px;
-            padding: 1rem;
-        }
+        .editable-name { cursor: text; min-width: 150px; display: inline-block; outline: none; padding: 0 10px; }
+        .editable-name:focus { background: rgba(255, 255, 255, 0.8); border-radius: 4px; }
 
         .trophic-shelf {
-            border-bottom: 2px dashed rgba(0,0,0,0.1);
-            min-height: 140px;
-            position: relative;
+            border-bottom: 2px dashed rgba(0,0,0,0.1); min-height: 140px; position: relative;
             background-image: linear-gradient(to right, transparent 10%, rgba(0,0,0,0.02) 10%);
-            background-size: 50px 100%;
-            transition: background-color 0.2s;
+            background-size: 50px 100%; transition: background-color 0.2s;
         }
 
         .shelf-label {
-            position: absolute;
-            left: -10px;
-            top: 10px;
-            transform: rotate(-1.5deg);
-            background: #fff9eb;
-            padding: 3px 15px;
-            border: 1px solid #dcd3bc;
-            font-size: 0.75rem;
-            font-weight: bold;
-            text-transform: uppercase;
-            box-shadow: 3px 3px 0 rgba(0,0,0,0.05);
-            z-index: 5;
-            font-family: 'Special Elite', cursive;
+            position: absolute; left: -10px; top: 10px; transform: rotate(-1.5deg);
+            background: #fff9eb; padding: 3px 15px; border: 1px solid #dcd3bc;
+            font-size: 0.75rem; font-weight: bold; text-transform: uppercase;
+            box-shadow: 3px 3px 0 rgba(0,0,0,0.05); z-index: 5; font-family: 'Special Elite', cursive;
         }
 
         .sidebar-item {
-            cursor: grab;
-            transition: all 0.2s;
-            background: #fff;
-            border: 2px solid #3d2b1f;
-            border-radius: 8px;
-            user-select: none;
-            box-shadow: 2px 2px 0 rgba(0,0,0,0.1);
-            position: relative;
-            z-index: 20;
+            cursor: grab; transition: all 0.2s; background: #fff; border: 2px solid #3d2b1f;
+            border-radius: 8px; user-select: none; box-shadow: 2px 2px 0 rgba(0,0,0,0.1);
+            position: relative; z-index: 20;
         }
         .sidebar-item:active { cursor: grabbing; transform: scale(0.95); }
-        .sidebar-item:hover { transform: translateY(-2px) rotate(-1deg); box-shadow: 4px 4px 0 rgba(0,0,0,0.1); }
 
         .btn-ink {
-            border: 2px solid var(--ink-color);
-            border-radius: 5px 15px 5px 10px / 10px 5px 15px 5px;
-            padding: 0.6rem 1.8rem;
-            transition: all 0.2s;
-            font-weight: bold;
-            background: transparent;
+            border: 2px solid var(--ink-color); border-radius: 5px 15px 5px 10px / 10px 5px 15px 5px;
+            padding: 0.6rem 1.8rem; transition: all 0.2s; font-weight: bold; background: transparent;
             font-family: 'Special Elite', cursive;
         }
-
-        .btn-ink:hover {
-            background: var(--ink-color);
-            color: white;
-            transform: translateY(-2px) scale(1.05);
-        }
-
-        .btn-ink.active-tool {
-            background: var(--pencil-blue);
-            color: white;
-            border-color: var(--pencil-blue);
-        }
+        .btn-ink:hover { background: var(--ink-color); color: white; transform: translateY(-2px); }
+        .btn-ink.active-tool { background: var(--pencil-blue); color: white; border-color: var(--pencil-blue); }
 
         .screen { display: none; }
         .screen.active { display: block; }
 
         .overlay {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.7);
-            z-index: 100;
-            align-items: center;
-            justify-content: center;
-            padding: 2rem;
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.7); z-index: 100; align-items: center; justify-content: center; padding: 2rem;
         }
         .overlay.active { display: flex; }
 
         .modal-paper {
-            background: #fff;
-            background-image: url("https://www.transparenttextures.com/patterns/paper-fibers.png");
-            max-width: 600px;
-            width: 100%;
-            padding: 2.5rem;
-            border: 2px solid #3d2b1f;
-            position: relative;
-            box-shadow: 10px 10px 0 rgba(0,0,0,0.2);
+            background: #fff; max-width: 600px; width: 100%; padding: 2.5rem;
+            border: 2px solid #3d2b1f; position: relative; box-shadow: 10px 10px 0 rgba(0,0,0,0.2);
         }
 
-        .shelf-drag-over {
-            background-color: rgba(212, 175, 55, 0.1) !important;
-        }
-
+        .shelf-drag-over { background-color: rgba(212, 175, 55, 0.1) !important; }
         .correct { border-color: var(--success-green) !important; background: #eaffea !important; }
         .incorrect { border-color: var(--error-red) !important; background: #ffeaea !important; }
 
         #connection-layer {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 40;
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; z-index: 40;
         }
 
-        .linking-source {
-            outline: 3px solid var(--pencil-blue) !important;
-            box-shadow: 0 0 15px var(--pencil-blue) !important;
-        }
+        .connection-group { pointer-events: auto; cursor: default; }
+        .connection-arrow { fill: none; stroke: var(--pencil-blue); stroke-width: 3; stroke-linecap: round; marker-end: url(#arrowhead); opacity: 0.6; }
+        .connection-hit-area { fill: none; stroke: transparent; stroke-width: 20; cursor: pointer; }
+        .delete-btn { opacity: 0; transition: opacity 0.2s; cursor: pointer; }
+        .connection-group:hover .connection-arrow { opacity: 1; stroke-width: 4; stroke: var(--error-red); marker-end: url(#arrowhead-error); }
+        .connection-group:hover .delete-btn { opacity: 1; }
+        .delete-btn circle { fill: var(--error-red); stroke: #fff; }
+        .delete-btn text { fill: white; font-family: sans-serif; font-size: 10px; font-weight: bold; pointer-events: none; }
 
-        .connection-group {
-            pointer-events: auto;
-            cursor: default;
-        }
-
-        .connection-arrow {
-            fill: none;
-            stroke: var(--pencil-blue);
-            stroke-width: 3;
-            stroke-linecap: round;
-            marker-end: url(#arrowhead);
-            opacity: 0.6;
-            transition: opacity 0.2s, stroke-width 0.2s;
-        }
-
-        .connection-hit-area {
-            fill: none;
-            stroke: transparent;
-            stroke-width: 20;
-            cursor: pointer;
-        }
-
-        .delete-btn {
-            opacity: 0;
-            transition: opacity 0.2s;
-            cursor: pointer;
-        }
-
-        .connection-group:hover .connection-arrow {
-            opacity: 1;
-            stroke-width: 4;
-            stroke: var(--error-red);
-            marker-end: url(#arrowhead-error);
-        }
-
-        .connection-group:hover .delete-btn {
-            opacity: 1;
-        }
-
-        .delete-btn circle {
-            fill: var(--error-red);
-            stroke: #fff;
-            stroke-width: 1;
-        }
-
-        .delete-btn text {
-            fill: white;
-            font-family: Arial, sans-serif;
-            font-size: 10px;
-            font-weight: bold;
-            pointer-events: none;
-        }
-
+        /* Temp line while dragging a link */
+        #temp-link { fill: none; stroke: var(--pencil-blue); stroke-width: 2; stroke-dasharray: 5,5; pointer-events: none; }
+        
+        .can-be-linked { cursor: crosshair !important; }
     </style>
 </head>
 <body class="p-4 md:p-8 flex justify-center">
@@ -334,11 +150,11 @@
         
         <svg style="width:0; height:0; position:absolute;">
             <defs>
-                <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
-                    <polygon points="0 0, 10 3.5, 0 7" fill="var(--pencil-blue)" />
+                <marker id="arrowhead" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+                    <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--pencil-blue)" />
                 </marker>
-                <marker id="arrowhead-error" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
-                    <polygon points="0 0, 10 3.5, 0 7" fill="var(--error-red)" />
+                <marker id="arrowhead-error" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+                    <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--error-red)" />
                 </marker>
             </defs>
         </svg>
@@ -354,41 +170,34 @@
                 <h1 class="text-6xl font-bold handwritten tracking-tighter text-stone-800">Colorado Food Web Journal</h1>
                 <div class="flex items-center gap-4 mt-3">
                     <span class="typewriter text-xs opacity-50 uppercase tracking-widest">Naturalist:</span>
-                    <span id="user-name" class="handwritten text-3xl text-blue-900 border-b-2 border-dashed border-stone-400 px-6 editable-name" contenteditable="true" data-placeholder="Your Name">Your Name</span>
+                    <span id="user-name" class="handwritten text-3xl text-blue-900 border-b-2 border-dashed border-stone-400 px-6 editable-name" contenteditable="true">Your Name</span>
                 </div>
             </div>
-            <button id="btn-to-cover" class="hidden btn-ink text-xs mt-6 md:mt-0">
-                &larr; BACK TO INDEX
-            </button>
+            <button id="btn-to-cover" class="hidden btn-ink text-xs mt-6 md:mt-0">&larr; BACK TO INDEX</button>
         </header>
 
         <div id="screen-cover" class="screen active">
             <div class="flex flex-col items-center">
                 <h2 class="text-3xl font-bold typewriter mb-16 px-12 py-3 bg-stone-800 text-white rounded-sm transform rotate-1">Expedition Merit Badges</h2>
-                <div class="grid grid-cols-2 md:grid-cols-5 gap-12 w-full max-w-5xl" id="patch-grid">
-                    <!-- Patches populated by script -->
-                </div>
-
-                <div class="mt-20">
-                    <button id="btn-download" class="btn-ink text-sm uppercase bg-blue-900 text-white shadow-xl hover:bg-blue-800 hidden">
-                        Download Master Naturalist Certificate
-                    </button>
-                    <p id="download-hint" class="text-xs typewriter opacity-50 mt-2 text-center">Complete all habitats to unlock your certificate.</p>
+                <div class="grid grid-cols-2 md:grid-cols-5 gap-12 w-full max-w-5xl" id="patch-grid"></div>
+                <div class="mt-20 flex flex-col items-center">
+                    <button id="btn-download" class="btn-ink text-sm uppercase bg-blue-900 text-white shadow-xl hover:bg-blue-800 hidden">Download Master Naturalist Certificate</button>
+                    <p id="download-hint" class="text-xs typewriter opacity-50 mt-4 text-center">Complete all habitats to unlock your certificate.</p>
                 </div>
             </div>
         </div>
 
         <div id="screen-workspace" class="screen">
             <div class="grid grid-cols-1 lg:grid-cols-4 gap-12 relative">
-                
-                <svg id="connection-layer"></svg>
+                <svg id="connection-layer">
+                    <path id="temp-link" d=""></path>
+                </svg>
 
                 <aside class="lg:col-span-1">
                     <div class="sketch-border bg-white/50 h-full shadow-inner relative z-30">
                         <h3 class="font-bold text-2xl handwritten mb-1 text-stone-700">Specimens</h3>
                         <p class="text-[10px] typewriter uppercase tracking-widest mb-6 border-b border-stone-300 pb-2">Drag to Sort</p>
                         <div id="organism-pool" class="space-y-4 min-h-[200px]"></div>
-                        
                         <div class="mt-8 pt-4 border-t border-stone-300">
                             <h4 class="typewriter text-[10px] uppercase font-bold mb-2">Tools</h4>
                             <button id="btn-toggle-link" class="btn-ink w-full text-[10px] mb-2 uppercase">Draw Energy Link</button>
@@ -405,24 +214,11 @@
                             <button id="btn-check" class="btn-ink text-[10px] uppercase bg-stone-800 text-white shadow-lg">Check Journal</button>
                         </div>
                     </div>
-
                     <div id="shelves-container" class="space-y-8 relative z-20">
-                        <div class="trophic-shelf" data-level="4">
-                            <span class="shelf-label">Tertiary Consumers</span>
-                            <div class="drop-zone flex flex-wrap gap-4 p-10 items-center min-h-[140px]"></div>
-                        </div>
-                        <div class="trophic-shelf" data-level="3">
-                            <span class="shelf-label">Secondary Consumers</span>
-                            <div class="drop-zone flex flex-wrap gap-4 p-10 items-center min-h-[140px]"></div>
-                        </div>
-                        <div class="trophic-shelf" data-level="2">
-                            <span class="shelf-label">Primary Consumers</span>
-                            <div class="drop-zone flex flex-wrap gap-4 p-10 items-center min-h-[140px]"></div>
-                        </div>
-                        <div class="trophic-shelf" data-level="1">
-                            <span class="shelf-label">Producers</span>
-                            <div class="drop-zone flex flex-wrap gap-4 p-10 items-center min-h-[140px]"></div>
-                        </div>
+                        <div class="trophic-shelf" data-level="4"><span class="shelf-label">Tertiary Consumers</span><div class="drop-zone flex flex-wrap gap-4 p-10 items-center min-h-[140px]"></div></div>
+                        <div class="trophic-shelf" data-level="3"><span class="shelf-label">Secondary Consumers</span><div class="drop-zone flex flex-wrap gap-4 p-10 items-center min-h-[140px]"></div></div>
+                        <div class="trophic-shelf" data-level="2"><span class="shelf-label">Primary Consumers</span><div class="drop-zone flex flex-wrap gap-4 p-10 items-center min-h-[140px]"></div></div>
+                        <div class="trophic-shelf" data-level="1"><span class="shelf-label">Producers</span><div class="drop-zone flex flex-wrap gap-4 p-10 items-center min-h-[140px]"></div></div>
                     </div>
                 </main>
             </div>
@@ -461,8 +257,7 @@
                 ]
             },
             tundra: {
-                name: "Alpine Tundra",
-                img: "https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=400&q=80",
+                name: "Alpine Tundra", img: "https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=400&q=80",
                 organisms: [
                     { id: 't1', name: 'Lichen', level: 1, icon: '🍄', notes: "Grows on rocks and provides energy to high-altitude herbivores.", predators: ['t2', 't3'] },
                     { id: 't2', name: 'Pika', level: 2, icon: '🐹', notes: "Gathers lichen and grass to survive the harsh winters.", predators: ['t4', 't5'] },
@@ -472,8 +267,7 @@
                 ]
             },
             riparian: {
-                name: "Riparian Area",
-                img: "https://images.unsplash.com/photo-1470770841072-f978cf4d019e?auto=format&fit=crop&w=400&q=80",
+                name: "Riparian Area", img: "https://images.unsplash.com/photo-1470770841072-f978cf4d019e?auto=format&fit=crop&w=400&q=80",
                 organisms: [
                     { id: 'r1', name: 'Cottonwood Tree', level: 1, icon: '🌳', notes: "Produces leaves and seeds near riverbanks using sunlight.", predators: ['r2'] },
                     { id: 'r2', name: 'Aquatic Insects', level: 2, icon: '🐝', notes: "Feeds on leaf litter and plant matter found in the water.", predators: ['r3'] },
@@ -483,8 +277,7 @@
                 ]
             },
             forest: {
-                name: "Ponderosa Pine Forest",
-                img: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=400&q=80",
+                name: "Ponderosa Pine Forest", img: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=400&q=80",
                 organisms: [
                     { id: 'f1', name: 'Ponderosa Pine', level: 1, icon: '🌲', notes: "Produces energy-rich pine nuts and needles.", predators: ['f2', 'f3'] },
                     { id: 'f2', name: 'Abert\'s Squirrel', level: 2, icon: '🐿️', notes: "Lives specifically in these trees, eating the bark and seeds.", predators: ['f4', 'f5'] },
@@ -494,8 +287,7 @@
                 ]
             },
             shrubland: {
-                name: "Mesa Shrubland",
-                img: "https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?auto=format&fit=crop&w=400&q=80",
+                name: "Mesa Shrubland", img: "https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?auto=format&fit=crop&w=400&q=80",
                 organisms: [
                     { id: 's1', name: 'Sagebrush', level: 1, icon: '🌿', notes: "The primary producer in high-desert arid ecosystems.", predators: ['s2', 's3'] },
                     { id: 's2', name: 'Jackrabbit', level: 2, icon: '🐇', notes: "Fast herbivore that feeds on sagebrush and desert grasses.", predators: ['s4', 's5'] },
@@ -510,10 +302,11 @@
             state: {
                 currentScreen: 'cover',
                 activeHabitat: null,
-                completed: [], // List of mastered habitat keys
+                completed: [],
                 linkMode: false,
                 linkingSource: null,
-                connections: [] 
+                connections: [],
+                isDraggingLink: false
             },
 
             init() {
@@ -524,19 +317,14 @@
             },
 
             cacheDOM() {
-                this.screens = {
-                    cover: document.getElementById('screen-cover'),
-                    workspace: document.getElementById('screen-workspace')
-                };
-                this.modals = {
-                    guide: document.getElementById('modal-field-guide'),
-                    feedback: document.getElementById('modal-feedback')
-                };
+                this.screens = { cover: document.getElementById('screen-cover'), workspace: document.getElementById('screen-workspace') };
+                this.modals = { guide: document.getElementById('modal-field-guide'), feedback: document.getElementById('modal-feedback') };
                 this.btnToCover = document.getElementById('btn-to-cover');
                 this.pool = document.getElementById('organism-pool');
                 this.habitatTitle = document.getElementById('current-habitat-name');
                 this.shelves = document.querySelectorAll('.trophic-shelf');
                 this.svgLayer = document.getElementById('connection-layer');
+                this.tempPath = document.getElementById('temp-link');
             },
 
             renderPatches() {
@@ -549,22 +337,16 @@
                     container.className = 'patch-container';
                     container.innerHTML = `
                         ${isCompleted ? '<div class="ribbon"></div>' : ''}
-                        <div class="patch-slot" onclick="app.startHabitat('${key}')">
-                            <img src="${data.img}" class="patch-image">
-                        </div>
+                        <div class="patch-slot" onclick="app.startHabitat('${key}')"><img src="${data.img}" class="patch-image"></div>
                         <span class="patch-label">${data.name.split(' ')[0]}</span>
                     `;
                     grid.appendChild(container);
                 });
-
-                // Update download button visibility
                 const btnDownload = document.getElementById('btn-download');
                 const hint = document.getElementById('download-hint');
                 if (this.state.completed.length === Object.keys(habitatData).length) {
                     btnDownload.classList.remove('hidden');
                     hint.textContent = "Congratulations! You are a Master Naturalist.";
-                } else {
-                    btnDownload.classList.add('hidden');
                 }
             },
 
@@ -575,24 +357,17 @@
                 document.getElementById('btn-toggle-link').addEventListener('click', () => this.toggleLinkMode());
                 document.getElementById('btn-clear-links').addEventListener('click', () => this.clearLinks());
                 document.getElementById('btn-download').addEventListener('click', () => this.downloadCertificate());
-                
-                document.querySelectorAll('.closeModal').forEach(btn => {
-                    btn.addEventListener('click', (e) => e.target.closest('.overlay').classList.remove('active'));
-                });
+                document.querySelectorAll('.closeModal').forEach(btn => btn.addEventListener('click', (e) => e.target.closest('.overlay').classList.remove('active')));
 
                 this.shelves.forEach(shelf => {
                     const zone = shelf.querySelector('.drop-zone');
                     shelf.addEventListener('dragover', (e) => { e.preventDefault(); shelf.classList.add('shelf-drag-over'); });
                     shelf.addEventListener('dragleave', () => shelf.classList.remove('shelf-drag-over'));
                     shelf.addEventListener('drop', (e) => {
-                        e.preventDefault();
-                        shelf.classList.remove('shelf-drag-over');
+                        e.preventDefault(); shelf.classList.remove('shelf-drag-over');
                         const id = e.dataTransfer.getData('text/plain');
                         const el = document.querySelector(`[data-id="${id}"]`);
-                        if (el) {
-                            zone.appendChild(el);
-                            this.drawArrows();
-                        }
+                        if (el) { zone.appendChild(el); this.drawArrows(); }
                     });
                 });
 
@@ -601,10 +376,33 @@
                     e.preventDefault();
                     const id = e.dataTransfer.getData('text/plain');
                     const el = document.querySelector(`[data-id="${id}"]`);
-                    if (el) {
-                        this.pool.appendChild(el);
+                    if (el) { 
+                        this.pool.appendChild(el); 
                         this.state.connections = this.state.connections.filter(c => c.sourceId !== id && c.targetId !== id);
-                        this.drawArrows();
+                        this.drawArrows(); 
+                    }
+                });
+
+                // Global mouse move for temp link
+                window.addEventListener('mousemove', (e) => {
+                    if (this.state.isDraggingLink && this.state.linkingSource) {
+                        const workspaceRect = this.screens.workspace.getBoundingClientRect();
+                        const startEl = document.querySelector(`[data-id="${this.state.linkingSource}"]`);
+                        const sRect = startEl.getBoundingClientRect();
+                        const x1 = (sRect.left + sRect.width / 2) - workspaceRect.left;
+                        const y1 = (sRect.top + sRect.height / 2) - workspaceRect.top;
+                        const x2 = e.clientX - workspaceRect.left;
+                        const y2 = e.clientY - workspaceRect.top;
+                        this.tempPath.setAttribute("d", `M ${x1} ${y1} L ${x2} ${y2}`);
+                    }
+                });
+
+                window.addEventListener('mouseup', () => {
+                    if (this.state.isDraggingLink) {
+                        this.state.isDraggingLink = false;
+                        this.tempPath.setAttribute("d", "");
+                        document.querySelectorAll('.sidebar-item').forEach(el => el.classList.remove('linking-source'));
+                        this.state.linkingSource = null;
                     }
                 });
             },
@@ -612,29 +410,11 @@
             toggleLinkMode() {
                 this.state.linkMode = !this.state.linkMode;
                 document.getElementById('btn-toggle-link').classList.toggle('active-tool', this.state.linkMode);
-                this.state.linkingSource = null;
-                document.querySelectorAll('.sidebar-item').forEach(el => el.classList.remove('linking-source'));
-            },
-
-            handleOrganismClick(id) {
-                if (!this.state.linkMode) return;
-
-                const el = document.querySelector(`[data-id="${id}"]`);
-                if (!el.closest('.trophic-shelf')) return;
-
-                if (!this.state.linkingSource) {
-                    this.state.linkingSource = id;
-                    el.classList.add('linking-source');
-                } else {
-                    if (this.state.linkingSource !== id) {
-                        this.createLink(this.state.linkingSource, id);
-                    }
-                    this.state.linkingSource = null;
-                    document.querySelectorAll('.sidebar-item').forEach(e => e.classList.remove('linking-source'));
-                }
+                document.querySelectorAll('.sidebar-item').forEach(el => el.classList.toggle('can-be-linked', this.state.linkMode));
             },
 
             createLink(sourceId, targetId) {
+                if (sourceId === targetId) return;
                 const exists = this.state.connections.some(c => c.sourceId === sourceId && c.targetId === targetId);
                 if (!exists) {
                     this.state.connections.push({ sourceId, targetId });
@@ -642,98 +422,53 @@
                 }
             },
 
-            removeLink(index) {
-                this.state.connections.splice(index, 1);
-                this.drawArrows();
-            },
-
-            clearLinks() {
-                this.state.connections = [];
-                this.drawArrows();
-            },
-
             drawArrows() {
-                this.svgLayer.innerHTML = '';
+                const paths = this.svgLayer.querySelectorAll('.connection-group');
+                paths.forEach(p => p.remove());
                 const workspaceRect = this.screens.workspace.getBoundingClientRect();
 
                 this.state.connections.forEach((conn, index) => {
                     const sourceEl = document.querySelector(`[data-id="${conn.sourceId}"]`);
                     const targetEl = document.querySelector(`[data-id="${conn.targetId}"]`);
-                    
                     if (!sourceEl || !targetEl) return;
 
                     const sRect = sourceEl.getBoundingClientRect();
                     const tRect = targetEl.getBoundingClientRect();
-
                     const x1 = (sRect.left + sRect.width / 2) - workspaceRect.left;
                     const y1 = (sRect.top + sRect.height / 2) - workspaceRect.top;
                     const x2 = (tRect.left + tRect.width / 2) - workspaceRect.left;
                     const y2 = (tRect.top + tRect.height / 2) - workspaceRect.top;
 
                     const angle = Math.atan2(y2 - y1, x2 - x1);
-                    const padding = 45;
-                    const startX = x1 + Math.cos(angle) * padding;
-                    const startY = y1 + Math.sin(angle) * padding;
+                    const padding = 55;
+                    const startX = x1 + Math.cos(angle) * 30;
+                    const startY = y1 + Math.sin(angle) * 15;
                     const endX = x2 - Math.cos(angle) * padding;
-                    const endY = y2 - Math.sin(angle) * padding;
-
-                    const cpX = (startX + endX) / 2;
-                    const cpY = (startY + endY) / 2 - 40;
+                    const endY = y2 - Math.sin(angle) * (padding/2);
 
                     const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
                     g.setAttribute("class", "connection-group");
-
                     const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
-                    path.setAttribute("d", `M ${startX} ${startY} Q ${cpX} ${cpY} ${endX} ${endY}`);
+                    path.setAttribute("d", `M ${startX} ${startY} Q ${(startX+endX)/2} ${(startY+endY)/2 - 30} ${endX} ${endY}`);
                     path.setAttribute("class", "connection-arrow");
                     
                     const hitArea = document.createElementNS("http://www.w3.org/2000/svg", "path");
-                    hitArea.setAttribute("d", `M ${startX} ${startY} Q ${cpX} ${cpY} ${endX} ${endY}`);
+                    hitArea.setAttribute("d", `M ${startX} ${startY} Q ${(startX+endX)/2} ${(startY+endY)/2 - 30} ${endX} ${endY}`);
                     hitArea.setAttribute("class", "connection-hit-area");
 
-                    const midX = 0.25 * startX + 0.5 * cpX + 0.25 * endX;
-                    const midY = 0.25 * startY + 0.5 * cpY + 0.25 * endY;
+                    const midX = 0.5 * ((startX+endX)/2) + 0.25 * startX + 0.25 * endX;
+                    const midY = 0.5 * ((startY+endY)/2 - 30) + 0.25 * startY + 0.25 * endY;
 
-                    const deleteBtn = document.createElementNS("http://www.w3.org/2000/svg", "g");
-                    deleteBtn.setAttribute("class", "delete-btn");
-                    deleteBtn.setAttribute("transform", `translate(${midX}, ${midY})`);
-                    deleteBtn.onclick = (e) => {
-                        e.stopPropagation();
-                        this.removeLink(index);
-                    };
-
-                    const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-                    circle.setAttribute("r", "8");
-                    
-                    const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
-                    text.setAttribute("text-anchor", "middle");
-                    text.setAttribute("dy", "3.5");
-                    text.textContent = "×";
-
-                    deleteBtn.appendChild(circle);
-                    deleteBtn.appendChild(text);
-
-                    g.appendChild(path);
-                    g.appendChild(hitArea);
-                    g.appendChild(deleteBtn);
-                    
+                    const del = document.createElementNS("http://www.w3.org/2000/svg", "g");
+                    del.setAttribute("class", "delete-btn");
+                    del.setAttribute("transform", `translate(${midX}, ${midY})`);
+                    del.onclick = (e) => { e.stopPropagation(); this.state.connections.splice(index, 1); this.drawArrows(); };
+                    const circ = document.createElementNS("http://www.w3.org/2000/svg", "circle"); circ.setAttribute("r", "8");
+                    const txt = document.createElementNS("http://www.w3.org/2000/svg", "text"); txt.setAttribute("text-anchor", "middle"); txt.setAttribute("dy", "3.5"); txt.textContent = "×";
+                    del.appendChild(circ); del.appendChild(txt);
+                    g.appendChild(path); g.appendChild(hitArea); g.appendChild(del);
                     this.svgLayer.appendChild(g);
                 });
-            },
-
-            goToScreen(screenId) {
-                this.state.currentScreen = screenId;
-                this.btnToCover.classList.toggle('hidden', screenId === 'cover');
-                Object.keys(this.screens).forEach(key => this.screens[key].classList.toggle('active', screenId === key));
-                this.renderPatches();
-                setTimeout(() => this.drawArrows(), 50); 
-            },
-
-            startHabitat(id) {
-                this.state.activeHabitat = id;
-                this.state.connections = [];
-                this.goToScreen('workspace');
-                this.loadHabitat(id);
             },
 
             loadHabitat(id) {
@@ -741,7 +476,6 @@
                 this.habitatTitle.textContent = data.name;
                 document.querySelectorAll('.drop-zone').forEach(z => z.innerHTML = '');
                 this.pool.innerHTML = '';
-
                 data.organisms.forEach(org => {
                     const el = document.createElement('div');
                     el.className = 'sidebar-item flex items-center gap-4 p-4';
@@ -750,23 +484,54 @@
                     el.innerHTML = `<span class="text-3xl">${org.icon}</span> <span class="font-bold handwritten text-2xl">${org.name}</span>`;
                     
                     el.addEventListener('dragstart', (e) => {
-                        if (this.state.linkMode) {
-                            e.preventDefault();
-                            return;
-                        }
                         e.dataTransfer.setData('text/plain', org.id);
                     });
 
-                    el.addEventListener('click', () => this.handleOrganismClick(org.id));
+                    el.addEventListener('mousedown', (e) => {
+                        if (this.state.linkMode && el.closest('.trophic-shelf')) {
+                            e.preventDefault();
+                            this.state.isDraggingLink = true;
+                            this.state.linkingSource = org.id;
+                            el.classList.add('linking-source');
+                        }
+                    });
+
+                    el.addEventListener('mouseenter', () => {
+                        if (this.state.isDraggingLink && this.state.linkingSource !== org.id) {
+                            el.style.boxShadow = "0 0 15px var(--success-green)";
+                        }
+                    });
+
+                    el.addEventListener('mouseleave', () => {
+                        if (this.state.isDraggingLink) el.style.boxShadow = "";
+                    });
+
+                    el.addEventListener('mouseup', (e) => {
+                        if (this.state.isDraggingLink && this.state.linkingSource && this.state.linkingSource !== org.id) {
+                            this.createLink(this.state.linkingSource, org.id);
+                        }
+                    });
                     
                     this.pool.appendChild(el);
                 });
+                if (this.state.linkMode) document.querySelectorAll('.sidebar-item').forEach(el => el.classList.add('can-be-linked'));
+            },
+
+            goToScreen(screenId) {
+                this.state.currentScreen = screenId;
+                this.btnToCover.classList.toggle('hidden', screenId === 'cover');
+                Object.keys(this.screens).forEach(key => this.screens[key].classList.toggle('active', screenId === key));
+                this.renderPatches();
+                setTimeout(() => this.drawArrows(), 50);
+            },
+
+            startHabitat(id) {
+                this.state.activeHabitat = id; this.state.connections = []; this.goToScreen('workspace'); this.loadHabitat(id);
             },
 
             showFieldGuide() {
                 const data = habitatData[this.state.activeHabitat];
-                const content = document.getElementById('field-guide-content');
-                content.innerHTML = data.organisms.map(o => `
+                document.getElementById('field-guide-content').innerHTML = data.organisms.map(o => `
                     <div class="border-b border-stone-200 pb-2">
                         <span class="text-2xl">${o.icon}</span> <strong class="handwritten text-2xl">${o.name}</strong>
                         <p class="text-sm italic text-stone-600">${o.notes}</p>
@@ -777,92 +542,60 @@
 
             checkJournal() {
                 const currentData = habitatData[this.state.activeHabitat];
-                let shelfErrors = 0;
-                let linkErrors = 0;
-                let unplacedCount = 0;
+                let errors = [];
+                let unplaced = 0;
+                let correctCount = 0;
 
                 currentData.organisms.forEach(org => {
                     const el = document.querySelector(`[data-id="${org.id}"]`);
-                    const parentShelf = el.closest('.trophic-shelf');
-                    
-                    if (!parentShelf) {
-                        unplacedCount++;
-                        el.classList.remove('correct', 'incorrect');
+                    const shelf = el.closest('.trophic-shelf');
+                    if (!shelf) unplaced++;
+                    else if (parseInt(shelf.dataset.level) === org.level) {
+                        el.classList.add('correct'); el.classList.remove('incorrect'); correctCount++;
                     } else {
-                        const placedLevel = parseInt(parentShelf.dataset.level);
-                        if (placedLevel === org.level) {
-                            el.classList.add('correct');
-                            el.classList.remove('incorrect');
-                        } else {
-                            shelfErrors++;
-                            el.classList.add('incorrect');
-                            el.classList.remove('correct');
-                        }
+                        el.classList.add('incorrect'); el.classList.remove('correct');
+                        errors.push(`The ${org.name} is on the wrong level. Check the guide to see what it eats!`);
                     }
                 });
 
-                this.state.connections.forEach(conn => {
-                    const sourceOrg = currentData.organisms.find(o => o.id === conn.sourceId);
-                    const isValid = (sourceOrg.predators || []).includes(conn.targetId);
-                    if (!isValid) linkErrors++;
+                const linkErrors = this.state.connections.filter(c => {
+                    const source = currentData.organisms.find(o => o.id === c.sourceId);
+                    return !source.predators.includes(c.targetId);
                 });
-
-                const totalPossibleLinks = currentData.organisms.reduce((acc, o) => acc + (o.predators ? o.predators.length : 0), 0);
-                const currentLinks = this.state.connections.length;
 
                 const title = document.getElementById('feedback-title');
                 const text = document.getElementById('feedback-text');
                 const status = document.getElementById('feedback-status');
 
-                if (unplacedCount > 0) {
-                    title.textContent = "Observations Incomplete";
-                    text.textContent = "I haven't finished sketching every creature I saw. I should check the specimens list.";
-                    status.textContent = `${unplacedCount} organisms left in the field`;
-                } else if (shelfErrors > 0) {
-                    title.textContent = "Trophic Level Error";
-                    text.textContent = "My energy pyramid looks a bit unstable. Some creatures are on the wrong shelves.";
-                    status.textContent = `${shelfErrors} placement errors`;
-                } else if (linkErrors > 0) {
+                if (unplaced > 0) {
+                    title.textContent = "Almost Done!";
+                    text.textContent = "You still have some organisms in the Specimens list. Make sure to sketch them all in!";
+                } else if (errors.length > 0) {
+                    title.textContent = "Something is Off...";
+                    text.textContent = errors[0]; // Give just the first specific error to avoid overwhelming them
+                } else if (linkErrors.length > 0) {
                     title.textContent = "Energy Flow Error";
-                    text.textContent = "My arrows are pointing in the wrong direction or showing relationships that don't exist.";
-                    status.textContent = `${linkErrors} incorrect energy links`;
-                } else if (currentLinks < totalPossibleLinks) {
-                    title.textContent = "Incomplete Food Web";
-                    text.textContent = "I've placed everyone correctly, but I'm missing some energy links between creatures.";
-                    status.textContent = `Missing ${totalPossibleLinks - currentLinks} energy links`;
-                } else {
+                    text.textContent = "One of your energy links doesn't seem right. Remember: the arrow shows where the energy goes (Prey -> Predator).";
+                } else if (correctCount === currentData.organisms.length) {
                     title.textContent = "Master Naturalist!";
-                    text.textContent = "The web of life is perfectly mapped. Every organism is in its place and every link is correct.";
-                    status.textContent = "Habitat Mastery Earned";
-                    
-                    // Mark as completed
-                    if (!this.state.completed.includes(this.state.activeHabitat)) {
-                        this.state.completed.push(this.state.activeHabitat);
-                    }
+                    text.textContent = "Your energy map for this habitat is perfect. You've earned your ribbon!";
+                    if (!this.state.completed.includes(this.state.activeHabitat)) this.state.completed.push(this.state.activeHabitat);
                 }
 
                 this.modals.feedback.classList.add('active');
             },
 
             downloadCertificate() {
-                const journalRoot = document.getElementById('journal-root');
-                const btnDownload = document.getElementById('btn-download');
-                
-                // Temporarily hide the button so it doesn't appear in the screenshot
-                btnDownload.classList.add('hidden');
-                
-                html2canvas(journalRoot, {
-                    backgroundColor: '#1a1a1a',
-                    scale: 2 // High resolution
-                }).then(canvas => {
+                const root = document.getElementById('journal-root');
+                const btn = document.getElementById('btn-download');
+                btn.classList.add('hidden');
+                html2canvas(root, { backgroundColor: '#1a1a1a', scale: 2 }).then(canvas => {
                     const name = document.getElementById('user-name').innerText.trim().replace(/\s+/g, '_');
                     const link = document.createElement('a');
                     link.download = `Colorado_Food_Web_Journal_${name}.png`;
                     link.href = canvas.toDataURL('image/png');
                     link.click();
-                    
-                    // Restore button visibility
-                    btnDownload.classList.remove('hidden');
+                    btn.classList.remove('hidden');
                 });
             }
         };
