@@ -216,7 +216,7 @@
                     <p id="download-hint" class="text-xs typewriter opacity-50 mt-4 text-center">Master at least one habitat to download your certificate.</p>
                 </div>
             </div>
-            <div class="version-tag">v1.0.1</div>
+            <div class="version-tag">v1.0.2</div>
         </div>
 
         <!-- Workspace Screen: Habitat Challenge -->
@@ -385,6 +385,7 @@
                 this.tempPath = document.getElementById('temp-link');
                 this.workspaceEl = document.getElementById('screen-workspace');
                 this.modeHint = document.getElementById('mode-hint');
+                this.rootEl = document.getElementById('journal-root');
             },
 
             renderPatches() {
@@ -687,45 +688,61 @@
             },
 
             downloadCertificate() {
-                const root = document.getElementById('journal-root');
+                const root = this.rootEl;
                 const btnDownload = document.getElementById('btn-download');
                 const hint = document.getElementById('download-hint');
-                const spiral = document.querySelector('.spiral');
+                
+                // Save original styles
+                const originalStyle = root.style.cssText;
                 
                 // Hide interactive UI elements from snapshot
-                btnDownload.classList.add('hidden');
-                hint.classList.add('hidden');
+                btnDownload.style.display = 'none';
+                hint.style.display = 'none';
 
-                // Enforce landscape aspect ratio (approx 11 x 8.5) for the screenshot
-                const originalStyle = root.style.cssText;
-                root.style.width = "1100px";
-                root.style.height = "850px";
-                root.style.minHeight = "auto";
+                // Standard letter landscape dimensions at 200dpi scale
+                // 11 inches * 200 = 2200px wide
+                // 8.5 inches * 200 = 1700px high
+                const snapshotWidth = 1100; // Layout width
+                const snapshotHeight = 850; // Layout height
+
+                // Temporarily force layout for snapshot
+                root.style.width = snapshotWidth + "px";
+                root.style.height = snapshotHeight + "px";
+                root.style.minHeight = snapshotHeight + "px";
+                root.style.overflow = "hidden";
                 
-                // Use html2canvas with CORS support enabled
+                // Force scroll to top to ensure canvas captures from origin
+                window.scrollTo(0, 0);
+
                 html2canvas(root, { 
                     backgroundColor: '#1a1a1a', 
-                    scale: 2, 
+                    scale: 2, // Doubles resolution for 2200x1700 output
                     useCORS: true,
                     allowTaint: false,
+                    logging: false,
+                    width: snapshotWidth,
+                    height: snapshotHeight,
                     scrollX: 0,
-                    scrollY: -window.scrollY
+                    scrollY: 0,
+                    x: 0,
+                    y: 0
                 }).then(canvas => {
                     const rawName = document.getElementById('user-name').innerText.trim();
-                    const name = rawName === 'Your Name' ? 'Young_Naturalist' : rawName.replace(/\s+/g, '_');
+                    const name = rawName === 'Your Name' || rawName === '' ? 'Young_Naturalist' : rawName.replace(/\s+/g, '_');
                     const link = document.createElement('a');
                     link.download = `Colorado_Food_Web_Journal_${name}.png`;
-                    link.href = canvas.toDataURL('image/png');
+                    link.href = canvas.toDataURL('image/png', 1.0);
                     link.click();
                     
                     // Restore original styles and UI
                     root.style.cssText = originalStyle;
-                    btnDownload.classList.remove('hidden');
-                    hint.classList.remove('hidden');
+                    btnDownload.style.display = '';
+                    hint.style.display = '';
                 }).catch(err => {
                     console.error("Certificate Generation Failed:", err);
-                    btnDownload.classList.remove('hidden');
-                    hint.classList.remove('hidden');
+                    root.style.cssText = originalStyle;
+                    btnDownload.style.display = '';
+                    hint.style.display = '';
                 });
             }
         };
