@@ -92,25 +92,16 @@
         }
 
         .sidebar-item {
-            cursor: grab; transition: all 0.2s; background: #fff; border: 2px solid #3d2b1f;
+            transition: all 0.2s; background: #fff; border: 2px solid #3d2b1f;
             border-radius: 8px; user-select: none; box-shadow: 2px 2px 0 rgba(0,0,0,0.1);
             position: relative; z-index: 20;
         }
-        .sidebar-item:active { cursor: grabbing; transform: scale(0.95); }
-
-        /* Link Handle */
-        .link-handle {
-            position: absolute; right: -10px; top: 50%; transform: translateY(-50%);
-            width: 24px; height: 24px; background: var(--pencil-blue); border-radius: 50%;
-            display: none; align-items: center; justify-content: center; color: white;
-            cursor: crosshair; font-size: 12px; border: 2px solid white; z-index: 30;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-        }
-        .link-mode-active .link-handle { display: flex; }
+        .sidebar-item[draggable="true"] { cursor: grab; }
+        .sidebar-item[draggable="true"]:active { cursor: grabbing; transform: scale(0.95); }
 
         .btn-ink {
             border: 2px solid var(--ink-color); border-radius: 5px 15px 5px 10px / 10px 5px 15px 5px;
-            padding: 0.6rem 1.8rem; transition: all 0.2s; font-weight: bold; background: transparent;
+            padding: 0.6rem 1.2rem; transition: all 0.2s; font-weight: bold; background: transparent;
             font-family: 'Special Elite', cursive;
         }
         .btn-ink:hover { background: var(--ink-color); color: white; transform: translateY(-2px); }
@@ -145,12 +136,16 @@
         .delete-btn { opacity: 0; transition: opacity 0.2s; cursor: pointer; }
         .connection-group:hover .connection-arrow { opacity: 1; stroke-width: 4; stroke: var(--error-red); marker-end: url(#arrowhead-error); }
         .connection-group:hover .delete-btn { opacity: 1; }
-        .delete-btn circle { fill: var(--error-red); stroke: #fff; }
-        .delete-btn text { fill: white; font-family: sans-serif; font-size: 10px; font-weight: bold; pointer-events: none; }
+        .delete-btn circle { fill: var(--error-red); stroke: #fff; stroke-width: 1.5; }
+        .delete-btn text { fill: white; font-family: sans-serif; font-size: 14px; font-weight: bold; pointer-events: none; }
 
         #temp-link { fill: none; stroke: var(--pencil-blue); stroke-width: 2; stroke-dasharray: 5,5; pointer-events: none; }
         
         .can-be-linked { cursor: crosshair !important; }
+
+        .toggle-container {
+            display: flex; flex-direction: column; gap: 0.5rem;
+        }
     </style>
 </head>
 <body class="p-4 md:p-8 flex justify-center">
@@ -189,9 +184,11 @@
             <div class="flex flex-col items-center">
                 <h2 class="text-3xl font-bold typewriter mb-16 px-12 py-3 bg-stone-800 text-white rounded-sm transform rotate-1">Expedition Merit Badges</h2>
                 <div class="grid grid-cols-2 md:grid-cols-5 gap-12 w-full max-w-5xl" id="patch-grid"></div>
+                
                 <div class="mt-20 flex flex-col items-center">
+                    <div id="progress-summary" class="typewriter text-sm mb-4">Earned 0 of 5 badges</div>
                     <button id="btn-download" class="btn-ink text-sm uppercase bg-blue-900 text-white shadow-xl hover:bg-blue-800 hidden">Download Master Naturalist Certificate</button>
-                    <p id="download-hint" class="text-xs typewriter opacity-50 mt-4 text-center">Complete all habitats to unlock your certificate.</p>
+                    <p id="download-hint" class="text-xs typewriter opacity-50 mt-4 text-center">Master at least one habitat to download your certificate.</p>
                 </div>
             </div>
         </div>
@@ -205,14 +202,19 @@
                 <aside class="lg:col-span-1">
                     <div class="sketch-border bg-white/50 h-full shadow-inner relative z-30">
                         <h3 class="font-bold text-2xl handwritten mb-1 text-stone-700">Specimens</h3>
-                        <p class="text-[10px] typewriter uppercase tracking-widest mb-6 border-b border-stone-300 pb-2">Drag to Sort</p>
+                        <p id="mode-hint" class="text-[10px] typewriter uppercase tracking-widest mb-6 border-b border-stone-300 pb-2">Drag to Sort</p>
                         <div id="organism-pool" class="space-y-4 min-h-[200px]"></div>
+                        
                         <div class="mt-8 pt-4 border-t border-stone-300">
-                            <h4 class="typewriter text-[10px] uppercase font-bold mb-2">Reference</h4>
+                            <h4 class="typewriter text-[10px] uppercase font-bold mb-3">Modes</h4>
+                            <div class="toggle-container">
+                                <button id="btn-mode-arrange" class="btn-ink active-tool w-full text-[10px] uppercase">Arrange Species</button>
+                                <button id="btn-mode-links" class="btn-ink w-full text-[10px] uppercase">Drag Energy Links</button>
+                            </div>
+                            
+                            <h4 class="typewriter text-[10px] uppercase font-bold mt-6 mb-2">Reference</h4>
                             <button id="btn-food-web-101" class="btn-ink w-full text-[10px] mb-2 uppercase">Food Web 101</button>
-                            <h4 class="typewriter text-[10px] uppercase font-bold mt-4 mb-2">Tools</h4>
-                            <button id="btn-toggle-link" class="btn-ink w-full text-[10px] mb-2 uppercase">Draw Energy Link</button>
-                            <button id="btn-clear-links" class="btn-ink w-full text-[10px] uppercase opacity-60">Clear All Links</button>
+                            <button id="btn-clear-links" class="btn-ink w-full text-[10px] uppercase opacity-60 mt-4">Clear All Links</button>
                         </div>
                     </div>
                 </aside>
@@ -248,18 +250,17 @@
             <div class="modal-paper">
                 <h3 class="typewriter text-xl border-b-2 border-stone-800 mb-4 pb-2">Food Web 101</h3>
                 <div class="space-y-4 text-sm leading-relaxed max-h-[60vh] overflow-y-auto pr-4">
-                    <p><strong>Energy Flow:</strong> In a food web, the arrows represent the flow of energy. The arrow always points from the organism being eaten to the organism that eats it (Prey &rarr; Predator).</p>
-                    <p><strong>Producers:</strong> These organisms (like plants and lichen) get their energy directly from the sun. They are the foundation of any food web.</p>
-                    <p><strong>Consumers:</strong> Organisms that eat other organisms to get energy.
+                    <p><strong>Energy Flow:</strong> Arrows represent energy moving from food to eater. The arrow points from the <strong>prey</strong> to the <strong>predator</strong>.</p>
+                    <p><strong>Trophic Levels:</strong>
                         <ul class="list-disc pl-5 mt-2">
-                            <li><em>Primary:</em> Eat producers (herbivores).</li>
-                            <li><em>Secondary:</em> Eat primary consumers (carnivores or omnivores).</li>
-                            <li><em>Tertiary:</em> Eat secondary consumers (apex predators).</li>
+                            <li><strong>Producers:</strong> Plants that get energy from the Sun.</li>
+                            <li><strong>Primary Consumers:</strong> Herbivores that eat producers.</li>
+                            <li><strong>Secondary Consumers:</strong> Predators that eat herbivores.</li>
+                            <li><strong>Tertiary Consumers:</strong> Apex predators at the top of the food chain.</li>
                         </ul>
                     </p>
-                    <p><strong>Complexity:</strong> Real food webs are messy! A predator might eat prey from multiple levels, and some prey have many different predators.</p>
                 </div>
-                <button class="btn-ink mt-8 w-full closeModal">Back to Field Work</button>
+                <button class="btn-ink mt-8 w-full closeModal">Back to Journal</button>
             </div>
         </div>
 
@@ -279,51 +280,51 @@
                 name: "Eastern Colorado Grassland",
                 img: "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=400&q=80",
                 organisms: [
-                    { id: 'g1', name: 'Blue Grama Grass', level: 1, icon: '🌾', notes: "This hardy grass is a producer that gets its energy directly from the sun.", predators: ['g2'] },
-                    { id: 'g2', name: 'Prairie Dog', level: 2, icon: '🐿️', notes: "Lives in large colonies and grazes primarily on grasses.", predators: ['g3', 'g4', 'g5'] },
-                    { id: 'g3', name: 'Black-footed Ferret', level: 3, icon: '🐾', notes: "A carnivore that depends almost entirely on prairie dogs for its food.", predators: ['g5'] },
-                    { id: 'g4', name: 'Coyote', level: 3, icon: '🐺', notes: "An opportunistic predator that hunts primary consumers like rodents.", predators: ['g5'] },
-                    { id: 'g5', name: 'Golden Eagle', level: 4, icon: '🦅', notes: "Apex predator of the skies, hunting small carnivores and large rodents.", predators: [] }
+                    { id: 'g1', name: 'Blue Grama Grass', level: 1, icon: '🌾', notes: "A producer that gets energy directly from the sun.", predators: ['g2'] },
+                    { id: 'g2', name: 'Prairie Dog', level: 2, icon: '🐿️', notes: "Grazes primarily on grasses.", predators: ['g3', 'g4', 'g5'] },
+                    { id: 'g3', name: 'Black-footed Ferret', level: 3, icon: '🐾', notes: "Carnivore that preys on prairie dogs.", predators: ['g5'] },
+                    { id: 'g4', name: 'Coyote', level: 3, icon: '🐺', notes: "Opportunistic predator that hunts rodents.", predators: ['g5'] },
+                    { id: 'g5', name: 'Golden Eagle', level: 4, icon: '🦅', notes: "Apex predator of the skies.", predators: [] }
                 ]
             },
             tundra: {
                 name: "Alpine Tundra", img: "https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=400&q=80",
                 organisms: [
-                    { id: 't1', name: 'Lichen', level: 1, icon: '🍄', notes: "Grows on rocks and provides energy to high-altitude herbivores.", predators: ['t2', 't3'] },
-                    { id: 't2', name: 'Pika', level: 2, icon: '🐹', notes: "Gathers lichen and grass to survive the harsh winters.", predators: ['t4', 't5'] },
-                    { id: 't3', name: 'Marmot', level: 2, icon: '🐻', notes: "Large ground squirrel that grazes on tundra vegetation.", predators: ['t5'] },
-                    { id: 't4', name: 'Ermine', level: 3, icon: '🦦', notes: "A fierce little hunter that preys on pikas and mice.", predators: ['t5'] },
-                    { id: 't5', name: 'Mountain Lion', level: 4, icon: '🦁', notes: "The top predator in the Rockies, capable of hunting any consumer.", predators: [] }
+                    { id: 't1', name: 'Lichen', level: 1, icon: '🍄', notes: "Foundation producer at high altitudes.", predators: ['t2', 't3'] },
+                    { id: 't2', name: 'Pika', level: 2, icon: '🐹', notes: "Small herbivore gathering plants.", predators: ['t4', 't5'] },
+                    { id: 't3', name: 'Marmot', level: 2, icon: '🐻', notes: "Large ground squirrel grazing on tundra.", predators: ['t5'] },
+                    { id: 't4', name: 'Ermine', level: 3, icon: '🦦', notes: "Small hunter preying on pikas.", predators: ['t5'] },
+                    { id: 't5', name: 'Mountain Lion', level: 4, icon: '🦁', notes: "The top predator in the Rockies.", predators: [] }
                 ]
             },
             riparian: {
                 name: "Riparian Area", img: "https://images.unsplash.com/photo-1470770841072-f978cf4d019e?auto=format&fit=crop&w=400&q=80",
                 organisms: [
-                    { id: 'r1', name: 'Cottonwood Tree', level: 1, icon: '🌳', notes: "Produces leaves and seeds near riverbanks using sunlight.", predators: ['r2'] },
-                    { id: 'r2', name: 'Aquatic Insects', level: 2, icon: '🐝', notes: "Feeds on leaf litter and plant matter found in the water.", predators: ['r3'] },
-                    { id: 'r3', name: 'Leopard Frog', level: 3, icon: '🐸', notes: "Eats insects and small invertebrates found in riparian mud.", predators: ['r4', 'r5'] },
-                    { id: 'r4', name: 'Garter Snake', level: 3, icon: '🐍', notes: "Hunts frogs and small fish along the riverbank.", predators: ['r5'] },
-                    { id: 'r5', name: 'Great Blue Heron', level: 4, icon: '🐦', notes: "Skilled fisher that preys on snakes, frogs, and large fish.", predators: [] }
+                    { id: 'r1', name: 'Cottonwood Tree', level: 1, icon: '🌳', notes: "Producer found near riverbanks.", predators: ['r2'] },
+                    { id: 'r2', name: 'Aquatic Insects', level: 2, icon: '🐝', notes: "Feeds on leaf litter in water.", predators: ['r3'] },
+                    { id: 'r3', name: 'Leopard Frog', level: 3, icon: '🐸', notes: "Eats insects near river mud.", predators: ['r4', 'r5'] },
+                    { id: 'r4', name: 'Garter Snake', level: 3, icon: '🐍', notes: "Hunts frogs along the bank.", predators: ['r5'] },
+                    { id: 'r5', name: 'Great Blue Heron', level: 4, icon: '🐦', notes: "Skilled hunter of snakes and frogs.", predators: [] }
                 ]
             },
             forest: {
                 name: "Ponderosa Pine Forest", img: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=400&q=80",
                 organisms: [
-                    { id: 'f1', name: 'Ponderosa Pine', level: 1, icon: '🌲', notes: "Produces energy-rich pine nuts and needles.", predators: ['f2', 'f3'] },
-                    { id: 'f2', name: 'Abert\'s Squirrel', level: 2, icon: '🐿️', notes: "Lives specifically in these trees, eating the bark and seeds.", predators: ['f4', 'f5'] },
-                    { id: 'f3', name: 'Steller\'s Jay', level: 2, icon: '🐦', notes: "Intelligent bird that eats seeds, nuts, and occasionally insects.", predators: ['f4', 'f5'] },
-                    { id: 'f4', name: 'Goshawk', level: 3, icon: '🦅', notes: "Powerful forest raptor that hunts smaller birds and squirrels.", predators: ['f5'] },
-                    { id: 'f5', name: 'Bobcat', level: 4, icon: '🐱', notes: "Solitary predator that sits at the top of the forest food chain.", predators: [] }
+                    { id: 'f1', name: 'Ponderosa Pine', level: 1, icon: '🌲', notes: "Produces seeds and needles.", predators: ['f2', 'f3'] },
+                    { id: 'f2', name: 'Abert\'s Squirrel', level: 2, icon: '🐿️', notes: "Eats the bark and seeds of pines.", predators: ['f4', 'f5'] },
+                    { id: 'f3', name: 'Steller\'s Jay', level: 2, icon: '🐦', notes: "Eats seeds and occasionally insects.", predators: ['f4', 'f5'] },
+                    { id: 'f4', name: 'Goshawk', level: 3, icon: '🦅', notes: "Hunts birds and squirrels in the forest.", predators: ['f5'] },
+                    { id: 'f5', name: 'Bobcat', level: 4, icon: '🐱', notes: "Top predator of the ponderosa forest.", predators: [] }
                 ]
             },
             shrubland: {
                 name: "Mesa Shrubland", img: "https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?auto=format&fit=crop&w=400&q=80",
                 organisms: [
-                    { id: 's1', name: 'Sagebrush', level: 1, icon: '🌿', notes: "The primary producer in high-desert arid ecosystems.", predators: ['s2', 's3'] },
-                    { id: 's2', name: 'Jackrabbit', level: 2, icon: '🐇', notes: "Fast herbivore that feeds on sagebrush and desert grasses.", predators: ['s4', 's5'] },
-                    { id: 's3', name: 'Sage Thrasher', level: 2, icon: '🐦', notes: "Bird that relies on sagebrush for both nesting and food (seeds/insects).", predators: ['s4', 's5'] },
-                    { id: 's4', name: 'Badger', level: 3, icon: '🐾', notes: "Digs for rodents and small mammals across the mesa.", predators: ['s5'] },
-                    { id: 's5', name: 'Red-tailed Hawk', level: 4, icon: '🦅', notes: "Apex hunter of the shrubland, watching for movement below.", predators: [] }
+                    { id: 's1', name: 'Sagebrush', level: 1, icon: '🌿', notes: "Primary producer in arid systems.", predators: ['s2', 's3'] },
+                    { id: 's2', name: 'Jackrabbit', level: 2, icon: '🐇', notes: "Feeds on sagebrush and grasses.", predators: ['s4', 's5'] },
+                    { id: 's3', name: 'Sage Thrasher', level: 2, icon: '🐦', notes: "Relies on sagebrush for food and nesting.", predators: ['s4', 's5'] },
+                    { id: 's4', name: 'Badger', level: 3, icon: '🐾', notes: "Digs for small mammals on the mesa.", predators: ['s5'] },
+                    { id: 's5', name: 'Red-tailed Hawk', level: 4, icon: '🦅', notes: "Apex hunter of the mesa.", predators: [] }
                 ]
             }
         };
@@ -333,7 +334,7 @@
                 currentScreen: 'cover',
                 activeHabitat: null,
                 completed: [],
-                linkMode: false,
+                tool: 'arrange', // 'arrange' or 'links'
                 linkingSource: null,
                 connections: [],
                 isDraggingLink: false
@@ -356,6 +357,7 @@
                 this.svgLayer = document.getElementById('connection-layer');
                 this.tempPath = document.getElementById('temp-link');
                 this.workspaceEl = document.getElementById('screen-workspace');
+                this.modeHint = document.getElementById('mode-hint');
             },
 
             renderPatches() {
@@ -373,11 +375,19 @@
                     `;
                     grid.appendChild(container);
                 });
+
                 const btnDownload = document.getElementById('btn-download');
                 const hint = document.getElementById('download-hint');
-                if (this.state.completed.length === Object.keys(habitatData).length) {
+                const progressSummary = document.getElementById('progress-summary');
+                
+                const count = this.state.completed.length;
+                progressSummary.textContent = `Earned ${count} of 5 badges`;
+
+                if (count > 0) {
                     btnDownload.classList.remove('hidden');
-                    hint.textContent = "Congratulations! You are a Master Naturalist.";
+                    hint.textContent = count === 5 ? "Congratulations, Master Naturalist!" : "You can download your progress report anytime.";
+                } else {
+                    btnDownload.classList.add('hidden');
                 }
             },
 
@@ -386,7 +396,11 @@
                 document.getElementById('btn-field-guide').addEventListener('click', () => this.showFieldGuide());
                 document.getElementById('btn-food-web-101').addEventListener('click', () => this.modals.logic.classList.add('active'));
                 document.getElementById('btn-check').addEventListener('click', () => this.checkJournal());
-                document.getElementById('btn-toggle-link').addEventListener('click', () => this.toggleLinkMode());
+                
+                // Toggle mode events
+                document.getElementById('btn-mode-arrange').addEventListener('click', () => this.setTool('arrange'));
+                document.getElementById('btn-mode-links').addEventListener('click', () => this.setTool('links'));
+                
                 document.getElementById('btn-clear-links').addEventListener('click', () => this.clearLinks());
                 document.getElementById('btn-download').addEventListener('click', () => this.downloadCertificate());
                 document.querySelectorAll('.closeModal').forEach(btn => btn.addEventListener('click', (e) => e.target.closest('.overlay').classList.remove('active')));
@@ -440,10 +454,17 @@
                 });
             },
 
-            toggleLinkMode() {
-                this.state.linkMode = !this.state.linkMode;
-                document.getElementById('btn-toggle-link').classList.toggle('active-tool', this.state.linkMode);
-                document.getElementById('shelves-container').classList.toggle('link-mode-active', this.state.linkMode);
+            setTool(toolName) {
+                this.state.tool = toolName;
+                document.getElementById('btn-mode-arrange').classList.toggle('active-tool', toolName === 'arrange');
+                document.getElementById('btn-mode-links').classList.toggle('active-tool', toolName === 'links');
+                this.modeHint.textContent = toolName === 'arrange' ? "Drag to Sort" : "Drag to Link";
+                
+                // Update draggability of items
+                document.querySelectorAll('.sidebar-item').forEach(el => {
+                    el.draggable = (toolName === 'arrange');
+                    el.classList.toggle('can-be-linked', toolName === 'links');
+                });
             },
 
             createLink(sourceId, targetId) {
@@ -473,7 +494,7 @@
                     const y2 = (tRect.top + tRect.height / 2) - workspaceRect.top;
 
                     const angle = Math.atan2(y2 - y1, x2 - x1);
-                    const paddingX = 70;
+                    const paddingX = 80;
                     const paddingY = 40;
                     const startX = x1 + Math.cos(angle) * 30;
                     const startY = y1 + Math.sin(angle) * 15;
@@ -497,12 +518,17 @@
                     del.setAttribute("class", "delete-btn");
                     del.setAttribute("transform", `translate(${midX}, ${midY})`);
                     del.onclick = (e) => { e.stopPropagation(); this.state.connections.splice(index, 1); this.drawArrows(); };
-                    const circ = document.createElementNS("http://www.w3.org/2000/svg", "circle"); circ.setAttribute("r", "8");
-                    const txt = document.createElementNS("http://www.w3.org/2000/svg", "text"); txt.setAttribute("text-anchor", "middle"); txt.setAttribute("dy", "3.5"); txt.textContent = "×";
+                    const circ = document.createElementNS("http://www.w3.org/2000/svg", "circle"); circ.setAttribute("r", "10");
+                    const txt = document.createElementNS("http://www.w3.org/2000/svg", "text"); txt.setAttribute("text-anchor", "middle"); txt.setAttribute("dy", "5"); txt.textContent = "×";
                     del.appendChild(circ); del.appendChild(txt);
                     g.appendChild(path); g.appendChild(hitArea); g.appendChild(del);
                     this.svgLayer.appendChild(g);
                 });
+            },
+
+            clearLinks() {
+                this.state.connections = [];
+                this.drawArrows();
             },
 
             loadHabitat(id) {
@@ -513,22 +539,19 @@
                 data.organisms.forEach(org => {
                     const el = document.createElement('div');
                     el.className = 'sidebar-item flex items-center gap-4 p-4';
-                    el.draggable = true;
+                    el.draggable = (this.state.tool === 'arrange');
                     el.dataset.id = org.id;
                     el.innerHTML = `
                         <span class="text-3xl">${org.icon}</span> 
                         <span class="font-bold handwritten text-2xl">${org.name}</span>
-                        <div class="link-handle" title="Drag to draw link">✎</div>
                     `;
                     
                     el.addEventListener('dragstart', (e) => {
                         e.dataTransfer.setData('text/plain', org.id);
                     });
 
-                    const handle = el.querySelector('.link-handle');
-                    handle.addEventListener('mousedown', (e) => {
-                        e.stopPropagation();
-                        if (this.state.linkMode) {
+                    el.addEventListener('mousedown', (e) => {
+                        if (this.state.tool === 'links' && el.closest('.trophic-shelf')) {
                             this.state.isDraggingLink = true;
                             this.state.linkingSource = org.id;
                             el.classList.add('linking-source');
@@ -543,6 +566,7 @@
                     
                     this.pool.appendChild(el);
                 });
+                if (this.state.tool === 'links') document.querySelectorAll('.sidebar-item').forEach(el => el.classList.add('can-be-linked'));
             },
 
             goToScreen(screenId) {
@@ -554,7 +578,7 @@
             },
 
             startHabitat(id) {
-                this.state.activeHabitat = id; this.state.connections = []; this.goToScreen('workspace'); this.loadHabitat(id);
+                this.state.activeHabitat = id; this.state.connections = []; this.setTool('arrange'); this.goToScreen('workspace'); this.loadHabitat(id);
             },
 
             showFieldGuide() {
