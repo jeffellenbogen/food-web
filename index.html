@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Colorado Habitat Journal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&family=Patrick+Hand&family=Special+Elite&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --journal-bg: #f5f0e1;
+            --journal-border: #c4b5a0;
+            --ink-color: #2b2624;
+            --thread-gold: #d4af37;
+            --highlight-glow: rgba(255, 255, 255, 1);
+            --error-red: #a33b3b;
+            --success-green: #3b7a3b;
+            --pencil-blue: #4a7a96;
+        }
+
+        body {
+            background-color: #1a1a1a;
+            font-family: 'Patrick Hand', cursive;
+            color: var(--ink-color);
+            background-image: radial-gradient(#333 10%, transparent 10%);
+            background-size: 20px 20px;
+        }
+
+        .sketchbook {
+            background-color: var(--journal-bg);
+            background-image: url("https://www.transparenttextures.com/patterns/paper-fibers.png");
+            box-shadow: 15px 15px 50px rgba(0,0,0,0.8);
+            border-left: 15px solid #3d2b1f;
+            position: relative;
+            min-height: 95vh;
+        }
+
+        .spiral {
+            position: absolute;
+            left: -25px;
+            top: 50px;
+            bottom: 50px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around;
+            z-index: 10;
+        }
+        .ring {
+            width: 40px;
+            height: 12px;
+            background: linear-gradient(to bottom, #888, #eee, #888);
+            border-radius: 10px;
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.3);
+        }
+
+        .patch-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .patch-slot {
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            background-color: #eee;
+            border: 8px solid #3d2b1f;
+            box-shadow: 0 6px 12px rgba(0,0,0,0.3), inset 0 0 15px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+
+        .patch-slot::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            border: 4px dashed rgba(255,255,255,0.4);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        .patch-slot:hover {
+            transform: scale(1.15) rotate(5deg);
+            border-color: #fff;
+            box-shadow: 0 0 30px 10px var(--highlight-glow), 0 15px 30px rgba(0,0,0,0.4);
+        }
+
+        .patch-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            filter: saturate(1.4) contrast(1.1);
+        }
+
+        .patch-label {
+            font-family: 'Special Elite', cursive;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            background: #fff;
+            padding: 3px 12px;
+            border: 1px solid #3d2b1f;
+            box-shadow: 3px 3px 0 rgba(0,0,0,0.1);
+            transform: rotate(-1deg);
+            transition: all 0.2s;
+            font-weight: bold;
+        }
+        
+        .patch-slot:hover + .patch-label {
+            background-color: #3d2b1f;
+            color: #fff;
+            transform: rotate(0deg) scale(1.1);
+        }
+
+        .handwritten { font-family: 'Caveat', cursive; }
+        .typewriter { font-family: 'Special Elite', cursive; }
+
+        .sketch-border {
+            border: 2px solid var(--ink-color);
+            border-radius: 255px 15px 225px 15px/15px 225px 15px 255px;
+            padding: 1rem;
+        }
+
+        .trophic-shelf {
+            border-bottom: 2px dashed rgba(0,0,0,0.1);
+            min-height: 140px;
+            position: relative;
+            background-image: linear-gradient(to right, transparent 10%, rgba(0,0,0,0.02) 10%);
+            background-size: 50px 100%;
+            transition: background-color 0.2s;
+        }
+
+        .shelf-label {
+            position: absolute;
+            left: -10px;
+            top: 10px;
+            transform: rotate(-1.5deg);
+            background: #fff9eb;
+            padding: 3px 15px;
+            border: 1px solid #dcd3bc;
+            font-size: 0.75rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            box-shadow: 3px 3px 0 rgba(0,0,0,0.05);
+            z-index: 5;
+            font-family: 'Special Elite', cursive;
+        }
+
+        .sidebar-item {
+            cursor: grab;
+            transition: all 0.2s;
+            background: #fff;
+            border: 2px solid #3d2b1f;
+            border-radius: 8px;
+            user-select: none;
+            box-shadow: 2px 2px 0 rgba(0,0,0,0.1);
+            position: relative;
+            z-index: 20;
+        }
+        .sidebar-item:active { cursor: grabbing; transform: scale(0.95); }
+        .sidebar-item:hover { transform: translateY(-2px) rotate(-1deg); box-shadow: 4px 4px 0 rgba(0,0,0,0.1); }
+
+        .btn-ink {
+            border: 2px solid var(--ink-color);
+            border-radius: 5px 15px 5px 10px / 10px 5px 15px 5px;
+            padding: 0.6rem 1.8rem;
+            transition: all 0.2s;
+            font-weight: bold;
+            background: transparent;
+            font-family: 'Special Elite', cursive;
+        }
+
+        .btn-ink:hover {
+            background: var(--ink-color);
+            color: white;
+            transform: translateY(-2px) scale(1.05);
+        }
+
+        .btn-ink.active-tool {
+            background: var(--pencil-blue);
+            color: white;
+            border-color: var(--pencil-blue);
+        }
+
+        .screen { display: none; }
+        .screen.active { display: block; }
+
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 100;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+        .overlay.active { display: flex; }
+
+        .modal-paper {
+            background: #fff;
+            background-image: url("https://www.transparenttextures.com/patterns/paper-fibers.png");
+            max-width: 600px;
+            width: 100%;
+            padding: 2.5rem;
+            border: 2px solid #3d2b1f;
+            position: relative;
+            box-shadow: 10px 10px 0 rgba(0,0,0,0.2);
+        }
+
+        .shelf-drag-over {
+            background-color: rgba(212, 175, 55, 0.1) !important;
+        }
+
+        .correct { border-color: var(--success-green) !important; background: #eaffea !important; }
+        .incorrect { border-color: var(--error-red) !important; background: #ffeaea !important; }
+
+        /* Connection System Styles */
+        #connection-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none; /* Clicks pass through the SVG background... */
+            z-index: 40; /* ...but sit on top of everything else */
+        }
+
+        .linking-source {
+            outline: 3px solid var(--pencil-blue) !important;
+            box-shadow: 0 0 15px var(--pencil-blue) !important;
+        }
+
+        /* SVG Connection Elements */
+        .connection-group {
+            pointer-events: auto; /* ...except for the connection groups themselves! */
+            cursor: default;
+        }
+
+        .connection-arrow {
+            fill: none;
+            stroke: var(--pencil-blue);
+            stroke-width: 3;
+            stroke-linecap: round;
+            marker-end: url(#arrowhead);
+            opacity: 0.6;
+            transition: opacity 0.2s, stroke-width 0.2s;
+        }
+
+        .connection-hit-area {
+            fill: none;
+            stroke: transparent;
+            stroke-width: 20;
+            cursor: pointer;
+        }
+
+        .delete-btn {
+            opacity: 0;
+            transition: opacity 0.2s;
+            cursor: pointer;
+        }
+
+        .connection-group:hover .connection-arrow {
+            opacity: 1;
+            stroke-width: 4;
+            stroke: var(--error-red);
+            marker-end: url(#arrowhead-error);
+        }
+
+        .connection-group:hover .delete-btn {
+            opacity: 1;
+        }
+
+        .delete-btn circle {
+            fill: var(--error-red);
+            stroke: #fff;
+            stroke-width: 1;
+        }
+
+        .delete-btn text {
+            fill: white;
+            font-family: Arial, sans-serif;
+            font-size: 10px;
+            font-weight: bold;
+            pointer-events: none;
+        }
+
+    </style>
+</head>
+<body class="p-4 md:p-8 flex justify-center">
+
+    <div id="journal-root" class="w-full max-w-6xl sketchbook p-8 md:p-16">
+        
+        <svg style="width:0; height:0; position:absolute;">
+            <defs>
+                <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                    <polygon points="0 0, 10 3.5, 0 7" fill="var(--pencil-blue)" />
+                </marker>
+                <marker id="arrowhead-error" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                    <polygon points="0 0, 10 3.5, 0 7" fill="var(--error-red)" />
+                </marker>
+            </defs>
+        </svg>
+
+        <div class="spiral">
+            <div class="ring"></div><div class="ring"></div><div class="ring"></div>
+            <div class="ring"></div><div class="ring"></div><div class="ring"></div>
+            <div class="ring"></div><div class="ring"></div><div class="ring"></div>
+        </div>
+
+        <header class="flex flex-col md:flex-row justify-between items-center mb-16 border-b-2 border-stone-300 pb-8">
+            <div>
+                <h1 class="text-6xl font-bold handwritten tracking-tighter text-stone-800">The Colorado Habitat Journal</h1>
+                <div class="flex items-center gap-4 mt-3">
+                    <span class="typewriter text-xs opacity-50 uppercase tracking-widest">Naturalist Rank:</span>
+                    <span class="handwritten text-3xl text-blue-900 border-b-2 border-dashed border-stone-400 px-6">Scout Apprentice</span>
+                </div>
+            </div>
+            <button id="btn-to-cover" class="hidden btn-ink text-xs mt-6 md:mt-0">
+                &larr; BACK TO INDEX
+            </button>
+        </header>
+
+        <div id="screen-cover" class="screen active">
+            <div class="flex flex-col items-center">
+                <h2 class="text-3xl font-bold typewriter mb-16 px-12 py-3 bg-stone-800 text-white rounded-sm transform rotate-1">Expedition Merit Badges</h2>
+                <div class="grid grid-cols-2 md:grid-cols-5 gap-12 w-full max-w-5xl" id="patch-grid">
+                </div>
+            </div>
+        </div>
+
+        <div id="screen-workspace" class="screen">
+            <div class="grid grid-cols-1 lg:grid-cols-4 gap-12 relative">
+                
+                <svg id="connection-layer"></svg>
+
+                <aside class="lg:col-span-1">
+                    <div class="sketch-border bg-white/50 h-full shadow-inner relative z-30">
+                        <h3 class="font-bold text-2xl handwritten mb-1 text-stone-700">Specimens</h3>
+                        <p class="text-[10px] typewriter uppercase tracking-widest mb-6 border-b border-stone-300 pb-2">Drag to Sort</p>
+                        <div id="organism-pool" class="space-y-4 min-h-[200px]"></div>
+                        
+                        <div class="mt-8 pt-4 border-t border-stone-300">
+                            <h4 class="typewriter text-[10px] uppercase font-bold mb-2">Tools</h4>
+                            <button id="btn-toggle-link" class="btn-ink w-full text-[10px] mb-2 uppercase">Draw Energy Link</button>
+                            <button id="btn-clear-links" class="btn-ink w-full text-[10px] uppercase opacity-60">Clear All Links</button>
+                        </div>
+                    </div>
+                </aside>
+
+                <main class="lg:col-span-3">
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-4">
+                        <h2 id="current-habitat-name" class="text-5xl handwritten text-stone-800 border-l-4 border-stone-800 pl-4">Habitat Name</h2>
+                        <div class="flex gap-4">
+                            <button id="btn-field-guide" class="btn-ink text-[10px] uppercase">Field Guide</button>
+                            <button id="btn-check" class="btn-ink text-[10px] uppercase bg-stone-800 text-white shadow-lg">Check Journal</button>
+                        </div>
+                    </div>
+
+                    <div id="shelves-container" class="space-y-8 relative z-20">
+                        <div class="trophic-shelf" data-level="4">
+                            <span class="shelf-label">Tertiary Consumers</span>
+                            <div class="drop-zone flex flex-wrap gap-4 p-10 items-center min-h-[140px]"></div>
+                        </div>
+                        <div class="trophic-shelf" data-level="3">
+                            <span class="shelf-label">Secondary Consumers</span>
+                            <div class="drop-zone flex flex-wrap gap-4 p-10 items-center min-h-[140px]"></div>
+                        </div>
+                        <div class="trophic-shelf" data-level="2">
+                            <span class="shelf-label">Primary Consumers</span>
+                            <div class="drop-zone flex flex-wrap gap-4 p-10 items-center min-h-[140px]"></div>
+                        </div>
+                        <div class="trophic-shelf" data-level="1">
+                            <span class="shelf-label">Producers</span>
+                            <div class="drop-zone flex flex-wrap gap-4 p-10 items-center min-h-[140px]"></div>
+                        </div>
+                    </div>
+                </main>
+            </div>
+        </div>
+
+        <div id="modal-field-guide" class="overlay">
+            <div class="modal-paper">
+                <h3 class="typewriter text-xl border-b-2 border-stone-800 mb-4 pb-2">Field Research Notes</h3>
+                <div id="field-guide-content" class="space-y-4 max-h-[60vh] overflow-y-auto pr-4"></div>
+                <button class="btn-ink mt-8 w-full closeModal">Close Researcher's Log</button>
+            </div>
+        </div>
+
+        <div id="modal-feedback" class="overlay">
+            <div class="modal-paper text-center">
+                <h3 id="feedback-title" class="handwritten text-4xl mb-2">Reviewing Journal...</h3>
+                <p id="feedback-text" class="text-xl italic leading-relaxed"></p>
+                <div id="feedback-status" class="mt-6 font-bold typewriter text-sm uppercase"></div>
+                <button class="btn-ink mt-8 w-full closeModal">Return to Journal</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const habitatData = {
+            grassland: {
+                name: "Eastern Colorado Grassland",
+                img: "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=400&q=80",
+                organisms: [
+                    { id: 'g1', name: 'Blue Grama Grass', level: 1, icon: '🌾', notes: "This hardy grass is a producer that gets its energy directly from the sun.", predators: ['g2'] },
+                    { id: 'g2', name: 'Prairie Dog', level: 2, icon: '🐿️', notes: "Lives in large colonies and grazes primarily on grasses.", predators: ['g3', 'g4', 'g5'] },
+                    { id: 'g3', name: 'Black-footed Ferret', level: 3, icon: '🐾', notes: "A carnivore that depends almost entirely on prairie dogs for its food.", predators: ['g5'] },
+                    { id: 'g4', name: 'Coyote', level: 3, icon: '🐺', notes: "An opportunistic predator that hunts primary consumers like rodents.", predators: ['g5'] },
+                    { id: 'g5', name: 'Golden Eagle', level: 4, icon: '🦅', notes: "Apex predator of the skies, hunting small carnivores and large rodents.", predators: [] }
+                ]
+            },
+            tundra: {
+                name: "Alpine Tundra",
+                img: "https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=400&q=80",
+                organisms: [
+                    { id: 't1', name: 'Lichen', level: 1, icon: '🍄', notes: "Grows on rocks and provides energy to high-altitude herbivores.", predators: ['t2', 't3'] },
+                    { id: 't2', name: 'Pika', level: 2, icon: '🐹', notes: "Gathers lichen and grass to survive the harsh winters.", predators: ['t4', 't5'] },
+                    { id: 't3', name: 'Marmot', level: 2, icon: '🐻', notes: "Large ground squirrel that grazes on tundra vegetation.", predators: ['t5'] },
+                    { id: 't4', name: 'Ermine', level: 3, icon: '🦦', notes: "A fierce little hunter that preys on pikas and mice.", predators: ['t5'] },
+                    { id: 't5', name: 'Mountain Lion', level: 4, icon: '🦁', notes: "The top predator in the Rockies, capable of hunting any consumer.", predators: [] }
+                ]
+            },
+            riparian: {
+                name: "Riparian Area",
+                img: "https://images.unsplash.com/photo-1470770841072-f978cf4d019e?auto=format&fit=crop&w=400&q=80",
+                organisms: [
+                    { id: 'r1', name: 'Cottonwood Tree', level: 1, icon: '🌳', notes: "Produces leaves and seeds near riverbanks using sunlight.", predators: ['r2'] },
+                    { id: 'r2', name: 'Aquatic Insects', level: 2, icon: '🐝', notes: "Feeds on leaf litter and plant matter found in the water.", predators: ['r3'] },
+                    { id: 'r3', name: 'Leopard Frog', level: 3, icon: '🐸', notes: "Eats insects and small invertebrates found in riparian mud.", predators: ['r4', 'r5'] },
+                    { id: 'r4', name: 'Garter Snake', level: 3, icon: '🐍', notes: "Hunts frogs and small fish along the riverbank.", predators: ['r5'] },
+                    { id: 'r5', name: 'Great Blue Heron', level: 4, icon: '🐦', notes: "Skilled fisher that preys on snakes, frogs, and large fish.", predators: [] }
+                ]
+            },
+            forest: {
+                name: "Ponderosa Pine Forest",
+                img: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=400&q=80",
+                organisms: [
+                    { id: 'f1', name: 'Ponderosa Pine', level: 1, icon: '🌲', notes: "Produces energy-rich pine nuts and needles.", predators: ['f2', 'f3'] },
+                    { id: 'f2', name: 'Abert\'s Squirrel', level: 2, icon: '🐿️', notes: "Lives specifically in these trees, eating the bark and seeds.", predators: ['f4', 'f5'] },
+                    { id: 'f3', name: 'Steller\'s Jay', level: 2, icon: '🐦', notes: "Intelligent bird that eats seeds, nuts, and occasionally insects.", predators: ['f4', 'f5'] },
+                    { id: 'f4', name: 'Goshawk', level: 3, icon: '🦅', notes: "Powerful forest raptor that hunts smaller birds and squirrels.", predators: ['f5'] },
+                    { id: 'f5', name: 'Bobcat', level: 4, icon: '🐱', notes: "Solitary predator that sits at the top of the forest food chain.", predators: [] }
+                ]
+            },
+            shrubland: {
+                name: "Mesa Shrubland",
+                img: "https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?auto=format&fit=crop&w=400&q=80",
+                organisms: [
+                    { id: 's1', name: 'Sagebrush', level: 1, icon: '🌿', notes: "The primary producer in high-desert arid ecosystems.", predators: ['s2', 's3'] },
+                    { id: 's2', name: 'Jackrabbit', level: 2, icon: '🐇', notes: "Fast herbivore that feeds on sagebrush and desert grasses.", predators: ['s4', 's5'] },
+                    { id: 's3', name: 'Sage Thrasher', level: 2, icon: '🐦', notes: "Bird that relies on sagebrush for both nesting and food (seeds/insects).", predators: ['s4', 's5'] },
+                    { id: 's4', name: 'Badger', level: 3, icon: '🐾', notes: "Digs for rodents and small mammals across the mesa.", predators: ['s5'] },
+                    { id: 's5', name: 'Red-tailed Hawk', level: 4, icon: '🦅', notes: "Apex hunter of the shrubland, watching for movement below.", predators: [] }
+                ]
+            }
+        };
+
+        const app = {
+            state: {
+                currentScreen: 'cover',
+                activeHabitat: null,
+                completed: [],
+                linkMode: false,
+                linkingSource: null,
+                connections: [] 
+            },
+
+            init() {
+                this.cacheDOM();
+                this.renderPatches();
+                this.bindEvents();
+                window.addEventListener('resize', () => this.drawArrows());
+            },
+
+            cacheDOM() {
+                this.screens = {
+                    cover: document.getElementById('screen-cover'),
+                    workspace: document.getElementById('screen-workspace')
+                };
+                this.modals = {
+                    guide: document.getElementById('modal-field-guide'),
+                    feedback: document.getElementById('modal-feedback')
+                };
+                this.btnToCover = document.getElementById('btn-to-cover');
+                this.pool = document.getElementById('organism-pool');
+                this.habitatTitle = document.getElementById('current-habitat-name');
+                this.shelves = document.querySelectorAll('.trophic-shelf');
+                this.svgLayer = document.getElementById('connection-layer');
+            },
+
+            renderPatches() {
+                const grid = document.getElementById('patch-grid');
+                grid.innerHTML = '';
+                Object.keys(habitatData).forEach(key => {
+                    const data = habitatData[key];
+                    const container = document.createElement('div');
+                    container.className = 'patch-container';
+                    container.innerHTML = `
+                        <div class="patch-slot" onclick="app.startHabitat('${key}')">
+                            <img src="${data.img}" class="patch-image">
+                        </div>
+                        <span class="patch-label">${data.name.split(' ')[0]}</span>
+                    `;
+                    grid.appendChild(container);
+                });
+            },
+
+            bindEvents() {
+                this.btnToCover.addEventListener('click', () => this.goToScreen('cover'));
+                document.getElementById('btn-field-guide').addEventListener('click', () => this.showFieldGuide());
+                document.getElementById('btn-check').addEventListener('click', () => this.checkJournal());
+                document.getElementById('btn-toggle-link').addEventListener('click', () => this.toggleLinkMode());
+                document.getElementById('btn-clear-links').addEventListener('click', () => this.clearLinks());
+                
+                document.querySelectorAll('.closeModal').forEach(btn => {
+                    btn.addEventListener('click', (e) => e.target.closest('.overlay').classList.remove('active'));
+                });
+
+                this.shelves.forEach(shelf => {
+                    const zone = shelf.querySelector('.drop-zone');
+                    shelf.addEventListener('dragover', (e) => { e.preventDefault(); shelf.classList.add('shelf-drag-over'); });
+                    shelf.addEventListener('dragleave', () => shelf.classList.remove('shelf-drag-over'));
+                    shelf.addEventListener('drop', (e) => {
+                        e.preventDefault();
+                        shelf.classList.remove('shelf-drag-over');
+                        const id = e.dataTransfer.getData('text/plain');
+                        const el = document.querySelector(`[data-id="${id}"]`);
+                        if (el) {
+                            zone.appendChild(el);
+                            this.drawArrows();
+                        }
+                    });
+                });
+
+                this.pool.addEventListener('dragover', (e) => e.preventDefault());
+                this.pool.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    const id = e.dataTransfer.getData('text/plain');
+                    const el = document.querySelector(`[data-id="${id}"]`);
+                    if (el) {
+                        this.pool.appendChild(el);
+                        this.state.connections = this.state.connections.filter(c => c.sourceId !== id && c.targetId !== id);
+                        this.drawArrows();
+                    }
+                });
+            },
+
+            toggleLinkMode() {
+                this.state.linkMode = !this.state.linkMode;
+                document.getElementById('btn-toggle-link').classList.toggle('active-tool', this.state.linkMode);
+                this.state.linkingSource = null;
+                document.querySelectorAll('.sidebar-item').forEach(el => el.classList.remove('linking-source'));
+            },
+
+            handleOrganismClick(id) {
+                if (!this.state.linkMode) return;
+
+                const el = document.querySelector(`[data-id="${id}"]`);
+                if (!el.closest('.trophic-shelf')) return;
+
+                if (!this.state.linkingSource) {
+                    this.state.linkingSource = id;
+                    el.classList.add('linking-source');
+                } else {
+                    if (this.state.linkingSource !== id) {
+                        this.createLink(this.state.linkingSource, id);
+                    }
+                    this.state.linkingSource = null;
+                    document.querySelectorAll('.sidebar-item').forEach(e => e.classList.remove('linking-source'));
+                }
+            },
+
+            createLink(sourceId, targetId) {
+                const exists = this.state.connections.some(c => c.sourceId === sourceId && c.targetId === targetId);
+                if (!exists) {
+                    this.state.connections.push({ sourceId, targetId });
+                    this.drawArrows();
+                }
+            },
+
+            removeLink(index) {
+                this.state.connections.splice(index, 1);
+                this.drawArrows();
+            },
+
+            clearLinks() {
+                this.state.connections = [];
+                this.drawArrows();
+            },
+
+            drawArrows() {
+                this.svgLayer.innerHTML = '';
+                const workspaceRect = this.screens.workspace.getBoundingClientRect();
+
+                this.state.connections.forEach((conn, index) => {
+                    const sourceEl = document.querySelector(`[data-id="${conn.sourceId}"]`);
+                    const targetEl = document.querySelector(`[data-id="${conn.targetId}"]`);
+                    
+                    if (!sourceEl || !targetEl) return;
+
+                    const sRect = sourceEl.getBoundingClientRect();
+                    const tRect = targetEl.getBoundingClientRect();
+
+                    const x1 = (sRect.left + sRect.width / 2) - workspaceRect.left;
+                    const y1 = (sRect.top + sRect.height / 2) - workspaceRect.top;
+                    const x2 = (tRect.left + tRect.width / 2) - workspaceRect.left;
+                    const y2 = (tRect.top + tRect.height / 2) - workspaceRect.top;
+
+                    const angle = Math.atan2(y2 - y1, x2 - x1);
+                    const padding = 45;
+                    const startX = x1 + Math.cos(angle) * padding;
+                    const startY = y1 + Math.sin(angle) * padding;
+                    const endX = x2 - Math.cos(angle) * padding;
+                    const endY = y2 - Math.sin(angle) * padding;
+
+                    const cpX = (startX + endX) / 2;
+                    const cpY = (startY + endY) / 2 - 40;
+
+                    // Group for the arrow, hit area, and delete button
+                    const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+                    g.setAttribute("class", "connection-group");
+
+                    // The actual visible arrow
+                    const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+                    path.setAttribute("d", `M ${startX} ${startY} Q ${cpX} ${cpY} ${endX} ${endY}`);
+                    path.setAttribute("class", "connection-arrow");
+                    
+                    // Invisible hit area for easier clicking/hovering
+                    const hitArea = document.createElementNS("http://www.w3.org/2000/svg", "path");
+                    hitArea.setAttribute("d", `M ${startX} ${startY} Q ${cpX} ${cpY} ${endX} ${endY}`);
+                    hitArea.setAttribute("class", "connection-hit-area");
+
+                    // Midpoint for the "X" button placement (t=0.5 on quadratic bezier)
+                    const midX = 0.25 * startX + 0.5 * cpX + 0.25 * endX;
+                    const midY = 0.25 * startY + 0.5 * cpY + 0.25 * endY;
+
+                    const deleteBtn = document.createElementNS("http://www.w3.org/2000/svg", "g");
+                    deleteBtn.setAttribute("class", "delete-btn");
+                    deleteBtn.setAttribute("transform", `translate(${midX}, ${midY})`);
+                    deleteBtn.onclick = (e) => {
+                        e.stopPropagation();
+                        this.removeLink(index);
+                    };
+
+                    const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+                    circle.setAttribute("r", "8");
+                    
+                    const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+                    text.setAttribute("text-anchor", "middle");
+                    text.setAttribute("dy", "3.5");
+                    text.textContent = "×";
+
+                    deleteBtn.appendChild(circle);
+                    deleteBtn.appendChild(text);
+
+                    g.appendChild(path);
+                    g.appendChild(hitArea);
+                    g.appendChild(deleteBtn);
+                    
+                    this.svgLayer.appendChild(g);
+                });
+            },
+
+            goToScreen(screenId) {
+                this.state.currentScreen = screenId;
+                this.btnToCover.classList.toggle('hidden', screenId === 'cover');
+                Object.keys(this.screens).forEach(key => this.screens[key].classList.toggle('active', screenId === key));
+                setTimeout(() => this.drawArrows(), 50); 
+            },
+
+            startHabitat(id) {
+                this.state.activeHabitat = id;
+                this.state.connections = [];
+                this.goToScreen('workspace');
+                this.loadHabitat(id);
+            },
+
+            loadHabitat(id) {
+                const data = habitatData[id];
+                this.habitatTitle.textContent = data.name;
+                document.querySelectorAll('.drop-zone').forEach(z => z.innerHTML = '');
+                this.pool.innerHTML = '';
+
+                data.organisms.forEach(org => {
+                    const el = document.createElement('div');
+                    el.className = 'sidebar-item flex items-center gap-4 p-4';
+                    el.draggable = true;
+                    el.dataset.id = org.id;
+                    el.innerHTML = `<span class="text-3xl">${org.icon}</span> <span class="font-bold handwritten text-2xl">${org.name}</span>`;
+                    
+                    el.addEventListener('dragstart', (e) => {
+                        if (this.state.linkMode) {
+                            e.preventDefault();
+                            return;
+                        }
+                        e.dataTransfer.setData('text/plain', org.id);
+                    });
+
+                    el.addEventListener('click', () => this.handleOrganismClick(org.id));
+                    
+                    this.pool.appendChild(el);
+                });
+            },
+
+            showFieldGuide() {
+                const data = habitatData[this.state.activeHabitat];
+                const content = document.getElementById('field-guide-content');
+                content.innerHTML = data.organisms.map(o => `
+                    <div class="border-b border-stone-200 pb-2">
+                        <span class="text-2xl">${o.icon}</span> <strong class="handwritten text-2xl">${o.name}</strong>
+                        <p class="text-sm italic text-stone-600">${o.notes}</p>
+                    </div>
+                `).join('');
+                this.modals.guide.classList.add('active');
+            },
+
+            checkJournal() {
+                const currentData = habitatData[this.state.activeHabitat];
+                let shelfErrors = 0;
+                let linkErrors = 0;
+                let unplacedCount = 0;
+
+                currentData.organisms.forEach(org => {
+                    const el = document.querySelector(`[data-id="${org.id}"]`);
+                    const parentShelf = el.closest('.trophic-shelf');
+                    
+                    if (!parentShelf) {
+                        unplacedCount++;
+                        el.classList.remove('correct', 'incorrect');
+                    } else {
+                        const placedLevel = parseInt(parentShelf.dataset.level);
+                        if (placedLevel === org.level) {
+                            el.classList.add('correct');
+                            el.classList.remove('incorrect');
+                        } else {
+                            shelfErrors++;
+                            el.classList.add('incorrect');
+                            el.classList.remove('correct');
+                        }
+                    }
+                });
+
+                this.state.connections.forEach(conn => {
+                    const sourceOrg = currentData.organisms.find(o => o.id === conn.sourceId);
+                    const isValid = sourceOrg.predators.includes(conn.targetId);
+                    if (!isValid) linkErrors++;
+                });
+
+                const totalPossibleLinks = currentData.organisms.reduce((acc, o) => acc + o.predators.length, 0);
+                const currentLinks = this.state.connections.length;
+
+                const title = document.getElementById('feedback-title');
+                const text = document.getElementById('feedback-text');
+                const status = document.getElementById('feedback-status');
+
+                if (unplacedCount > 0) {
+                    title.textContent = "Observations Incomplete";
+                    text.textContent = "I haven't finished sketching every creature I saw. I should check the specimens list.";
+                    status.textContent = `${unplacedCount} organisms left in the field`;
+                } else if (shelfErrors > 0) {
+                    title.textContent = "Trophic Level Error";
+                    text.textContent = "My energy pyramid looks a bit unstable. Some creatures are on the wrong shelves.";
+                    status.textContent = `${shelfErrors} placement errors`;
+                } else if (linkErrors > 0) {
+                    title.textContent = "Energy Flow Error";
+                    text.textContent = "My arrows are pointing in the wrong direction or showing relationships that don't exist.";
+                    status.textContent = `${linkErrors} incorrect energy links`;
+                } else if (currentLinks < totalPossibleLinks) {
+                    title.textContent = "Incomplete Food Web";
+                    text.textContent = "I've placed everyone correctly, but I'm missing some energy links between creatures.";
+                    status.textContent = `Missing ${totalPossibleLinks - currentLinks} energy links`;
+                } else {
+                    title.textContent = "Master Naturalist!";
+                    text.textContent = "The web of life is perfectly mapped. Every organism is in its place and every link is correct.";
+                    status.textContent = "Habitat Mastery Earned";
+                }
+
+                this.modals.feedback.classList.add('active');
+            }
+        };
+
+        window.onload = () => app.init();
+    </script>
+</body>
+</html>
