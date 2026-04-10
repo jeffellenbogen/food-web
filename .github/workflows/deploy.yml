@@ -1,4 +1,24 @@
-name: Deploy to GitHub Pageson:push:branches:- main- stagingpermissions:contents: writepages: writeid-token: writejobs:build-and-deploy:runs-on: ubuntu-lateststeps:- name: Checkoutuses: actions/checkout@v4  - name: Setup Pages
+name: Deploy to GitHub Pages
+
+on:
+push:
+branches:
+- main
+- staging
+
+permissions:
+contents: write
+pages: write
+id-token: write
+
+jobs:
+build-and-deploy:
+runs-on: ubuntu-latest
+steps:
+- name: Checkout
+uses: actions/checkout@v4
+
+  - name: Setup Pages
     uses: actions/configure-pages@v4
 
   - name: Build Staging
