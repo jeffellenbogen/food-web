@@ -74,12 +74,13 @@
         }
         .ribbon::after { content: '★'; color: gold; font-size: 1.2rem; margin-bottom: 10px; }
 
-        /* v1.1.9 Standardized Multi-line Label */
+        /* v1.2.10 Standardized Multi-line Label with improved vertical centering and font size */
         .patch-label {
-            font-family: 'Special Elite', cursive; font-size: 0.75rem; text-transform: uppercase;
-            letter-spacing: 0.05em; background: #fff; padding: 8px 12px; border: 1px solid #3d2b1f;
+            font-family: 'Special Elite', cursive; font-size: 0.9rem; text-transform: uppercase;
+            letter-spacing: 0.05em; background: #fff; border: 1px solid #3d2b1f;
             box-shadow: 2px 2px 0 rgba(0,0,0,0.1); transform: rotate(-1deg); font-weight: bold;
-            width: 130px; text-align: center; line-height: 1.2; display: inline-block;
+            width: 145px; height: 58px; text-align: center; display: flex; align-items: center; 
+            justify-content: center; line-height: 1.1; padding: 4px;
         }
 
         .handwritten { font-family: 'Caveat', cursive; }
@@ -111,7 +112,7 @@
         .sidebar-item {
             transition: all 0.2s; background: #fff; border: 2px solid #3d2b1f;
             border-radius: 8px; user-select: none; box-shadow: 2px 2px 0 rgba(0,0,0,0.1);
-            position: relative; z-index: 20; padding: 0.5rem;
+            position: relative; z-index: 20; padding: 0.75rem;
         }
         .sidebar-item[draggable="true"] { cursor: grab; }
         .sidebar-item[draggable="true"]:active { cursor: grabbing; transform: scale(0.95); }
@@ -134,7 +135,7 @@
         .overlay.active { display: flex; }
 
         .modal-paper {
-            background: #fff; max-width: 600px; width: 100%; padding: 2rem;
+            background: #fff; max-width: 650px; width: 100%; padding: 2rem;
             border: 2px solid #3d2b1f; position: relative; box-shadow: 10px 10px 0 rgba(0,0,0,0.2);
             background-image: url("https://www.transparenttextures.com/patterns/paper-fibers.png");
         }
@@ -157,7 +158,6 @@
         .can-be-linked { cursor: crosshair !important; }
         .toggle-container { display: flex; flex-direction: column; gap: 0.5rem; }
 
-        /* v1.1.9 Centered, Bold, and 12pt Version Tag */
         .version-tag {
             position: absolute; bottom: 0.5rem; left: 50%; transform: translateX(-50%);
             font-family: 'Special Elite', cursive; font-size: 12pt; font-weight: bold; 
@@ -213,7 +213,7 @@
                     <p id="download-hint" class="text-xs typewriter opacity-50 mt-4 text-center">Master at least one habitat to download your certificate.</p>
                 </div>
             </div>
-            <div class="version-tag">v1.1.9</div>
+            <div class="version-tag">v1.2.10</div>
         </div>
 
         <div id="screen-workspace" class="screen">
@@ -257,13 +257,13 @@
                     </div>
                 </main>
             </div>
-            <div class="version-tag">v1.1.9</div>
+            <div class="version-tag">v1.2.10</div>
         </div>
 
         <div id="modal-field-guide" class="overlay">
             <div class="modal-paper">
                 <h3 class="typewriter text-xl border-b-2 border-stone-800 mb-4 pb-2">Field Research Notes</h3>
-                <div id="field-guide-content" class="space-y-4 max-h-[50vh] overflow-y-auto pr-4"></div>
+                <div id="field-guide-content" class="space-y-6 max-h-[55vh] overflow-y-auto pr-4"></div>
                 <button class="btn-ink mt-8 w-full closeModal uppercase">Back to Notebook</button>
             </div>
         </div>
@@ -399,7 +399,6 @@
                     const container = document.createElement('div');
                     container.className = 'patch-container';
                     
-                    // v1.1.9 Split name into two lines for standardized label width
                     const multiLineName = data.name.split(' ').join('<br>');
                     
                     container.innerHTML = `
@@ -545,7 +544,7 @@
                     el.className = 'sidebar-item flex items-center gap-3';
                     el.draggable = (this.state.tool === 'arrange');
                     el.dataset.id = org.id;
-                    el.innerHTML = `<span class="text-2xl">${org.icon}</span><span class="font-bold handwritten text-lg">${org.name}</span>`;
+                    el.innerHTML = `<span class="text-3xl">${org.icon}</span><span class="font-bold handwritten text-xl">${org.name}</span>`;
                     el.addEventListener('dragstart', (e) => e.dataTransfer.setData('text/plain', org.id));
                     el.addEventListener('mousedown', (e) => {
                         if (this.state.tool === 'links' && el.closest('.trophic-shelf')) {
@@ -577,9 +576,12 @@
             showFieldGuide() {
                 const data = habitatData[this.state.activeHabitat];
                 document.getElementById('field-guide-content').innerHTML = data.organisms.map(o => `
-                    <div class="border-b border-stone-200 pb-2">
-                        <span class="text-xl">${o.icon}</span> <strong class="handwritten text-xl">${o.name}</strong>
-                        <p class="text-xs italic text-stone-600">${o.notes}</p>
+                    <div class="border-b border-stone-200 pb-3">
+                        <div class="flex items-center gap-2 mb-2">
+                            <span class="text-3xl">${o.icon}</span> 
+                            <strong class="handwritten text-3xl">${o.name}</strong>
+                        </div>
+                        <p class="text-lg italic text-stone-700 leading-relaxed">${o.notes}</p>
                     </div>
                 `).join('');
                 this.modals.guide.classList.add('active');
@@ -613,10 +615,10 @@
                         
                         <p style="font-family: 'Patrick Hand', cursive; font-size: 24px; max-width: 600px; line-height: 1.4; margin-bottom: 60px;">Has demonstrated mastery of energy flow and ecosystem hierarchy across the diverse habitats of Colorado.</p>
                         
-                        <div id="cert-grid" style="display: flex; gap: 30px; justify-content: center; flex-wrap: wrap; width: 100%;"></div>
+                        <div id="cert-grid" style="display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; width: 100%;"></div>
                         
                         <div style="margin-top: auto; width: 100%; display: flex; flex-direction: column; align-items: center; gap: 10px;">
-                            <div style="font-family: 'Special Elite', cursive; font-size: 12pt; font-weight: bold; opacity: 0.3;">BUILD v1.1.9</div>
+                            <div style="font-family: 'Special Elite', cursive; font-size: 12pt; font-weight: bold; opacity: 0.3;">BUILD v1.2.10</div>
                             <div style="font-family: 'Special Elite', cursive; font-size: 12px; opacity: 0.6;">VERIFIED: ${new Date().toLocaleDateString()}</div>
                         </div>
                     </div>
@@ -629,7 +631,7 @@
                     grid.insertAdjacentHTML('beforeend', `<div style="display: flex; flex-direction: column; align-items: center; gap: 10px; position: relative;">
                         ${isComp ? '<div style="position: absolute; top: -5px; right: -5px; width: 30px; height: 45px; background: var(--ribbon-blue); clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 85%, 0 100%); z-index: 5; display: flex; align-items: center; justify-content: center; color: gold; font-size: 12px;">★</div>' : ''}
                         <div style="width: 100px; height: 100px; border-radius: 50%; border: 5px solid #3d2b1f; overflow: hidden;"><img src="${data.img}" crossorigin="anonymous" style="width: 100%; height: 100%; object-fit: cover; ${isComp ? '' : 'filter: grayscale(1); opacity: 0.5;'}"></div>
-                        <span style="font-family: 'Special Elite', cursive; font-size: 10px; text-transform: uppercase; background: #fff; padding: 5px 8px; border: 1px solid #3d2b1f; width: 120px; text-align: center; line-height: 1.1;">${multiLineName}</span>
+                        <div style="font-family: 'Special Elite', cursive; font-size: 14px; text-transform: uppercase; background: #fff; border: 1px solid #3d2b1f; width: 140px; height: 58px; display: flex; align-items: center; justify-content: center; text-align: center; line-height: 1.1;">${multiLineName}</div>
                     </div>`);
                 });
                 html2canvas(this.certTemplate, { backgroundColor: '#1a1a1a', scale: 2.5, useCORS: true, width: 1100, height: 850 }).then(canvas => {
