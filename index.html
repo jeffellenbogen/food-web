@@ -30,7 +30,7 @@
             overflow: hidden; /* Enforce app-like no-scroll feel */
         }
 
-        /* The "Sketchbook" Container - v1.1.1 sizing */
+        /* The "Sketchbook" Container - v1.1.2 sizing */
         .sketchbook {
             background-color: var(--journal-bg);
             background-image: url("https://www.transparenttextures.com/patterns/paper-fibers.png");
@@ -89,7 +89,7 @@
         .editable-name { cursor: text; min-width: 150px; display: inline-block; outline: none; padding: 0 10px; }
         .editable-name:focus { background: rgba(255, 255, 255, 0.8); border-radius: 4px; }
 
-        /* Trophic Shelves - v1.1.1 Landscape Sizing */
+        /* Trophic Shelves - Landscape Sizing */
         .trophic-shelf {
             border-bottom: 2px dashed rgba(0,0,0,0.1); 
             flex: 1; /* Stretch to fill available height */
@@ -212,7 +212,7 @@
             <button id="btn-to-cover" class="hidden btn-ink text-xs mt-2 md:mt-0">&larr; BACK TO INDEX</button>
         </header>
 
-        <!-- Main Screen: Expedition Log (Reverted Layout) -->
+        <!-- Main Screen -->
         <div id="screen-cover" class="screen active">
             <div class="flex flex-col items-center py-4 flex-grow overflow-y-auto">
                 <h2 class="text-3xl font-bold typewriter mb-16 px-12 py-3 bg-stone-800 text-white rounded-sm transform rotate-1">Expedition Merit Badges</h2>
@@ -224,10 +224,10 @@
                     <p id="download-hint" class="text-xs typewriter opacity-50 mt-4 text-center">Master at least one habitat to download your certificate.</p>
                 </div>
             </div>
-            <div class="version-tag">v1.1.1</div>
+            <div class="version-tag">v1.1.2</div>
         </div>
 
-        <!-- Workspace Screen: Habitat Challenge (Optimized Landscape) -->
+        <!-- Workspace Screen -->
         <div id="screen-workspace" class="screen">
             <div class="grid grid-cols-1 lg:grid-cols-4 gap-8 relative flex-grow overflow-hidden">
                 <svg id="connection-layer">
@@ -272,7 +272,7 @@
                     </div>
                 </main>
             </div>
-            <div class="version-tag">v1.1.1</div>
+            <div class="version-tag">v1.1.2</div>
         </div>
 
         <!-- Modals -->
@@ -648,7 +648,7 @@
                         <div style="margin: 40px 0; border-bottom: 2px dashed #3d2b1f; min-width: 400px; padding: 10px;"><span style="font-family: 'Caveat', cursive; font-size: 48px; color: var(--ribbon-blue);">${name}</span></div>
                         <p style="font-family: 'Patrick Hand', cursive; font-size: 24px; max-width: 600px; line-height: 1.4; margin-bottom: 60px;">Has demonstrated mastery of energy flow and ecosystem hierarchy across the diverse habitats of Colorado.</p>
                         <div id="cert-grid" style="display: flex; gap: 40px; justify-content: center; flex-wrap: wrap; width: 100%;"></div>
-                        <div style="margin-top: auto; width: 100%; display: flex; justify-content: space-between; align-items: flex-end;"><div style="font-family: 'Special Elite', cursive; font-size: 12px; opacity: 0.6;">VERIFIED: ${new Date().toLocaleDateString()}</div><div style="font-family: 'Special Elite', cursive; font-size: 12px; opacity: 0.3;">BUILD v1.1.1</div></div>
+                        <div style="margin-top: auto; width: 100%; display: flex; justify-content: space-between; align-items: flex-end;"><div style="font-family: 'Special Elite', cursive; font-size: 12px; opacity: 0.6;">VERIFIED: ${new Date().toLocaleDateString()}</div><div style="font-family: 'Special Elite', cursive; font-size: 12px; opacity: 0.3;">BUILD v1.1.2</div></div>
                     </div>
                 `;
                 const grid = this.certTemplate.querySelector('#cert-grid');
