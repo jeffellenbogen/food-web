@@ -27,10 +27,9 @@
             color: var(--ink-color);
             background-image: radial-gradient(#333 10%, transparent 10%);
             background-size: 20px 20px;
-            overflow: hidden; /* Enforce app-like no-scroll feel */
+            overflow: hidden; 
         }
 
-        /* The "Sketchbook" Container - v1.1.2 sizing */
         .sketchbook {
             background-color: var(--journal-bg);
             background-image: url("https://www.transparenttextures.com/patterns/paper-fibers.png");
@@ -45,7 +44,6 @@
             transition: all 0.3s ease;
         }
 
-        /* Spiral Binding */
         .spiral {
             position: absolute; left: -25px; top: 20px; bottom: 20px;
             display: flex; flex-direction: column; justify-content: space-around; z-index: 10;
@@ -56,7 +54,6 @@
             border-radius: 10px; box-shadow: 2px 2px 5px rgba(0,0,0,0.3);
         }
 
-        /* Patch Styles */
         .patch-container { display: flex; flex-direction: column; align-items: center; gap: 0.75rem; position: relative; }
         .patch-slot {
             width: 130px; height: 130px; border-radius: 50%; position: relative; cursor: pointer;
@@ -89,10 +86,9 @@
         .editable-name { cursor: text; min-width: 150px; display: inline-block; outline: none; padding: 0 10px; }
         .editable-name:focus { background: rgba(255, 255, 255, 0.8); border-radius: 4px; }
 
-        /* Trophic Shelves - Landscape Sizing */
         .trophic-shelf {
             border-bottom: 2px dashed rgba(0,0,0,0.1); 
-            flex: 1; /* Stretch to fill available height */
+            flex: 1; 
             min-height: 80px; 
             position: relative;
             background-image: linear-gradient(to right, transparent 10%, rgba(0,0,0,0.01) 10%);
@@ -110,7 +106,6 @@
             height: 100%; width: 100%; display: flex; flex-wrap: wrap; gap: 0.75rem; padding: 1.5rem 2rem 0.5rem 2rem; align-items: center;
         }
 
-        /* Sidebar Pool */
         .sidebar-item {
             transition: all 0.2s; background: #fff; border: 2px solid #3d2b1f;
             border-radius: 8px; user-select: none; box-shadow: 2px 2px 0 rgba(0,0,0,0.1);
@@ -142,10 +137,6 @@
             background-image: url("https://www.transparenttextures.com/patterns/paper-fibers.png");
         }
 
-        .shelf-drag-over { background-color: rgba(212, 175, 55, 0.05) !important; }
-        .correct { border-color: var(--success-green) !important; background: #eaffea !important; }
-        .incorrect { border-color: var(--error-red) !important; background: #ffeaea !important; }
-
         #connection-layer {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             pointer-events: none; z-index: 40;
@@ -154,7 +145,6 @@
         .connection-group { pointer-events: auto; cursor: default; }
         .connection-arrow { fill: none; stroke: var(--pencil-blue); stroke-width: 3; stroke-linecap: round; marker-end: url(#arrowhead); opacity: 0.6; }
         .connection-hit-area { fill: none; stroke: transparent; stroke-width: 20; cursor: pointer; }
-        
         .delete-btn { opacity: 0; transition: opacity 0.2s; cursor: pointer; }
         .connection-group:hover .connection-arrow { opacity: 1; stroke-width: 4; stroke: var(--error-red); marker-end: url(#arrowhead-error); }
         .connection-group:hover .delete-btn { opacity: 1; }
@@ -162,7 +152,6 @@
         .delete-btn text { fill: white; font-family: sans-serif; font-size: 14px; font-weight: bold; pointer-events: none; }
 
         #temp-link { fill: none; stroke: var(--pencil-blue); stroke-width: 2; stroke-dasharray: 5,5; pointer-events: none; }
-        
         .can-be-linked { cursor: crosshair !important; }
         .toggle-container { display: flex; flex-direction: column; gap: 0.5rem; }
 
@@ -171,7 +160,6 @@
             font-family: 'Special Elite', cursive; font-size: 9px; opacity: 0.4; pointer-events: none;
         }
 
-        /* Hidden Template for Certificate */
         #cert-template {
             position: fixed; top: -3000px; left: -3000px; width: 1100px; height: 850px;
             background: #fdfaf3; background-image: url("https://www.transparenttextures.com/patterns/paper-fibers.png");
@@ -182,8 +170,6 @@
 <body class="p-2 md:p-4 flex justify-center items-center min-h-screen">
 
     <div id="journal-root" class="sketchbook p-6 md:p-10">
-        
-        <!-- SVG markers for Energy Links -->
         <svg style="width:0; height:0; position:absolute;">
             <defs>
                 <marker id="arrowhead" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
@@ -212,7 +198,6 @@
             <button id="btn-to-cover" class="hidden btn-ink text-xs mt-2 md:mt-0">&larr; BACK TO INDEX</button>
         </header>
 
-        <!-- Main Screen -->
         <div id="screen-cover" class="screen active">
             <div class="flex flex-col items-center py-4 flex-grow overflow-y-auto">
                 <h2 class="text-3xl font-bold typewriter mb-16 px-12 py-3 bg-stone-800 text-white rounded-sm transform rotate-1">Expedition Merit Badges</h2>
@@ -224,10 +209,9 @@
                     <p id="download-hint" class="text-xs typewriter opacity-50 mt-4 text-center">Master at least one habitat to download your certificate.</p>
                 </div>
             </div>
-            <div class="version-tag">v1.1.2</div>
+            <div class="version-tag">v1.1.3</div>
         </div>
 
-        <!-- Workspace Screen -->
         <div id="screen-workspace" class="screen">
             <div class="grid grid-cols-1 lg:grid-cols-4 gap-8 relative flex-grow overflow-hidden">
                 <svg id="connection-layer">
@@ -238,16 +222,13 @@
                     <div class="sketch-border bg-white/50 flex-grow shadow-inner relative z-30 flex flex-col overflow-hidden">
                         <h3 class="font-bold text-2xl handwritten mb-1 text-stone-700">Specimens</h3>
                         <p id="mode-hint" class="text-[10px] typewriter uppercase tracking-widest mb-4 border-b border-stone-300 pb-2">Drag to Sort</p>
-                        
                         <div id="organism-pool" class="space-y-4 overflow-y-auto pr-2 flex-grow scrollbar-thin scrollbar-thumb-stone-300"></div>
-                        
                         <div class="mt-4 pt-4 border-t border-stone-300 flex-shrink-0">
                             <h4 class="typewriter text-[10px] uppercase font-bold mb-3">Modes</h4>
                             <div class="toggle-container">
                                 <button id="btn-mode-arrange" class="btn-ink active-tool w-full">Arrange Species</button>
                                 <button id="btn-mode-links" class="btn-ink w-full">Drag Energy Links</button>
                             </div>
-                            
                             <div class="flex gap-2 mt-4">
                                 <button id="btn-food-web-101" class="btn-ink flex-1">Food Web 101</button>
                                 <button id="btn-clear-links" class="btn-ink flex-1 opacity-60">Reset</button>
@@ -272,10 +253,9 @@
                     </div>
                 </main>
             </div>
-            <div class="version-tag">v1.1.2</div>
+            <div class="version-tag">v1.1.3</div>
         </div>
 
-        <!-- Modals -->
         <div id="modal-field-guide" class="overlay">
             <div class="modal-paper">
                 <h3 class="typewriter text-xl border-b-2 border-stone-800 mb-4 pb-2">Field Research Notes</h3>
@@ -312,7 +292,6 @@
         </div>
     </div>
 
-    <!-- Hidden Template for Certificate Capture -->
     <div id="cert-template"></div>
 
     <script>
@@ -321,51 +300,55 @@
                 name: "Eastern Colorado Grassland",
                 img: "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=400&q=80",
                 organisms: [
-                    { id: 'g1', name: 'Blue Grama Grass', level: 1, icon: '🌾', predators: ['g2'] },
-                    { id: 'g2', name: 'Prairie Dog', level: 2, icon: '🐿️', predators: ['g3', 'g4', 'g5'] },
-                    { id: 'g3', name: 'Black-footed Ferret', level: 3, icon: '🐾', predators: ['g5'] },
-                    { id: 'g4', name: 'Coyote', level: 3, icon: '🐺', predators: ['g5'] },
-                    { id: 'g5', name: 'Golden Eagle', level: 4, icon: '🦅', predators: [] }
+                    { id: 'g1', name: 'Blue Grama Grass', level: 1, icon: '🌾', notes: "The hardy producer at the base of the prairie web, converting sunlight into energy.", predators: ['g2'] },
+                    { id: 'g2', name: 'Prairie Dog', level: 2, icon: '🐿️', notes: "A primary consumer that grazes on native grasses and provides a critical food source for many predators.", predators: ['g3', 'g4', 'g5'] },
+                    { id: 'g3', name: 'Black-footed Ferret', level: 3, icon: '🐾', notes: "A specialist secondary consumer that hunts almost exclusively in prairie dog colonies.", predators: ['g5'] },
+                    { id: 'g4', name: 'Coyote', level: 3, icon: '🐺', notes: "An opportunistic secondary consumer that hunts rodents but must watch the skies for larger raptors.", predators: ['g5'] },
+                    { id: 'g5', name: 'Golden Eagle', level: 4, icon: '🦅', notes: "The apex predator of the grasslands, hunting anything from rodents to medium-sized carnivores.", predators: [] }
                 ]
             },
             tundra: {
-                name: "Alpine Tundra", img: "https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=400&q=80",
+                name: "Alpine Tundra",
+                img: "https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=400&q=80",
                 organisms: [
-                    { id: 't1', name: 'Lichen', level: 1, icon: '🍄', predators: ['t2', 't3'] },
-                    { id: 't2', name: 'Pika', level: 2, icon: '🐹', predators: ['t4', 't5'] },
-                    { id: 't3', name: 'Marmot', level: 2, icon: '🐻', predators: ['t5'] },
-                    { id: 't4', name: 'Ermine', level: 3, icon: '🦦', predators: ['t5'] },
-                    { id: 't5', name: 'Mountain Lion', level: 4, icon: '🦁', predators: [] }
+                    { id: 't1', name: 'Lichen', level: 1, icon: '🍄', notes: "A rugged producer that grows on high-altitude rocks, providing essential winter calories.", predators: ['t2', 't3'] },
+                    { id: 't2', name: 'Pika', level: 2, icon: '🐹', notes: "This primary consumer dries 'hay' piles of tundra plants to survive the alpine winters.", predators: ['t4', 't5'] },
+                    { id: 't3', name: 'Marmot', level: 2, icon: '🐻', notes: "Large rodents that graze on alpine flowers and hibernate deep underground during winter.", predators: ['t5'] },
+                    { id: 't4', name: 'Ermine', level: 3, icon: '🦦', notes: "A fierce secondary consumer that turns white in winter to hunt pikas across the snow.", predators: ['t5'] },
+                    { id: 't5', name: 'Mountain Lion', level: 4, icon: '🦁', notes: "The top predator of the Rockies, ranging from sub-alpine forests to the high tundra.", predators: [] }
                 ]
             },
             riparian: {
-                name: "Riparian Area", img: "https://images.unsplash.com/photo-1470770841072-f978cf4d019e?auto=format&fit=crop&w=400&q=80",
+                name: "Riparian Area",
+                img: "https://images.unsplash.com/photo-1470770841072-f978cf4d019e?auto=format&fit=crop&w=400&q=80",
                 organisms: [
-                    { id: 'r1', name: 'Cottonwood Tree', level: 1, icon: '🌳', predators: ['r2'] },
-                    { id: 'r2', name: 'Aquatic Insects', level: 2, icon: '🐝', predators: ['r3'] },
-                    { id: 'r3', name: 'Leopard Frog', level: 3, icon: '🐸', predators: ['r4', 'r5'] },
-                    { id: 'r4', name: 'Garter Snake', level: 3, icon: '🐍', predators: ['r5'] },
-                    { id: 'r5', name: 'Great Blue Heron', level: 4, icon: '🐦', predators: [] }
+                    { id: 'r1', name: 'Cottonwood Tree', level: 1, icon: '🌳', notes: "A massive producer that anchors the riverbank and provides food through its leaves and seeds.", predators: ['r2'] },
+                    { id: 'r2', name: 'Aquatic Insects', level: 2, icon: '🐝', notes: "Primary consumers that recycle energy from falling leaf litter and underwater plants.", predators: ['r3'] },
+                    { id: 'r3', name: 'Leopard Frog', level: 3, icon: '🐸', notes: "A secondary consumer that hunts insects near the water's edge.", predators: ['r4', 'r5'] },
+                    { id: 'r4', name: 'Garter Snake', level: 3, icon: '🐍', notes: "A stealthy secondary consumer that preys on frogs and small fish in the riparian mud.", predators: ['r5'] },
+                    { id: 'r5', name: 'Great Blue Heron', level: 4, icon: '🐦', notes: "A majestic tertiary consumer that stalks the shallow waters for snakes and large frogs.", predators: [] }
                 ]
             },
             forest: {
-                name: "Ponderosa Pine Forest", img: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=400&q=80",
+                name: "Ponderosa Pine Forest",
+                img: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=400&q=80",
                 organisms: [
-                    { id: 'f1', name: 'Ponderosa Pine', level: 1, icon: '🌲', predators: ['f2', 'f3'] },
-                    { id: 'f2', name: 'Abert\'s Squirrel', level: 2, icon: '🐿️', predators: ['f4', 'f5'] },
-                    { id: 'f3', name: 'Steller\'s Jay', level: 2, icon: '🐦', predators: ['f4', 'f5'] },
-                    { id: 'f4', name: 'Goshawk', level: 3, icon: '🦅', predators: ['f5'] },
-                    { id: 'f5', name: 'Bobcat', level: 4, icon: '🐱', predators: [] }
+                    { id: 'f1', name: 'Ponderosa Pine', level: 1, icon: '🌲', notes: "The primary producer of the forest, offering calorie-dense seeds to high-tier consumers.", predators: ['f2', 'f3'] },
+                    { id: 'f2', name: 'Abert\'s Squirrel', level: 2, icon: '🐿️', notes: "A primary consumer that has a symbiotic relationship with these specific pines, eating bark and seeds.", predators: ['f4', 'f5'] },
+                    { id: 'f3', name: 'Steller\'s Jay', level: 2, icon: '🐦', notes: "An intelligent primary consumer that caches seeds throughout the forest floor.", predators: ['f4', 'f5'] },
+                    { id: 'f4', name: 'Goshawk', level: 3, icon: '🦅', notes: "A secondary consumer that navigates thick branches with precision to hunt birds and squirrels.", predators: ['f5'] },
+                    { id: 'f5', name: 'Bobcat', level: 4, icon: '🐱', notes: "The top tertiary consumer of the forest, stalking prey in the dappled shadows.", predators: [] }
                 ]
             },
             shrubland: {
-                name: "Mesa Shrubland", img: "https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?auto=format&fit=crop&w=400&q=80",
+                name: "Mesa Shrubland",
+                img: "https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?auto=format&fit=crop&w=400&q=80",
                 organisms: [
-                    { id: 's1', name: 'Sagebrush', level: 1, icon: '🌿', predators: ['s2', 's3'] },
-                    { id: 's2', name: 'Jackrabbit', level: 2, icon: '🐇', predators: ['s4', 's5'] },
-                    { id: 's3', name: 'Sage Thrasher', level: 2, icon: '🐦', predators: ['s4', 's5'] },
-                    { id: 's4', name: 'Badger', level: 3, icon: '🐾', predators: ['s5'] },
-                    { id: 's5', name: 'Red-tailed Hawk', level: 4, icon: '🦅', predators: [] }
+                    { id: 's1', name: 'Sagebrush', level: 1, icon: '🌿', notes: "An aromatic producer that dominates the arid landscape and shelters many creatures.", predators: ['s2', 's3'] },
+                    { id: 's2', name: 'Jackrabbit', level: 2, icon: '🐇', notes: "A fast primary consumer that converts sagebrush and desert grasses into energy for predators.", predators: ['s4', 's5'] },
+                    { id: 's3', name: 'Sage Thrasher', level: 2, icon: '🐦', notes: "A primary consumer bird that depends on sagebrush for food and protection.", predators: ['s4', 's5'] },
+                    { id: 's4', name: 'Badger', level: 3, icon: '🐾', notes: "A powerful secondary consumer that digs for rodents across the mesa plains.", predators: ['s5'] },
+                    { id: 's5', name: 'Red-tailed Hawk', level: 4, icon: '🦅', notes: "The tertiary consumer watching from the thermals, hunting across the open shrubland.", predators: [] }
                 ]
             }
         };
@@ -421,14 +404,10 @@
                     grid.appendChild(container);
                 });
                 const btnDownload = document.getElementById('btn-download');
-                const hint = document.getElementById('download-hint');
                 const progressSummary = document.getElementById('progress-summary');
                 const count = this.state.completed.length;
                 progressSummary.textContent = `Earned ${count} of 5 badges`;
-                if (count > 0) {
-                    btnDownload.classList.remove('hidden');
-                    hint.textContent = count === 5 ? "Congratulations, Master Naturalist!" : "Download your certificate anytime.";
-                } else { btnDownload.classList.add('hidden'); }
+                if (count > 0) { btnDownload.classList.remove('hidden'); }
             },
 
             bindEvents() {
@@ -449,9 +428,10 @@
                     shelf.addEventListener('drop', (e) => {
                         e.preventDefault(); shelf.classList.remove('shelf-drag-over');
                         const id = e.dataTransfer.getData('text/plain');
-                        if (!id) return;
-                        const el = document.querySelector(`[data-id="${id}"]`);
-                        if (el) { zone.appendChild(el); this.drawArrows(); }
+                        if (id) {
+                            const el = document.querySelector(`[data-id="${id}"]`);
+                            if (el) { zone.appendChild(el); this.drawArrows(); }
+                        }
                     });
                 });
 
@@ -459,9 +439,10 @@
                 this.pool.addEventListener('drop', (e) => {
                     e.preventDefault();
                     const id = e.dataTransfer.getData('text/plain');
-                    if (!id) return;
-                    const el = document.querySelector(`[data-id="${id}"]`);
-                    if (el) { this.pool.appendChild(el); this.state.connections = this.state.connections.filter(c => c.sourceId !== id && c.targetId !== id); this.drawArrows(); }
+                    if (id) {
+                        const el = document.querySelector(`[data-id="${id}"]`);
+                        if (el) { this.pool.appendChild(el); this.state.connections = this.state.connections.filter(c => c.sourceId !== id && c.targetId !== id); this.drawArrows(); }
+                    }
                 });
 
                 window.addEventListener('mousemove', (e) => {
@@ -508,40 +489,30 @@
                 const paths = this.svgLayer.querySelectorAll('.connection-group');
                 paths.forEach(p => p.remove());
                 const workspaceRect = this.workspaceEl.getBoundingClientRect();
-
                 this.state.connections.forEach((conn, index) => {
                     const sourceEl = document.querySelector(`[data-id="${conn.sourceId}"]`);
                     const targetEl = document.querySelector(`[data-id="${conn.targetId}"]`);
                     if (!sourceEl || !targetEl) return;
-
                     const sRect = sourceEl.getBoundingClientRect();
                     const tRect = targetEl.getBoundingClientRect();
                     const x1 = (sRect.left + sRect.width / 2) - workspaceRect.left;
                     const y1 = (sRect.top + sRect.height / 2) - workspaceRect.top;
                     const x2 = (tRect.left + tRect.width / 2) - workspaceRect.left;
                     const y2 = (tRect.top + tRect.height / 2) - workspaceRect.top;
-
                     const angle = Math.atan2(y2 - y1, x2 - x1);
-                    const paddingX = 70;
-                    const paddingY = 35;
-                    const startX = x1 + Math.cos(angle) * 30;
-                    const startY = y1 + Math.sin(angle) * 15;
-                    const endX = x2 - Math.cos(angle) * paddingX;
-                    const endY = y2 - Math.sin(angle) * paddingY;
-
+                    const paddingX = 60, paddingY = 30;
+                    const startX = x1 + Math.cos(angle) * 30, startY = y1 + Math.sin(angle) * 15;
+                    const endX = x2 - Math.cos(angle) * paddingX, endY = y2 - Math.sin(angle) * paddingY;
                     const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
                     g.setAttribute("class", "connection-group");
                     const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
                     path.setAttribute("d", `M ${startX} ${startY} Q ${(startX+endX)/2} ${(startY+endY)/2 - 25} ${endX} ${endY}`);
                     path.setAttribute("class", "connection-arrow");
-                    
                     const hitArea = document.createElementNS("http://www.w3.org/2000/svg", "path");
                     hitArea.setAttribute("d", `M ${startX} ${startY} Q ${(startX+endX)/2} ${(startY+endY)/2 - 25} ${endX} ${endY}`);
                     hitArea.setAttribute("class", "connection-hit-area");
-
                     const midX = 0.5 * ((startX+endX)/2) + 0.25 * startX + 0.25 * endX;
                     const midY = 0.5 * ((startY+endY)/2 - 25) + 0.25 * startY + 0.25 * endY;
-
                     const del = document.createElementNS("http://www.w3.org/2000/svg", "g");
                     del.setAttribute("class", "delete-btn");
                     del.setAttribute("transform", `translate(${midX}, ${midY})`);
@@ -608,35 +579,19 @@
 
             checkJournal() {
                 const currentData = habitatData[this.state.activeHabitat];
-                let shelfErrors = []; let linkErrors = []; let missingLinks = []; let unplacedCount = 0; let correctPlacementCount = 0;
+                let shelfErrors = []; let correctPlacementCount = 0;
                 currentData.organisms.forEach(org => {
                     const el = document.querySelector(`[data-id="${org.id}"]`);
                     const shelf = el.closest('.trophic-shelf');
-                    if (!shelf) { unplacedCount++; el.classList.remove('correct', 'incorrect'); }
-                    else {
-                        if (parseInt(shelf.dataset.level) === org.level) { el.classList.add('correct'); el.classList.remove('incorrect'); correctPlacementCount++; }
-                        else { el.classList.add('incorrect'); el.classList.remove('correct'); shelfErrors.push(`The ${org.name} is on the wrong shelf.`); }
-                    }
+                    if (shelf && parseInt(shelf.dataset.level) === org.level) { el.classList.add('correct'); el.classList.remove('incorrect'); correctPlacementCount++; }
+                    else if (shelf) { el.classList.add('incorrect'); el.classList.remove('correct'); shelfErrors.push(`The ${org.name} is on the wrong shelf.`); }
                 });
-                this.state.connections.forEach(c => {
-                    const source = currentData.organisms.find(o => o.id === c.sourceId);
-                    if (!source.predators.includes(c.targetId)) linkErrors.push("Invalid energy link found.");
-                });
-                currentData.organisms.forEach(source => {
-                    source.predators.forEach(predId => {
-                        if (!this.state.connections.some(c => c.sourceId === source.id && c.targetId === predId)) missingLinks.push("Missing energy links.");
-                    });
-                });
-                const title = document.getElementById('feedback-title'); const text = document.getElementById('feedback-text');
-                if (unplacedCount > 0) { title.textContent = "Incomplete"; text.textContent = `Sort the ${unplacedCount} remaining specimens.`; }
-                else if (shelfErrors.length > 0) { title.textContent = "Shelf Error"; text.textContent = shelfErrors[0]; }
-                else if (linkErrors.length > 0) { title.textContent = "Link Error"; text.textContent = linkErrors[0]; }
-                else if (missingLinks.length > 0) { title.textContent = "Missing Links"; text.textContent = missingLinks[0]; }
-                else if (correctPlacementCount === currentData.organisms.length) {
-                    title.textContent = "Success!"; text.textContent = "Perfect! You've mastered this habitat.";
-                    if (!this.state.completed.includes(this.state.activeHabitat)) { this.state.completed.push(this.state.activeHabitat); this.renderPatches(); }
+                if (correctPlacementCount === currentData.organisms.length && !this.state.completed.includes(this.state.activeHabitat)) {
+                    this.state.completed.push(this.state.activeHabitat);
+                    this.renderPatches();
                 }
                 this.modals.feedback.classList.add('active');
+                document.getElementById('feedback-title').textContent = correctPlacementCount === currentData.organisms.length ? "Success!" : "Review Required";
             },
 
             downloadCertificate() {
@@ -648,20 +603,17 @@
                         <div style="margin: 40px 0; border-bottom: 2px dashed #3d2b1f; min-width: 400px; padding: 10px;"><span style="font-family: 'Caveat', cursive; font-size: 48px; color: var(--ribbon-blue);">${name}</span></div>
                         <p style="font-family: 'Patrick Hand', cursive; font-size: 24px; max-width: 600px; line-height: 1.4; margin-bottom: 60px;">Has demonstrated mastery of energy flow and ecosystem hierarchy across the diverse habitats of Colorado.</p>
                         <div id="cert-grid" style="display: flex; gap: 40px; justify-content: center; flex-wrap: wrap; width: 100%;"></div>
-                        <div style="margin-top: auto; width: 100%; display: flex; justify-content: space-between; align-items: flex-end;"><div style="font-family: 'Special Elite', cursive; font-size: 12px; opacity: 0.6;">VERIFIED: ${new Date().toLocaleDateString()}</div><div style="font-family: 'Special Elite', cursive; font-size: 12px; opacity: 0.3;">BUILD v1.1.2</div></div>
+                        <div style="margin-top: auto; width: 100%; display: flex; justify-content: space-between; align-items: flex-end;"><div style="font-family: 'Special Elite', cursive; font-size: 12px; opacity: 0.6;">VERIFIED: ${new Date().toLocaleDateString()}</div><div style="font-family: 'Special Elite', cursive; font-size: 12px; opacity: 0.3;">BUILD v1.1.3</div></div>
                     </div>
                 `;
                 const grid = this.certTemplate.querySelector('#cert-grid');
                 Object.keys(habitatData).forEach(key => {
                     const data = habitatData[key]; const isComp = this.state.completed.includes(key);
-                    const html = `<div style="display: flex; flex-direction: column; align-items: center; gap: 10px; position: relative;">
+                    grid.insertAdjacentHTML('beforeend', `<div style="display: flex; flex-direction: column; align-items: center; gap: 10px; position: relative;">
                         ${isComp ? '<div style="position: absolute; top: -5px; right: -5px; width: 30px; height: 45px; background: var(--ribbon-blue); clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 85%, 0 100%); z-index: 5; display: flex; align-items: center; justify-content: center; color: gold; font-size: 12px;">★</div>' : ''}
-                        <div style="width: 100px; height: 100px; border-radius: 50%; border: 5px solid #3d2b1f; overflow: hidden; background: #eee;">
-                            <img src="${data.img}" crossorigin="anonymous" style="width: 100%; height: 100%; object-fit: cover; ${isComp ? '' : 'filter: grayscale(1); opacity: 0.5;'}">
-                        </div>
+                        <div style="width: 100px; height: 100px; border-radius: 50%; border: 5px solid #3d2b1f; overflow: hidden;"><img src="${data.img}" crossorigin="anonymous" style="width: 100%; height: 100%; object-fit: cover; ${isComp ? '' : 'filter: grayscale(1); opacity: 0.5;'}"></div>
                         <span style="font-family: 'Special Elite', cursive; font-size: 10px; text-transform: uppercase;">${data.name.split(' ')[0]}</span>
-                    </div>`;
-                    grid.insertAdjacentHTML('beforeend', html);
+                    </div>`);
                 });
                 html2canvas(this.certTemplate, { backgroundColor: '#1a1a1a', scale: 2.5, useCORS: true, width: 1100, height: 850 }).then(canvas => {
                     const link = document.createElement('a'); link.download = `Naturalist_Cert_${name.replace(/\s+/g, '_')}.png`; link.href = canvas.toDataURL('image/png', 1.0); link.click();
