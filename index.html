@@ -245,9 +245,10 @@
         <header id="journal-header" class="flex justify-between items-center mb-6 border-b-2 border-stone-300 pb-3 flex-shrink-0">
             <div class="flex items-center gap-6">
                 <button id="btn-to-cover" class="hidden btn-ink">&larr; INDEX</button>
-                <div class="flex items-baseline gap-3">
-                    <span id="user-name" class="handwritten text-4xl text-blue-900 border-b border-dashed border-stone-400 px-2 min-w-[120px] outline-none" contenteditable="true">Your Name</span>
-                    <h1 class="text-4xl font-bold handwritten tracking-tight text-stone-800">'s Colorado Food Web Journal</h1>
+                <!-- v1.2.7: Right-justified name field for better flow -->
+                <div class="flex items-baseline">
+                    <span id="user-name" class="handwritten text-4xl text-blue-900 border-b border-dashed border-stone-400 pl-4 pr-1 min-w-[150px] outline-none text-right inline-block" contenteditable="true">Your Name</span>
+                    <h1 class="text-4xl font-bold handwritten tracking-tight text-stone-800 ml-1">'s Colorado Food Web Journal</h1>
                 </div>
             </div>
             <div id="workspace-tools" class="hidden flex gap-3">
@@ -268,7 +269,7 @@
                     <p id="download-hint" class="text-sm typewriter opacity-50 mt-4 text-center">Master at least one habitat to download your certificate.</p>
                 </div>
             </div>
-            <div class="version-tag">v1.2.5</div>
+            <div class="version-tag">v1.2.7</div>
         </div>
 
         <div id="screen-workspace" class="screen">
@@ -307,7 +308,7 @@
                     </div>
                 </main>
             </div>
-            <div class="version-tag">v1.2.5</div>
+            <div class="version-tag">v1.2.7</div>
         </div>
 
         <div id="modal-field-guide" class="overlay">
@@ -341,7 +342,9 @@
         <div id="modal-feedback" class="overlay">
             <div class="modal-paper text-center">
                 <h3 id="feedback-title" class="handwritten text-5xl mb-4">Reviewing Journal...</h3>
-                <p id="feedback-text" class="text-2xl italic leading-relaxed whitespace-pre-wrap"></p>
+                <div class="max-h-[40vh] overflow-y-auto pr-4">
+                    <p id="feedback-text" class="text-xl italic text-left leading-relaxed whitespace-pre-wrap px-4"></p>
+                </div>
                 <div id="feedback-status" class="mt-6 font-bold typewriter text-sm uppercase"></div>
                 <button class="btn-ink mt-8 w-full closeModal uppercase">Return to Journal</button>
             </div>
@@ -703,14 +706,12 @@
                 
                 let hints = []; 
                 let correctCount = 0;
-                let totalSpecies = currentData.organisms.length;
 
-                // 1. Check Placements
                 currentData.organisms.forEach(org => {
                     const el = document.querySelector(`[data-id="${org.id}"]`);
                     const shelf = el.closest('.trophic-shelf');
                     if (!shelf) {
-                        hints.push(`Researcher's Hint: The ${org.name} specimen hasn't been placed yet.`);
+                        hints.push(`Researcher's Hint: The **${org.name}** specimen hasn't been placed yet. Check the Specimen pool.`);
                     } else {
                         const level = parseInt(shelf.dataset.level);
                         if (level === org.level) {
@@ -719,47 +720,43 @@
                         } else {
                             el.classList.add('incorrect'); el.classList.remove('correct');
                             const dir = level < org.level ? "higher" : "lower";
-                            hints.push(`Researcher's Hint: The ${org.name} might belong on a ${dir} trophic level.`);
+                            hints.push(`Researcher's Hint: The **${org.name}** isn't quite right on this shelf. How to fix: Try moving it to a **${dir}** trophic level.`);
                         }
                     }
                 });
 
-                // 2. Check Links (only if species are placed)
                 if (hints.length === 0) {
                     activeState.connections.forEach(c => {
                         const source = currentData.organisms.find(o => o.id === c.sourceId);
                         const target = currentData.organisms.find(o => o.id === c.targetId);
                         
-                        // Check if backward
                         if (target.predators.includes(source.id)) {
-                            hints.push(`Energy Hint: Energy flows from prey to predator. Check the link between ${source.name} and ${target.name}.`);
+                            hints.push(`Energy Hint: Energy flows from prey to predator. Your link between **${source.name}** and **${target.name}** is backwards. How to fix: Delete the arrow and redraw it pointing from the food to the eater.`);
                         } else if (!source.predators.includes(target.id)) {
-                            hints.push(`Relationship Hint: Does a ${target.name} really eat ${source.name}? Review your Field Research Notes.`);
+                            hints.push(`Relationship Hint: I don't believe a **${target.name}** eats a **${source.name}**. How to fix: Review the Field Research Notes for the ${target.name}'s specific diet.`);
                         }
                     });
 
-                    // 3. Check for Missing Links
                     currentData.organisms.forEach(source => {
                         source.predators.forEach(predId => {
                             const linkFound = activeState.connections.some(c => c.sourceId === source.id && c.targetId === predId);
                             if (!linkFound) {
                                 const target = currentData.organisms.find(o => o.id === predId);
-                                hints.push(`Missing Link: What animal in the ${target.name.split(' ')[0]} level eats the ${source.name}?`);
+                                hints.push(`Missing Flow: We are missing a link showing energy moving from the **${source.name}**. Hint: What predator on the **${target.name.split(' ')[0]}** level eats it?`);
                             }
                         });
                     });
                 }
 
-                const title = document.getElementById('feedback-title'); 
-                const text = document.getElementById('feedback-text');
+                const titleEl = document.getElementById('feedback-title'); 
+                const textEl = document.getElementById('feedback-text');
                 
                 if (hints.length > 0) {
-                    title.textContent = "Observation Notes";
-                    // Display top 2 relevant hints to avoid overwhelming the user
-                    text.textContent = hints.slice(0, 2).join("\n\n");
+                    titleEl.textContent = "Observation Notes";
+                    textEl.innerHTML = hints.slice(0, 3).join("<br><br>");
                 } else {
-                    title.textContent = "Mastery Achieved!"; 
-                    text.textContent = "Excellent! You have perfectly mapped the energy flow and trophic hierarchy of this ecosystem.";
+                    titleEl.textContent = "Mastery Achieved!"; 
+                    textEl.textContent = "Excellent! You have perfectly mapped the energy flow and trophic hierarchy of this ecosystem. Your findings have been added to the Master Journal.";
                     if (!this.state.completed.includes(this.state.activeHabitat)) {
                         this.state.completed.push(this.state.activeHabitat);
                         this.renderPatches();
@@ -778,7 +775,7 @@
                         <p style="font-family: 'Patrick Hand', cursive; font-size: 24px; max-width: 600px; line-height: 1.4; margin-bottom: 60px;">Has demonstrated mastery of energy flow and ecosystem hierarchy across the diverse habitats of Colorado.</p>
                         <div id="cert-grid" style="display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; width: 100%;"></div>
                         <div style="margin-top: auto; width: 100%; display: flex; flex-direction: column; align-items: center; gap: 10px;">
-                            <div style="font-family: 'Special Elite', cursive; font-size: 12pt; font-weight: bold; opacity: 0.3;">BUILD v1.2.5</div>
+                            <div style="font-family: 'Special Elite', cursive; font-size: 12pt; font-weight: bold; opacity: 0.3;">BUILD v1.2.7</div>
                             <div style="font-family: 'Special Elite', cursive; font-size: 12px; opacity: 0.6;">VERIFIED: ${new Date().toLocaleDateString()}</div>
                         </div>
                     </div>
