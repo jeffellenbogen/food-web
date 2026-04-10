@@ -118,8 +118,8 @@
 
         .btn-ink {
             border: 2px solid var(--ink-color); border-radius: 5px 15px 5px 10px / 10px 5px 15px 5px;
-            padding: 0.4rem 0.8rem; transition: all 0.2s; font-weight: bold; background: transparent;
-            font-family: 'Special Elite', cursive; font-size: 0.7rem;
+            padding: 0.6rem 1.2rem; transition: all 0.2s; font-weight: bold; background: transparent;
+            font-family: 'Special Elite', cursive; font-size: 0.9rem;
         }
         .btn-ink:hover { background: var(--ink-color); color: white; transform: translateY(-1px); }
         .btn-ink.active-tool { background: var(--pencil-blue); color: white; border-color: var(--pencil-blue); }
@@ -134,7 +134,7 @@
         .overlay.active { display: flex; }
 
         .modal-paper {
-            background: #fff; max-width: 650px; width: 100%; padding: 2rem;
+            background: #fff; max-width: 750px; width: 100%; padding: 2.5rem;
             border: 2px solid #3d2b1f; position: relative; box-shadow: 10px 10px 0 rgba(0,0,0,0.2);
             background-image: url("https://www.transparenttextures.com/patterns/paper-fibers.png");
         }
@@ -168,7 +168,6 @@
             border: 30px double #3d2b1f; padding: 60px; display: flex; flex-direction: column; align-items: center; color: #3d2b1f; text-align: center;
         }
 
-        /* Workspace optimized header badge */
         .workspace-habitat-badge {
             width: 60px; height: 60px; border-radius: 50%; border: 4px solid #3d2b1f; overflow: hidden;
         }
@@ -179,7 +178,7 @@
 
     </style>
 </head>
-<body class="p-2 md:p-4 flex justify-center items-center min-h-screen">
+<body class="p-2 md:p-4 flex justify-center items-center min-h-screen text-lg">
 
     <div id="journal-root" class="sketchbook p-6 md:p-10">
         <svg style="width:0; height:0; position:absolute;">
@@ -199,19 +198,17 @@
             <div class="ring"></div><div class="ring"></div><div class="ring"></div>
         </div>
 
-        <header id="journal-header" class="flex justify-between items-center mb-6 border-b-2 border-stone-300 pb-2 flex-shrink-0">
+        <header id="journal-header" class="flex justify-between items-center mb-6 border-b-2 border-stone-300 pb-3 flex-shrink-0">
             <div class="flex items-center gap-6">
-                <button id="btn-to-cover" class="hidden btn-ink text-xs">&larr; INDEX</button>
+                <button id="btn-to-cover" class="hidden btn-ink">&larr; INDEX</button>
                 <div class="flex items-baseline gap-3">
-                    <span id="user-name" class="handwritten text-3xl text-blue-900 border-b border-dashed border-stone-400 px-2 min-w-[120px] outline-none" contenteditable="true">Your Name</span>
-                    <h1 class="text-3xl font-bold handwritten tracking-tight text-stone-800">'s Colorado Food Web Journal</h1>
+                    <span id="user-name" class="handwritten text-4xl text-blue-900 border-b border-dashed border-stone-400 px-2 min-w-[120px] outline-none" contenteditable="true">Your Name</span>
+                    <h1 class="text-4xl font-bold handwritten tracking-tight text-stone-800">'s Colorado Food Web Journal</h1>
                 </div>
             </div>
-            <!-- Toolbar - v1.2.0: Unified top bar buttons -->
-            <div id="workspace-tools" class="hidden flex gap-2">
-                <button id="btn-mode-arrange" class="btn-ink active-tool">Arrange</button>
-                <button id="btn-mode-links" class="btn-ink">Link</button>
-                <button id="btn-food-web-101" class="btn-ink">101</button>
+            <!-- Toolbar - v1.2.1: Habitat navigation buttons -->
+            <div id="workspace-tools" class="hidden flex gap-3">
+                <button id="btn-food-web-101" class="btn-ink">Food Web 101</button>
                 <button id="btn-field-guide" class="btn-ink">Field Guide</button>
                 <button id="btn-check" class="btn-ink bg-stone-800 text-white shadow-md">Check Journal</button>
             </div>
@@ -219,16 +216,16 @@
 
         <div id="screen-cover" class="screen active">
             <div class="flex flex-col items-center py-4 flex-grow overflow-y-auto">
-                <h2 class="text-3xl font-bold typewriter mb-16 px-12 py-3 bg-stone-800 text-white rounded-sm transform rotate-1">Expedition Merit Badges</h2>
+                <h2 class="text-4xl font-bold typewriter mb-16 px-12 py-3 bg-stone-800 text-white rounded-sm transform rotate-1">Expedition Merit Badges</h2>
                 <div class="grid grid-cols-2 md:grid-cols-5 gap-12 w-full max-w-5xl" id="patch-grid"></div>
                 
                 <div id="download-zone" class="mt-auto pt-10 flex flex-col items-center">
-                    <div id="progress-summary" class="typewriter text-sm mb-4 font-bold">Earned 0 of 5 badges</div>
-                    <button id="btn-download" class="btn-ink text-sm uppercase bg-blue-900 text-white shadow-xl hover:bg-blue-800 hidden">Download Master Naturalist Certificate</button>
-                    <p id="download-hint" class="text-xs typewriter opacity-50 mt-4 text-center">Master at least one habitat to download your certificate.</p>
+                    <div id="progress-summary" class="typewriter text-lg mb-4 font-bold">Earned 0 of 5 badges</div>
+                    <button id="btn-download" class="btn-ink uppercase bg-blue-900 text-white shadow-xl hover:bg-blue-800 hidden">Download Master Naturalist Certificate</button>
+                    <p id="download-hint" class="text-sm typewriter opacity-50 mt-4 text-center">Master at least one habitat to download your certificate.</p>
                 </div>
             </div>
-            <div class="version-tag">v1.2.0</div>
+            <div class="version-tag">v1.2.1</div>
         </div>
 
         <div id="screen-workspace" class="screen">
@@ -239,11 +236,14 @@
 
                 <aside class="lg:col-span-1 flex flex-col h-full overflow-hidden">
                     <div class="sketch-border bg-white/40 flex-grow shadow-inner relative z-30 flex flex-col overflow-hidden border-r-2 border-stone-200">
-                        <h3 class="font-bold text-2xl handwritten mb-1 px-4 pt-2 text-stone-700">Species</h3>
-                        <p id="mode-hint" class="text-[10px] typewriter uppercase tracking-widest mb-2 px-4 pb-2 border-b border-stone-300">Drag to Sort</p>
+                        <h3 class="font-bold text-3xl handwritten mb-1 px-4 pt-2 text-stone-700">Species</h3>
+                        <p id="mode-hint" class="text-xs typewriter uppercase tracking-widest mb-2 px-4 pb-2 border-b border-stone-300">Drag to Sort</p>
                         <div id="organism-pool" class="space-y-3 overflow-y-auto p-4 flex-grow scrollbar-thin scrollbar-thumb-stone-300"></div>
-                        <div class="p-4 border-t border-stone-300 flex-shrink-0">
-                            <button id="btn-clear-links" class="btn-ink w-full opacity-60">Reset Arrows</button>
+                        
+                        <!-- Mode Toggle and Tools - v1.2.1: Unified mode toggle back in sidebar -->
+                        <div class="p-4 border-t border-stone-300 space-y-3 flex-shrink-0">
+                            <button id="btn-mode-toggle" class="btn-ink w-full bg-blue-50 text-blue-900 border-blue-900">MODE: ARRANGE</button>
+                            <button id="btn-clear-links" class="btn-ink w-full opacity-60 text-xs">Reset Arrows</button>
                         </div>
                     </div>
                 </aside>
@@ -251,7 +251,7 @@
                 <main class="lg:col-span-3 flex flex-col h-full overflow-hidden">
                     <div class="flex items-center gap-4 mb-3 flex-shrink-0">
                         <div id="workspace-badge-container" class="workspace-habitat-badge"></div>
-                        <h2 id="current-habitat-name" class="text-4xl handwritten text-stone-800 border-l-4 border-stone-800 pl-4 uppercase">Habitat Name</h2>
+                        <h2 id="current-habitat-name" class="text-5xl handwritten text-stone-800 border-l-4 border-stone-800 pl-4 uppercase">Habitat Name</h2>
                     </div>
                     <div id="shelves-container" class="relative z-20 flex-grow flex flex-col overflow-hidden">
                         <div class="trophic-shelf" data-level="4"><span class="shelf-label">Tertiary Consumers</span><div class="drop-zone"></div></div>
@@ -261,31 +261,33 @@
                     </div>
                 </main>
             </div>
-            <div class="version-tag">v1.2.0</div>
+            <div class="version-tag">v1.2.1</div>
         </div>
 
         <!-- Modals -->
         <div id="modal-field-guide" class="overlay">
             <div class="modal-paper">
-                <h3 class="typewriter text-xl border-b-2 border-stone-800 mb-4 pb-2">Field Research Notes</h3>
-                <div id="field-guide-content" class="space-y-6 max-h-[55vh] overflow-y-auto pr-4"></div>
+                <h3 class="typewriter text-2xl border-b-2 border-stone-800 mb-6 pb-2">Field Research Notes</h3>
+                <div id="field-guide-content" class="space-y-8 max-h-[55vh] overflow-y-auto pr-6"></div>
                 <button class="btn-ink mt-8 w-full closeModal uppercase">Back to Notebook</button>
             </div>
         </div>
 
         <div id="modal-food-web-101" class="overlay">
             <div class="modal-paper">
-                <h3 class="typewriter text-xl border-b-2 border-stone-800 mb-4 pb-2">Food Web 101</h3>
-                <div class="space-y-4 text-sm leading-relaxed max-h-[50vh] overflow-y-auto pr-4">
+                <h3 class="typewriter text-3xl border-b-2 border-stone-800 mb-6 pb-2">Food Web 101</h3>
+                <div class="space-y-6 text-xl leading-relaxed max-h-[55vh] overflow-y-auto pr-6">
                     <p><strong>Energy Flow:</strong> Arrows represent energy moving from food to eater. The arrow points from the <strong>prey</strong> to the <strong>predator</strong>.</p>
-                    <p><strong>Trophic Levels:</strong>
-                        <ul class="list-disc pl-5 mt-2 space-y-1">
-                            <li><strong>Producers:</strong> Plants that get energy from the Sun.</li>
-                            <li><strong>Primary Consumers:</strong> Herbivores that eat producers.</li>
-                            <li><strong>Secondary Consumers:</strong> Predators that eat herbivores.</li>
-                            <li><strong>Tertiary Consumers:</strong> Apex predators at the top of the food chain.</li>
+                    <div class="bg-stone-50 p-6 border-l-4 border-stone-300">
+                        <p class="font-bold mb-4">Trophic Levels:</p>
+                        <ul class="space-y-4">
+                            <li><span class="font-bold text-green-700">Producers:</span> Plants that get energy from the Sun.</li>
+                            <li><span class="font-bold text-orange-700">Primary Consumers:</span> Herbivores that eat producers.</li>
+                            <li><span class="font-bold text-red-700">Secondary Consumers:</span> Predators that eat herbivores.</li>
+                            <li><span class="font-bold text-purple-900">Tertiary Consumers:</span> Apex predators at the top of the food chain.</li>
                         </ul>
-                    </p>
+                    </div>
+                    <p class="italic text-lg">Tip: Every link you draw should point UPWARDS through the levels as energy moves from the ground to the sky.</p>
                 </div>
                 <button class="btn-ink mt-8 w-full closeModal uppercase">Back to Journal</button>
             </div>
@@ -293,9 +295,9 @@
 
         <div id="modal-feedback" class="overlay">
             <div class="modal-paper text-center">
-                <h3 id="feedback-title" class="handwritten text-4xl mb-2">Reviewing Journal...</h3>
-                <p id="feedback-text" class="text-xl italic leading-relaxed"></p>
-                <div id="feedback-status" class="mt-6 font-bold typewriter text-xs uppercase"></div>
+                <h3 id="feedback-title" class="handwritten text-5xl mb-4">Reviewing Journal...</h3>
+                <p id="feedback-text" class="text-2xl italic leading-relaxed"></p>
+                <div id="feedback-status" class="mt-6 font-bold typewriter text-sm uppercase"></div>
                 <button class="btn-ink mt-8 w-full closeModal uppercase">Return to Journal</button>
             </div>
         </div>
@@ -370,7 +372,6 @@
                 tool: 'arrange',
                 linkingSource: null,
                 isDraggingLink: false,
-                // v1.2.0: Persistent state storage for habitats
                 habitatsState: {
                     grassland: { connections: [], placements: {} },
                     tundra: { connections: [], placements: {} },
@@ -402,6 +403,7 @@
                 this.rootEl = document.getElementById('journal-root');
                 this.certTemplate = document.getElementById('cert-template');
                 this.badgeContainer = document.getElementById('workspace-badge-container');
+                this.btnModeToggle = document.getElementById('btn-mode-toggle');
             },
 
             renderPatches() {
@@ -434,8 +436,13 @@
                 document.getElementById('btn-field-guide').addEventListener('click', () => this.showFieldGuide());
                 document.getElementById('btn-food-web-101').addEventListener('click', () => this.modals.logic.classList.add('active'));
                 document.getElementById('btn-check').addEventListener('click', () => this.checkJournal());
-                document.getElementById('btn-mode-arrange').addEventListener('click', () => this.setTool('arrange'));
-                document.getElementById('btn-mode-links').addEventListener('click', () => this.setTool('links'));
+                
+                // v1.2.1: Single toggle logic
+                this.btnModeToggle.addEventListener('click', () => {
+                    const nextMode = this.state.tool === 'arrange' ? 'links' : 'arrange';
+                    this.setTool(nextMode);
+                });
+
                 document.getElementById('btn-clear-links').addEventListener('click', () => this.clearLinks());
                 document.getElementById('btn-download').addEventListener('click', () => this.downloadCertificate());
                 document.querySelectorAll('.closeModal').forEach(btn => btn.addEventListener('click', (e) => e.target.closest('.overlay').classList.remove('active')));
@@ -451,7 +458,6 @@
                         const el = document.querySelector(`[data-id="${id}"]`);
                         if (el) { 
                             zone.appendChild(el); 
-                            // Update persistent placement
                             this.state.habitatsState[this.state.activeHabitat].placements[id] = shelf.dataset.level;
                             this.drawArrows(); 
                         }
@@ -466,11 +472,7 @@
                     const el = document.querySelector(`[data-id="${id}"]`);
                     if (el) { 
                         this.pool.appendChild(el); 
-                        // Update persistent placement: null means back in pool
                         this.state.habitatsState[this.state.activeHabitat].placements[id] = null;
-                        // Remove links involving this specimen if it leaves the shelf?
-                        // For v1.2.0, we'll keep the links if the user moves them but they'll look weird.
-                        // Better to filter connections where source/target is in pool.
                         this.state.habitatsState[this.state.activeHabitat].connections = this.state.habitatsState[this.state.activeHabitat].connections.filter(c => c.sourceId !== id && c.targetId !== id);
                         this.drawArrows(); 
                     }
@@ -501,8 +503,8 @@
 
             setTool(toolName) {
                 this.state.tool = toolName;
-                document.getElementById('btn-mode-arrange').classList.toggle('active-tool', toolName === 'arrange');
-                document.getElementById('btn-mode-links').classList.toggle('active-tool', toolName === 'links');
+                this.btnModeToggle.textContent = toolName === 'arrange' ? "MODE: ARRANGE" : "MODE: LINKING";
+                this.btnModeToggle.classList.toggle('active-tool', toolName === 'links');
                 this.modeHint.textContent = toolName === 'arrange' ? "Drag to Sort" : "Drag to Link";
                 document.querySelectorAll('.sidebar-item').forEach(el => {
                     el.draggable = (toolName === 'arrange');
@@ -532,7 +534,6 @@
                     const sourceEl = document.querySelector(`[data-id="${conn.sourceId}"]`);
                     const targetEl = document.querySelector(`[data-id="${conn.targetId}"]`);
                     
-                    // Only draw if both are on shelves
                     if (!sourceEl || !targetEl || !sourceEl.closest('.trophic-shelf') || !targetEl.closest('.trophic-shelf')) return;
 
                     const sRect = sourceEl.getBoundingClientRect();
@@ -577,8 +578,10 @@
             },
 
             clearLinks() { 
-                this.state.habitatsState[this.state.activeHabitat].connections = []; 
-                this.drawArrows(); 
+                if (this.state.activeHabitat) {
+                    this.state.habitatsState[this.state.activeHabitat].connections = []; 
+                    this.drawArrows(); 
+                }
             },
 
             loadHabitat(id) {
@@ -588,7 +591,6 @@
                 this.habitatTitle.textContent = data.name;
                 this.badgeContainer.innerHTML = `<img src="${data.img}" class="w-full h-full object-cover">`;
                 
-                // Clear shelves
                 document.querySelectorAll('.drop-zone').forEach(z => z.innerHTML = '');
                 this.pool.innerHTML = '';
 
@@ -597,7 +599,7 @@
                     el.className = 'sidebar-item flex items-center gap-3';
                     el.draggable = (this.state.tool === 'arrange');
                     el.dataset.id = org.id;
-                    el.innerHTML = `<span class="text-3xl">${org.icon}</span><span class="font-bold handwritten text-xl">${org.name}</span>`;
+                    el.innerHTML = `<span class="text-3xl">${org.icon}</span><span class="font-bold handwritten text-2xl">${org.name}</span>`;
                     
                     el.addEventListener('dragstart', (e) => e.dataTransfer.setData('text/plain', org.id));
                     el.addEventListener('mousedown', (e) => {
@@ -611,7 +613,6 @@
                         }
                     });
 
-                    // Restore placement
                     const savedShelfLevel = activeState.placements[org.id];
                     if (savedShelfLevel) {
                         const targetShelf = document.querySelector(`.trophic-shelf[data-level="${savedShelfLevel}"] .drop-zone`);
@@ -645,12 +646,12 @@
             showFieldGuide() {
                 const data = habitatData[this.state.activeHabitat];
                 document.getElementById('field-guide-content').innerHTML = data.organisms.map(o => `
-                    <div class="border-b border-stone-200 pb-3">
-                        <div class="flex items-center gap-2 mb-2">
-                            <span class="text-3xl">${o.icon}</span> 
-                            <strong class="handwritten text-3xl">${o.name}</strong>
+                    <div class="border-b border-stone-200 pb-4">
+                        <div class="flex items-center gap-3 mb-2">
+                            <span class="text-4xl">${o.icon}</span> 
+                            <strong class="handwritten text-4xl">${o.name}</strong>
                         </div>
-                        <p class="text-lg italic text-stone-700 leading-relaxed">${o.notes}</p>
+                        <p class="text-xl italic text-stone-700 leading-relaxed">${o.notes}</p>
                     </div>
                 `).join('');
                 this.modals.guide.classList.add('active');
@@ -680,7 +681,6 @@
                     }
                 });
 
-                // Link logic
                 let linkErrors = [];
                 let missingLinks = [];
                 activeState.connections.forEach(c => {
@@ -735,7 +735,7 @@
                         <div id="cert-grid" style="display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; width: 100%;"></div>
                         
                         <div style="margin-top: auto; width: 100%; display: flex; flex-direction: column; align-items: center; gap: 10px;">
-                            <div style="font-family: 'Special Elite', cursive; font-size: 12pt; font-weight: bold; opacity: 0.3;">BUILD v1.2.0</div>
+                            <div style="font-family: 'Special Elite', cursive; font-size: 12pt; font-weight: bold; opacity: 0.3;">BUILD v1.2.1</div>
                             <div style="font-family: 'Special Elite', cursive; font-size: 12px; opacity: 0.6;">VERIFIED: ${new Date().toLocaleDateString()}</div>
                         </div>
                     </div>
