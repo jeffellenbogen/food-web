@@ -7,7 +7,7 @@ on:
       - staging
 
 permissions:
-  contents: write
+  contents: read
   pages: write
   id-token: write
 
@@ -15,23 +15,36 @@ jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      # 1. Checkout the Production branch
+      - name: Checkout Main
         uses: actions/checkout@v4
+        with:
+          ref: main
+          path: main-branch
+
+      # 2. Checkout the Staging branch (don't fail if it doesn't exist yet)
+      - name: Checkout Staging
+        uses: actions/checkout@v4
+        with:
+          ref: staging
+          path: staging-branch
+        continue-on-error: true
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
 
-      - name: Build Staging
-        if: github.ref == 'refs/heads/staging'
+      # 3. Assemble the full site map so nothing gets deleted
+      - name: Assemble Artifact
         run: |
           mkdir -p build/staging
-          cp index.html build/staging/
-
-      - name: Build Production
-        if: github.ref == 'refs/heads/main'
-        run: |
-          mkdir -p build
-          cp index.html build/
+          
+          # Put Main at the root
+          cp main-branch/index.html build/index.html
+          
+          # Put Staging in the subfolder if it exists
+          if [ -d staging-branch ]; then
+            cp staging-branch/index.html build/staging/index.html
+          fi
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
