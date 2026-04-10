@@ -27,26 +27,31 @@
             color: var(--ink-color);
             background-image: radial-gradient(#333 10%, transparent 10%);
             background-size: 20px 20px;
+            overflow: hidden; /* Enforce app-like no-scroll feel */
         }
 
-        /* The "Sketchbook" Container */
+        /* The "Sketchbook" Container - v1.1.1 sizing */
         .sketchbook {
             background-color: var(--journal-bg);
             background-image: url("https://www.transparenttextures.com/patterns/paper-fibers.png");
             box-shadow: 15px 15px 50px rgba(0,0,0,0.8);
             border-left: 15px solid #3d2b1f;
             position: relative;
-            min-height: 95vh;
-            transition: width 0.3s ease;
+            height: 94vh; 
+            width: 96vw;
+            max-width: 1400px;
+            display: flex;
+            flex-direction: column;
+            transition: all 0.3s ease;
         }
 
         /* Spiral Binding */
         .spiral {
-            position: absolute; left: -25px; top: 50px; bottom: 50px;
+            position: absolute; left: -25px; top: 20px; bottom: 20px;
             display: flex; flex-direction: column; justify-content: space-around; z-index: 10;
         }
         .ring {
-            width: 40px; height: 12px;
+            width: 35px; height: 10px;
             background: linear-gradient(to bottom, #888, #eee, #888);
             border-radius: 10px; box-shadow: 2px 2px 5px rgba(0,0,0,0.3);
         }
@@ -54,16 +59,15 @@
         /* Patch Styles */
         .patch-container { display: flex; flex-direction: column; align-items: center; gap: 0.75rem; position: relative; }
         .patch-slot {
-            width: 140px; height: 140px; border-radius: 50%; position: relative; cursor: pointer;
+            width: 130px; height: 130px; border-radius: 50%; position: relative; cursor: pointer;
             transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             background-color: #eee; border: 8px solid #3d2b1f;
             box-shadow: 0 6px 12px rgba(0,0,0,0.3), inset 0 0 15px rgba(0,0,0,0.2);
             overflow: hidden;
         }
-        .patch-slot:hover { transform: scale(1.15) rotate(5deg); border-color: #fff; box-shadow: 0 0 30px 10px var(--highlight-glow); }
+        .patch-slot:hover { transform: scale(1.1) rotate(5deg); border-color: #fff; box-shadow: 0 0 30px 10px var(--highlight-glow); }
         .patch-image { width: 100%; height: 100%; object-fit: cover; filter: saturate(1.4) contrast(1.1); }
 
-        /* Completion Ribbon */
         .ribbon {
             position: absolute; top: -10px; right: -10px; width: 50px; height: 70px;
             background: var(--ribbon-blue); z-index: 10;
@@ -82,44 +86,49 @@
         .handwritten { font-family: 'Caveat', cursive; }
         .typewriter { font-family: 'Special Elite', cursive; }
 
-        /* Editable User Name */
         .editable-name { cursor: text; min-width: 150px; display: inline-block; outline: none; padding: 0 10px; }
         .editable-name:focus { background: rgba(255, 255, 255, 0.8); border-radius: 4px; }
 
-        /* Trophic Shelves */
+        /* Trophic Shelves - v1.1.1 Landscape Sizing */
         .trophic-shelf {
-            border-bottom: 2px dashed rgba(0,0,0,0.1); min-height: 140px; position: relative;
-            background-image: linear-gradient(to right, transparent 10%, rgba(0,0,0,0.02) 10%);
+            border-bottom: 2px dashed rgba(0,0,0,0.1); 
+            flex: 1; /* Stretch to fill available height */
+            min-height: 80px; 
+            position: relative;
+            background-image: linear-gradient(to right, transparent 10%, rgba(0,0,0,0.01) 10%);
             background-size: 50px 100%; transition: background-color 0.2s;
         }
 
         .shelf-label {
             position: absolute; left: -10px; top: 10px; transform: rotate(-1.5deg);
             background: #fff9eb; padding: 3px 15px; border: 1px solid #dcd3bc;
-            font-size: 0.75rem; font-weight: bold; text-transform: uppercase;
+            font-size: 0.7rem; font-weight: bold; text-transform: uppercase;
             box-shadow: 3px 3px 0 rgba(0,0,0,0.05); z-index: 5; font-family: 'Special Elite', cursive;
         }
 
-        /* Organism Cards */
+        .drop-zone {
+            height: 100%; width: 100%; display: flex; flex-wrap: wrap; gap: 0.75rem; padding: 1.5rem 2rem 0.5rem 2rem; align-items: center;
+        }
+
+        /* Sidebar Pool */
         .sidebar-item {
             transition: all 0.2s; background: #fff; border: 2px solid #3d2b1f;
             border-radius: 8px; user-select: none; box-shadow: 2px 2px 0 rgba(0,0,0,0.1);
-            position: relative; z-index: 20;
+            position: relative; z-index: 20; padding: 0.5rem;
         }
         .sidebar-item[draggable="true"] { cursor: grab; }
         .sidebar-item[draggable="true"]:active { cursor: grabbing; transform: scale(0.95); }
 
         .btn-ink {
             border: 2px solid var(--ink-color); border-radius: 5px 15px 5px 10px / 10px 5px 15px 5px;
-            padding: 0.6rem 1.2rem; transition: all 0.2s; font-weight: bold; background: transparent;
-            font-family: 'Special Elite', cursive;
+            padding: 0.5rem 1rem; transition: all 0.2s; font-weight: bold; background: transparent;
+            font-family: 'Special Elite', cursive; font-size: 0.7rem;
         }
-        .btn-ink:hover { background: var(--ink-color); color: white; transform: translateY(-2px); }
+        .btn-ink:hover { background: var(--ink-color); color: white; transform: translateY(-1px); }
         .btn-ink.active-tool { background: var(--pencil-blue); color: white; border-color: var(--pencil-blue); }
 
-        /* Screens & Modals */
-        .screen { display: none; }
-        .screen.active { display: block; }
+        .screen { display: none; height: 100%; flex-direction: column; overflow: hidden; }
+        .screen.active { display: flex; }
 
         .overlay {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -128,16 +137,15 @@
         .overlay.active { display: flex; }
 
         .modal-paper {
-            background: #fff; max-width: 600px; width: 100%; padding: 2.5rem;
+            background: #fff; max-width: 600px; width: 100%; padding: 2rem;
             border: 2px solid #3d2b1f; position: relative; box-shadow: 10px 10px 0 rgba(0,0,0,0.2);
             background-image: url("https://www.transparenttextures.com/patterns/paper-fibers.png");
         }
 
-        .shelf-drag-over { background-color: rgba(212, 175, 55, 0.1) !important; }
+        .shelf-drag-over { background-color: rgba(212, 175, 55, 0.05) !important; }
         .correct { border-color: var(--success-green) !important; background: #eaffea !important; }
         .incorrect { border-color: var(--error-red) !important; background: #ffeaea !important; }
 
-        /* Energy Links */
         #connection-layer {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             pointer-events: none; z-index: 40;
@@ -156,24 +164,24 @@
         #temp-link { fill: none; stroke: var(--pencil-blue); stroke-width: 2; stroke-dasharray: 5,5; pointer-events: none; }
         
         .can-be-linked { cursor: crosshair !important; }
-
         .toggle-container { display: flex; flex-direction: column; gap: 0.5rem; }
 
-        /* Build version tag */
         .version-tag {
-            position: absolute;
-            bottom: 1rem;
-            right: 1.5rem;
-            font-family: 'Special Elite', cursive;
-            font-size: 10px;
-            opacity: 0.4;
-            pointer-events: none;
+            position: absolute; bottom: 0.5rem; right: 1rem;
+            font-family: 'Special Elite', cursive; font-size: 9px; opacity: 0.4; pointer-events: none;
+        }
+
+        /* Hidden Template for Certificate */
+        #cert-template {
+            position: fixed; top: -3000px; left: -3000px; width: 1100px; height: 850px;
+            background: #fdfaf3; background-image: url("https://www.transparenttextures.com/patterns/paper-fibers.png");
+            border: 30px double #3d2b1f; padding: 60px; display: flex; flex-direction: column; align-items: center; color: #3d2b1f; text-align: center;
         }
     </style>
 </head>
-<body class="p-4 md:p-8 flex justify-center">
+<body class="p-2 md:p-4 flex justify-center items-center min-h-screen">
 
-    <div id="journal-root" class="w-full max-w-6xl sketchbook p-8 md:p-16">
+    <div id="journal-root" class="sketchbook p-6 md:p-10">
         
         <!-- SVG markers for Energy Links -->
         <svg style="width:0; height:0; position:absolute;">
@@ -193,93 +201,96 @@
             <div class="ring"></div><div class="ring"></div><div class="ring"></div>
         </div>
 
-        <header id="journal-header" class="flex flex-col md:flex-row justify-between items-center mb-16 border-b-2 border-stone-300 pb-8">
+        <header id="journal-header" class="flex flex-col md:flex-row justify-between items-center mb-8 border-b-2 border-stone-300 pb-4 flex-shrink-0">
             <div>
-                <h1 class="text-6xl font-bold handwritten tracking-tighter text-stone-800" id="main-title">Colorado Food Web Journal</h1>
-                <div class="flex items-center gap-4 mt-3">
-                    <span class="typewriter text-xs opacity-50 uppercase tracking-widest">Naturalist:</span>
-                    <span id="user-name" class="handwritten text-3xl text-blue-900 border-b-2 border-dashed border-stone-400 px-6 editable-name" contenteditable="true">Your Name</span>
+                <h1 class="text-4xl md:text-5xl font-bold handwritten tracking-tighter text-stone-800" id="main-title">Colorado Food Web Journal</h1>
+                <div class="flex items-center gap-4 mt-2">
+                    <span class="typewriter text-[10px] opacity-50 uppercase tracking-widest">Naturalist:</span>
+                    <span id="user-name" class="handwritten text-2xl text-blue-900 border-b-2 border-dashed border-stone-400 px-6 editable-name" contenteditable="true">Your Name</span>
                 </div>
             </div>
-            <button id="btn-to-cover" class="hidden btn-ink text-xs mt-6 md:mt-0">&larr; BACK TO INDEX</button>
+            <button id="btn-to-cover" class="hidden btn-ink text-xs mt-2 md:mt-0">&larr; BACK TO INDEX</button>
         </header>
 
-        <!-- Main Screen: Expedition Log -->
+        <!-- Main Screen: Expedition Log (Reverted Layout) -->
         <div id="screen-cover" class="screen active">
-            <div class="flex flex-col items-center">
+            <div class="flex flex-col items-center py-4 flex-grow overflow-y-auto">
                 <h2 class="text-3xl font-bold typewriter mb-16 px-12 py-3 bg-stone-800 text-white rounded-sm transform rotate-1">Expedition Merit Badges</h2>
                 <div class="grid grid-cols-2 md:grid-cols-5 gap-12 w-full max-w-5xl" id="patch-grid"></div>
                 
-                <div id="download-zone" class="mt-20 flex flex-col items-center">
+                <div id="download-zone" class="mt-auto pt-10 flex flex-col items-center">
                     <div id="progress-summary" class="typewriter text-sm mb-4">Earned 0 of 5 badges</div>
                     <button id="btn-download" class="btn-ink text-sm uppercase bg-blue-900 text-white shadow-xl hover:bg-blue-800 hidden">Download Master Naturalist Certificate</button>
                     <p id="download-hint" class="text-xs typewriter opacity-50 mt-4 text-center">Master at least one habitat to download your certificate.</p>
                 </div>
             </div>
-            <div class="version-tag">v1.0.4</div>
+            <div class="version-tag">v1.1.1</div>
         </div>
 
-        <!-- Workspace Screen: Habitat Challenge -->
+        <!-- Workspace Screen: Habitat Challenge (Optimized Landscape) -->
         <div id="screen-workspace" class="screen">
-            <div class="grid grid-cols-1 lg:grid-cols-4 gap-12 relative">
+            <div class="grid grid-cols-1 lg:grid-cols-4 gap-8 relative flex-grow overflow-hidden">
                 <svg id="connection-layer">
                     <path id="temp-link" d=""></path>
                 </svg>
 
-                <aside class="lg:col-span-1">
-                    <div class="sketch-border bg-white/50 h-full shadow-inner relative z-30">
+                <aside class="lg:col-span-1 flex flex-col h-full overflow-hidden">
+                    <div class="sketch-border bg-white/50 flex-grow shadow-inner relative z-30 flex flex-col overflow-hidden">
                         <h3 class="font-bold text-2xl handwritten mb-1 text-stone-700">Specimens</h3>
-                        <p id="mode-hint" class="text-[10px] typewriter uppercase tracking-widest mb-6 border-b border-stone-300 pb-2">Drag to Sort</p>
-                        <div id="organism-pool" class="space-y-4 min-h-[200px]"></div>
+                        <p id="mode-hint" class="text-[10px] typewriter uppercase tracking-widest mb-4 border-b border-stone-300 pb-2">Drag to Sort</p>
                         
-                        <div class="mt-8 pt-4 border-t border-stone-300">
+                        <div id="organism-pool" class="space-y-4 overflow-y-auto pr-2 flex-grow scrollbar-thin scrollbar-thumb-stone-300"></div>
+                        
+                        <div class="mt-4 pt-4 border-t border-stone-300 flex-shrink-0">
                             <h4 class="typewriter text-[10px] uppercase font-bold mb-3">Modes</h4>
                             <div class="toggle-container">
-                                <button id="btn-mode-arrange" class="btn-ink active-tool w-full text-[10px] uppercase">Arrange Species</button>
-                                <button id="btn-mode-links" class="btn-ink w-full text-[10px] uppercase">Drag Energy Links</button>
+                                <button id="btn-mode-arrange" class="btn-ink active-tool w-full">Arrange Species</button>
+                                <button id="btn-mode-links" class="btn-ink w-full">Drag Energy Links</button>
                             </div>
                             
-                            <h4 class="typewriter text-[10px] uppercase font-bold mt-6 mb-2">Reference</h4>
-                            <button id="btn-food-web-101" class="btn-ink w-full text-[10px] mb-2 uppercase">Food Web 101</button>
-                            <button id="btn-clear-links" class="btn-ink w-full text-[10px] uppercase opacity-60 mt-4">Clear All Links</button>
+                            <div class="flex gap-2 mt-4">
+                                <button id="btn-food-web-101" class="btn-ink flex-1">Food Web 101</button>
+                                <button id="btn-clear-links" class="btn-ink flex-1 opacity-60">Reset</button>
+                            </div>
                         </div>
                     </div>
                 </aside>
 
-                <main class="lg:col-span-3">
-                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-4">
-                        <h2 id="current-habitat-name" class="text-5xl handwritten text-stone-800 border-l-4 border-stone-800 pl-4">Habitat Name</h2>
+                <main class="lg:col-span-3 flex flex-col h-full overflow-hidden">
+                    <div class="flex justify-between items-center mb-4 flex-shrink-0">
+                        <h2 id="current-habitat-name" class="text-4xl handwritten text-stone-800 border-l-4 border-stone-800 pl-4">Habitat Name</h2>
                         <div class="flex gap-4">
-                            <button id="btn-field-guide" class="btn-ink text-[10px] uppercase">Field Guide</button>
-                            <button id="btn-check" class="btn-ink text-[10px] uppercase bg-stone-800 text-white shadow-lg">Check Journal</button>
+                            <button id="btn-field-guide" class="btn-ink">Field Guide</button>
+                            <button id="btn-check" class="btn-ink bg-stone-800 text-white shadow-lg">Check Journal</button>
                         </div>
                     </div>
-                    <div id="shelves-container" class="space-y-8 relative z-20">
-                        <div class="trophic-shelf" data-level="4"><span class="shelf-label">Tertiary Consumers</span><div class="drop-zone flex flex-wrap gap-4 p-10 items-center min-h-[140px]"></div></div>
-                        <div class="trophic-shelf" data-level="3"><span class="shelf-label">Secondary Consumers</span><div class="drop-zone flex flex-wrap gap-4 p-10 items-center min-h-[140px]"></div></div>
-                        <div class="trophic-shelf" data-level="2"><span class="shelf-label">Primary Consumers</span><div class="drop-zone flex flex-wrap gap-4 p-10 items-center min-h-[140px]"></div></div>
-                        <div class="trophic-shelf" data-level="1"><span class="shelf-label">Producers</span><div class="drop-zone flex flex-wrap gap-4 p-10 items-center min-h-[140px]"></div></div>
+                    <div id="shelves-container" class="relative z-20 flex-grow flex flex-col overflow-hidden">
+                        <div class="trophic-shelf" data-level="4"><span class="shelf-label">Tertiary Consumers</span><div class="drop-zone"></div></div>
+                        <div class="trophic-shelf" data-level="3"><span class="shelf-label">Secondary Consumers</span><div class="drop-zone"></div></div>
+                        <div class="trophic-shelf" data-level="2"><span class="shelf-label">Primary Consumers</span><div class="drop-zone"></div></div>
+                        <div class="trophic-shelf" data-level="1"><span class="shelf-label">Producers</span><div class="drop-zone"></div></div>
                     </div>
                 </main>
             </div>
+            <div class="version-tag">v1.1.1</div>
         </div>
 
         <!-- Modals -->
         <div id="modal-field-guide" class="overlay">
             <div class="modal-paper">
                 <h3 class="typewriter text-xl border-b-2 border-stone-800 mb-4 pb-2">Field Research Notes</h3>
-                <div id="field-guide-content" class="space-y-4 max-h-[60vh] overflow-y-auto pr-4"></div>
-                <button class="btn-ink mt-8 w-full closeModal">Close Researcher's Log</button>
+                <div id="field-guide-content" class="space-y-4 max-h-[50vh] overflow-y-auto pr-4"></div>
+                <button class="btn-ink mt-8 w-full closeModal uppercase">Back to Notebook</button>
             </div>
         </div>
 
         <div id="modal-food-web-101" class="overlay">
             <div class="modal-paper">
                 <h3 class="typewriter text-xl border-b-2 border-stone-800 mb-4 pb-2">Food Web 101</h3>
-                <div class="space-y-4 text-sm leading-relaxed max-h-[60vh] overflow-y-auto pr-4">
+                <div class="space-y-4 text-sm leading-relaxed max-h-[50vh] overflow-y-auto pr-4">
                     <p><strong>Energy Flow:</strong> Arrows represent energy moving from food to eater. The arrow points from the <strong>prey</strong> to the <strong>predator</strong>.</p>
                     <p><strong>Trophic Levels:</strong>
-                        <ul class="list-disc pl-5 mt-2">
+                        <ul class="list-disc pl-5 mt-2 space-y-1">
                             <li><strong>Producers:</strong> Plants that get energy from the Sun.</li>
                             <li><strong>Primary Consumers:</strong> Herbivores that eat producers.</li>
                             <li><strong>Secondary Consumers:</strong> Predators that eat herbivores.</li>
@@ -287,7 +298,7 @@
                         </ul>
                     </p>
                 </div>
-                <button class="btn-ink mt-8 w-full closeModal">Back to Journal</button>
+                <button class="btn-ink mt-8 w-full closeModal uppercase">Back to Journal</button>
             </div>
         </div>
 
@@ -295,11 +306,14 @@
             <div class="modal-paper text-center">
                 <h3 id="feedback-title" class="handwritten text-4xl mb-2">Reviewing Journal...</h3>
                 <p id="feedback-text" class="text-xl italic leading-relaxed"></p>
-                <div id="feedback-status" class="mt-6 font-bold typewriter text-sm uppercase"></div>
-                <button class="btn-ink mt-8 w-full closeModal">Return to Journal</button>
+                <div id="feedback-status" class="mt-6 font-bold typewriter text-xs uppercase"></div>
+                <button class="btn-ink mt-8 w-full closeModal uppercase">Return to Journal</button>
             </div>
         </div>
     </div>
+
+    <!-- Hidden Template for Certificate Capture -->
+    <div id="cert-template"></div>
 
     <script>
         const habitatData = {
@@ -307,51 +321,51 @@
                 name: "Eastern Colorado Grassland",
                 img: "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=400&q=80",
                 organisms: [
-                    { id: 'g1', name: 'Blue Grama Grass', level: 1, icon: '🌾', notes: "A producer that gets energy directly from the sun.", predators: ['g2'] },
-                    { id: 'g2', name: 'Prairie Dog', level: 2, icon: '🐿️', notes: "Grazes primarily on grasses.", predators: ['g3', 'g4', 'g5'] },
-                    { id: 'g3', name: 'Black-footed Ferret', level: 3, icon: '🐾', notes: "Carnivore that preys on prairie dogs.", predators: ['g5'] },
-                    { id: 'g4', name: 'Coyote', level: 3, icon: '🐺', notes: "Opportunistic predator that hunts rodents.", predators: ['g5'] },
-                    { id: 'g5', name: 'Golden Eagle', level: 4, icon: '🦅', notes: "Apex predator of the skies.", predators: [] }
+                    { id: 'g1', name: 'Blue Grama Grass', level: 1, icon: '🌾', predators: ['g2'] },
+                    { id: 'g2', name: 'Prairie Dog', level: 2, icon: '🐿️', predators: ['g3', 'g4', 'g5'] },
+                    { id: 'g3', name: 'Black-footed Ferret', level: 3, icon: '🐾', predators: ['g5'] },
+                    { id: 'g4', name: 'Coyote', level: 3, icon: '🐺', predators: ['g5'] },
+                    { id: 'g5', name: 'Golden Eagle', level: 4, icon: '🦅', predators: [] }
                 ]
             },
             tundra: {
                 name: "Alpine Tundra", img: "https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=400&q=80",
                 organisms: [
-                    { id: 't1', name: 'Lichen', level: 1, icon: '🍄', notes: "Foundation producer at high altitudes.", predators: ['t2', 't3'] },
-                    { id: 't2', name: 'Pika', level: 2, icon: '🐹', notes: "Small herbivore gathering plants.", predators: ['t4', 't5'] },
-                    { id: 't3', name: 'Marmot', level: 2, icon: '🐻', notes: "Large ground squirrel grazing on tundra.", predators: ['t5'] },
-                    { id: 't4', name: 'Ermine', level: 3, icon: '🦦', notes: "Small hunter preying on pikas.", predators: ['t5'] },
-                    { id: 't5', name: 'Mountain Lion', level: 4, icon: '🦁', notes: "The top predator in the Rockies.", predators: [] }
+                    { id: 't1', name: 'Lichen', level: 1, icon: '🍄', predators: ['t2', 't3'] },
+                    { id: 't2', name: 'Pika', level: 2, icon: '🐹', predators: ['t4', 't5'] },
+                    { id: 't3', name: 'Marmot', level: 2, icon: '🐻', predators: ['t5'] },
+                    { id: 't4', name: 'Ermine', level: 3, icon: '🦦', predators: ['t5'] },
+                    { id: 't5', name: 'Mountain Lion', level: 4, icon: '🦁', predators: [] }
                 ]
             },
             riparian: {
                 name: "Riparian Area", img: "https://images.unsplash.com/photo-1470770841072-f978cf4d019e?auto=format&fit=crop&w=400&q=80",
                 organisms: [
-                    { id: 'r1', name: 'Cottonwood Tree', level: 1, icon: '🌳', notes: "Producer found near riverbanks.", predators: ['r2'] },
-                    { id: 'r2', name: 'Aquatic Insects', level: 2, icon: '🐝', notes: "Feeds on leaf litter in water.", predators: ['r3'] },
-                    { id: 'r3', name: 'Leopard Frog', level: 3, icon: '🐸', notes: "Eats insects near river mud.", predators: ['r4', 'r5'] },
-                    { id: 'r4', name: 'Garter Snake', level: 3, icon: '🐍', notes: "Hunts frogs along the bank.", predators: ['r5'] },
-                    { id: 'r5', name: 'Great Blue Heron', level: 4, icon: '🐦', notes: "Skilled hunter of snakes and frogs.", predators: [] }
+                    { id: 'r1', name: 'Cottonwood Tree', level: 1, icon: '🌳', predators: ['r2'] },
+                    { id: 'r2', name: 'Aquatic Insects', level: 2, icon: '🐝', predators: ['r3'] },
+                    { id: 'r3', name: 'Leopard Frog', level: 3, icon: '🐸', predators: ['r4', 'r5'] },
+                    { id: 'r4', name: 'Garter Snake', level: 3, icon: '🐍', predators: ['r5'] },
+                    { id: 'r5', name: 'Great Blue Heron', level: 4, icon: '🐦', predators: [] }
                 ]
             },
             forest: {
                 name: "Ponderosa Pine Forest", img: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=400&q=80",
                 organisms: [
-                    { id: 'f1', name: 'Ponderosa Pine', level: 1, icon: '🌲', notes: "Produces seeds and needles.", predators: ['f2', 'f3'] },
-                    { id: 'f2', name: 'Abert\'s Squirrel', level: 2, icon: '🐿️', notes: "Eats the bark and seeds of pines.", predators: ['f4', 'f5'] },
-                    { id: 'f3', name: 'Steller\'s Jay', level: 2, icon: '🐦', notes: "Eats seeds and occasionally insects.", predators: ['f4', 'f5'] },
-                    { id: 'f4', name: 'Goshawk', level: 3, icon: '🦅', notes: "Hunts birds and squirrels in the forest.", predators: ['f5'] },
-                    { id: 'f5', name: 'Bobcat', level: 4, icon: '🐱', notes: "Top predator of the ponderosa forest.", predators: [] }
+                    { id: 'f1', name: 'Ponderosa Pine', level: 1, icon: '🌲', predators: ['f2', 'f3'] },
+                    { id: 'f2', name: 'Abert\'s Squirrel', level: 2, icon: '🐿️', predators: ['f4', 'f5'] },
+                    { id: 'f3', name: 'Steller\'s Jay', level: 2, icon: '🐦', predators: ['f4', 'f5'] },
+                    { id: 'f4', name: 'Goshawk', level: 3, icon: '🦅', predators: ['f5'] },
+                    { id: 'f5', name: 'Bobcat', level: 4, icon: '🐱', predators: [] }
                 ]
             },
             shrubland: {
                 name: "Mesa Shrubland", img: "https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?auto=format&fit=crop&w=400&q=80",
                 organisms: [
-                    { id: 's1', name: 'Sagebrush', level: 1, icon: '🌿', notes: "Primary producer in arid systems.", predators: ['s2', 's3'] },
-                    { id: 's2', name: 'Jackrabbit', level: 2, icon: '🐇', notes: "Feeds on sagebrush and grasses.", predators: ['s4', 's5'] },
-                    { id: 's3', name: 'Sage Thrasher', level: 2, icon: '🐦', notes: "Relies on sagebrush for food and nesting.", predators: ['s4', 's5'] },
-                    { id: 's4', name: 'Badger', level: 3, icon: '🐾', notes: "Digs for small mammals on the mesa.", predators: ['s5'] },
-                    { id: 's5', name: 'Red-tailed Hawk', level: 4, icon: '🦅', notes: "Apex hunter of the mesa.", predators: [] }
+                    { id: 's1', name: 'Sagebrush', level: 1, icon: '🌿', predators: ['s2', 's3'] },
+                    { id: 's2', name: 'Jackrabbit', level: 2, icon: '🐇', predators: ['s4', 's5'] },
+                    { id: 's3', name: 'Sage Thrasher', level: 2, icon: '🐦', predators: ['s4', 's5'] },
+                    { id: 's4', name: 'Badger', level: 3, icon: '🐾', predators: ['s5'] },
+                    { id: 's5', name: 'Red-tailed Hawk', level: 4, icon: '🦅', predators: [] }
                 ]
             }
         };
@@ -386,6 +400,7 @@
                 this.workspaceEl = document.getElementById('screen-workspace');
                 this.modeHint = document.getElementById('mode-hint');
                 this.rootEl = document.getElementById('journal-root');
+                this.certTemplate = document.getElementById('cert-template');
             },
 
             renderPatches() {
@@ -396,7 +411,6 @@
                     const isCompleted = this.state.completed.includes(key);
                     const container = document.createElement('div');
                     container.className = 'patch-container';
-                    
                     container.innerHTML = `
                         ${isCompleted ? '<div class="ribbon"></div>' : ''}
                         <div class="patch-slot" onclick="app.startHabitat('${key}')">
@@ -406,20 +420,15 @@
                     `;
                     grid.appendChild(container);
                 });
-
                 const btnDownload = document.getElementById('btn-download');
                 const hint = document.getElementById('download-hint');
                 const progressSummary = document.getElementById('progress-summary');
-                
                 const count = this.state.completed.length;
                 progressSummary.textContent = `Earned ${count} of 5 badges`;
-
                 if (count > 0) {
                     btnDownload.classList.remove('hidden');
-                    hint.textContent = count === 5 ? "Congratulations, Master Naturalist!" : "You can download your progress report anytime.";
-                } else {
-                    btnDownload.classList.add('hidden');
-                }
+                    hint.textContent = count === 5 ? "Congratulations, Master Naturalist!" : "Download your certificate anytime.";
+                } else { btnDownload.classList.add('hidden'); }
             },
 
             bindEvents() {
@@ -427,10 +436,8 @@
                 document.getElementById('btn-field-guide').addEventListener('click', () => this.showFieldGuide());
                 document.getElementById('btn-food-web-101').addEventListener('click', () => this.modals.logic.classList.add('active'));
                 document.getElementById('btn-check').addEventListener('click', () => this.checkJournal());
-                
                 document.getElementById('btn-mode-arrange').addEventListener('click', () => this.setTool('arrange'));
                 document.getElementById('btn-mode-links').addEventListener('click', () => this.setTool('links'));
-                
                 document.getElementById('btn-clear-links').addEventListener('click', () => this.clearLinks());
                 document.getElementById('btn-download').addEventListener('click', () => this.downloadCertificate());
                 document.querySelectorAll('.closeModal').forEach(btn => btn.addEventListener('click', (e) => e.target.closest('.overlay').classList.remove('active')));
@@ -454,11 +461,7 @@
                     const id = e.dataTransfer.getData('text/plain');
                     if (!id) return;
                     const el = document.querySelector(`[data-id="${id}"]`);
-                    if (el) { 
-                        this.pool.appendChild(el); 
-                        this.state.connections = this.state.connections.filter(c => c.sourceId !== id && c.targetId !== id);
-                        this.drawArrows(); 
-                    }
+                    if (el) { this.pool.appendChild(el); this.state.connections = this.state.connections.filter(c => c.sourceId !== id && c.targetId !== id); this.drawArrows(); }
                 });
 
                 window.addEventListener('mousemove', (e) => {
@@ -498,10 +501,7 @@
             createLink(sourceId, targetId) {
                 if (sourceId === targetId) return;
                 const exists = this.state.connections.some(c => c.sourceId === sourceId && c.targetId === targetId);
-                if (!exists) {
-                    this.state.connections.push({ sourceId, targetId });
-                    this.drawArrows();
-                }
+                if (!exists) { this.state.connections.push({ sourceId, targetId }); this.drawArrows(); }
             },
 
             drawArrows() {
@@ -522,8 +522,8 @@
                     const y2 = (tRect.top + tRect.height / 2) - workspaceRect.top;
 
                     const angle = Math.atan2(y2 - y1, x2 - x1);
-                    const paddingX = 80;
-                    const paddingY = 40;
+                    const paddingX = 70;
+                    const paddingY = 35;
                     const startX = x1 + Math.cos(angle) * 30;
                     const startY = y1 + Math.sin(angle) * 15;
                     const endX = x2 - Math.cos(angle) * paddingX;
@@ -532,21 +532,21 @@
                     const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
                     g.setAttribute("class", "connection-group");
                     const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
-                    path.setAttribute("d", `M ${startX} ${startY} Q ${(startX+endX)/2} ${(startY+endY)/2 - 30} ${endX} ${endY}`);
+                    path.setAttribute("d", `M ${startX} ${startY} Q ${(startX+endX)/2} ${(startY+endY)/2 - 25} ${endX} ${endY}`);
                     path.setAttribute("class", "connection-arrow");
                     
                     const hitArea = document.createElementNS("http://www.w3.org/2000/svg", "path");
-                    hitArea.setAttribute("d", `M ${startX} ${startY} Q ${(startX+endX)/2} ${(startY+endY)/2 - 30} ${endX} ${endY}`);
+                    hitArea.setAttribute("d", `M ${startX} ${startY} Q ${(startX+endX)/2} ${(startY+endY)/2 - 25} ${endX} ${endY}`);
                     hitArea.setAttribute("class", "connection-hit-area");
 
                     const midX = 0.5 * ((startX+endX)/2) + 0.25 * startX + 0.25 * endX;
-                    const midY = 0.5 * ((startY+endY)/2 - 30) + 0.25 * startY + 0.25 * endY;
+                    const midY = 0.5 * ((startY+endY)/2 - 25) + 0.25 * startY + 0.25 * endY;
 
                     const del = document.createElementNS("http://www.w3.org/2000/svg", "g");
                     del.setAttribute("class", "delete-btn");
                     del.setAttribute("transform", `translate(${midX}, ${midY})`);
                     del.onclick = (e) => { e.stopPropagation(); this.state.connections.splice(index, 1); this.drawArrows(); };
-                    const circ = document.createElementNS("http://www.w3.org/2000/svg", "circle"); circ.setAttribute("r", "10");
+                    const circ = document.createElementNS("http://www.w3.org/2000/svg", "circle"); circ.setAttribute("r", "9");
                     const txt = document.createElementNS("http://www.w3.org/2000/svg", "text"); txt.setAttribute("text-anchor", "middle"); txt.setAttribute("dy", "5"); txt.textContent = "×";
                     del.appendChild(circ); del.appendChild(txt);
                     g.appendChild(path); g.appendChild(hitArea); g.appendChild(del);
@@ -554,10 +554,7 @@
                 });
             },
 
-            clearLinks() {
-                this.state.connections = [];
-                this.drawArrows();
-            },
+            clearLinks() { this.state.connections = []; this.drawArrows(); },
 
             loadHabitat(id) {
                 const data = habitatData[id];
@@ -566,32 +563,21 @@
                 this.pool.innerHTML = '';
                 data.organisms.forEach(org => {
                     const el = document.createElement('div');
-                    el.className = 'sidebar-item flex items-center gap-4 p-4';
+                    el.className = 'sidebar-item flex items-center gap-3';
                     el.draggable = (this.state.tool === 'arrange');
                     el.dataset.id = org.id;
-                    el.innerHTML = `
-                        <span class="text-3xl">${org.icon}</span> 
-                        <span class="font-bold handwritten text-2xl">${org.name}</span>
-                    `;
-                    
-                    el.addEventListener('dragstart', (e) => {
-                        e.dataTransfer.setData('text/plain', org.id);
-                    });
-
+                    el.innerHTML = `<span class="text-2xl">${org.icon}</span><span class="font-bold handwritten text-lg">${org.name}</span>`;
+                    el.addEventListener('dragstart', (e) => e.dataTransfer.setData('text/plain', org.id));
                     el.addEventListener('mousedown', (e) => {
                         if (this.state.tool === 'links' && el.closest('.trophic-shelf')) {
-                            this.state.isDraggingLink = true;
-                            this.state.linkingSource = org.id;
-                            el.classList.add('linking-source');
+                            this.state.isDraggingLink = true; this.state.linkingSource = org.id; el.classList.add('linking-source');
                         }
                     });
-
                     el.addEventListener('mouseup', (e) => {
                         if (this.state.isDraggingLink && this.state.linkingSource && this.state.linkingSource !== org.id) {
                             this.createLink(this.state.linkingSource, org.id);
                         }
                     });
-                    
                     this.pool.appendChild(el);
                 });
                 if (this.state.tool === 'links') document.querySelectorAll('.sidebar-item').forEach(el => el.classList.add('can-be-linked'));
@@ -613,8 +599,8 @@
                 const data = habitatData[this.state.activeHabitat];
                 document.getElementById('field-guide-content').innerHTML = data.organisms.map(o => `
                     <div class="border-b border-stone-200 pb-2">
-                        <span class="text-2xl">${o.icon}</span> <strong class="handwritten text-2xl">${o.name}</strong>
-                        <p class="text-sm italic text-stone-600">${o.notes}</p>
+                        <span class="text-xl">${o.icon}</span> <strong class="handwritten text-xl">${o.name}</strong>
+                        <p class="text-xs italic text-stone-600">${o.notes}</p>
                     </div>
                 `).join('');
                 this.modals.guide.classList.add('active');
@@ -622,128 +608,63 @@
 
             checkJournal() {
                 const currentData = habitatData[this.state.activeHabitat];
-                let shelfErrors = [];
-                let linkErrors = [];
-                let missingLinks = [];
-                let unplacedCount = 0;
-                let correctPlacementCount = 0;
-
+                let shelfErrors = []; let linkErrors = []; let missingLinks = []; let unplacedCount = 0; let correctPlacementCount = 0;
                 currentData.organisms.forEach(org => {
                     const el = document.querySelector(`[data-id="${org.id}"]`);
                     const shelf = el.closest('.trophic-shelf');
                     if (!shelf) { unplacedCount++; el.classList.remove('correct', 'incorrect'); }
                     else {
-                        const level = parseInt(shelf.dataset.level);
-                        if (level === org.level) {
-                            el.classList.add('correct'); el.classList.remove('incorrect');
-                            correctPlacementCount++;
-                        } else {
-                            el.classList.add('incorrect'); el.classList.remove('correct');
-                            shelfErrors.push(`The ${org.name} is on the wrong shelf. Its field notes mention what it eats!`);
-                        }
+                        if (parseInt(shelf.dataset.level) === org.level) { el.classList.add('correct'); el.classList.remove('incorrect'); correctPlacementCount++; }
+                        else { el.classList.add('incorrect'); el.classList.remove('correct'); shelfErrors.push(`The ${org.name} is on the wrong shelf.`); }
                     }
                 });
-
                 this.state.connections.forEach(c => {
                     const source = currentData.organisms.find(o => o.id === c.sourceId);
-                    if (!source.predators.includes(c.targetId)) {
-                        linkErrors.push("One of your arrows suggests an interaction that isn't in my field notes.");
-                    }
+                    if (!source.predators.includes(c.targetId)) linkErrors.push("Invalid energy link found.");
                 });
-
                 currentData.organisms.forEach(source => {
                     source.predators.forEach(predId => {
-                        const hasLink = this.state.connections.some(c => c.sourceId === source.id && c.targetId === predId);
-                        if (!hasLink) {
-                            const pred = currentData.organisms.find(o => o.id === predId);
-                            missingLinks.push(`I think the ${pred.name} might hunt more than what is currently linked.`);
-                        }
+                        if (!this.state.connections.some(c => c.sourceId === source.id && c.targetId === predId)) missingLinks.push("Missing energy links.");
                     });
                 });
-
-                const title = document.getElementById('feedback-title');
-                const text = document.getElementById('feedback-text');
-
-                if (unplacedCount > 0) {
-                    title.textContent = "Observations Incomplete";
-                    text.textContent = `I still have ${unplacedCount} specimens in the sidebar that need to be sketched into the journal.`;
-                } else if (shelfErrors.length > 0) {
-                    title.textContent = "Hierarchy Error";
-                    text.textContent = shelfErrors[0];
-                } else if (linkErrors.length > 0) {
-                    title.textContent = "Energy Flow Error";
-                    text.textContent = linkErrors[0];
-                } else if (missingLinks.length > 0) {
-                    title.textContent = "Food Web Incomplete";
-                    text.textContent = missingLinks[0];
-                } else if (correctPlacementCount === currentData.organisms.length) {
-                    title.textContent = "Master Naturalist!";
-                    text.textContent = "A perfect recording of this habitat! The web of life is clearly mapped and correct.";
-                    if (!this.state.completed.includes(this.state.activeHabitat)) {
-                        this.state.completed.push(this.state.activeHabitat);
-                        this.renderPatches();
-                    }
+                const title = document.getElementById('feedback-title'); const text = document.getElementById('feedback-text');
+                if (unplacedCount > 0) { title.textContent = "Incomplete"; text.textContent = `Sort the ${unplacedCount} remaining specimens.`; }
+                else if (shelfErrors.length > 0) { title.textContent = "Shelf Error"; text.textContent = shelfErrors[0]; }
+                else if (linkErrors.length > 0) { title.textContent = "Link Error"; text.textContent = linkErrors[0]; }
+                else if (missingLinks.length > 0) { title.textContent = "Missing Links"; text.textContent = missingLinks[0]; }
+                else if (correctPlacementCount === currentData.organisms.length) {
+                    title.textContent = "Success!"; text.textContent = "Perfect! You've mastered this habitat.";
+                    if (!this.state.completed.includes(this.state.activeHabitat)) { this.state.completed.push(this.state.activeHabitat); this.renderPatches(); }
                 }
                 this.modals.feedback.classList.add('active');
             },
 
             downloadCertificate() {
-                const root = this.rootEl;
-                const downloadBtn = document.getElementById('btn-download');
-                const downloadHint = document.getElementById('download-hint');
-                
-                // 1. Hide UI elements
-                downloadBtn.style.visibility = 'hidden';
-                downloadHint.style.visibility = 'hidden';
-
-                // 2. High-res Letter Landscape parameters
-                // 11 inches wide x 8.5 inches high
-                const targetWidth = 1100;
-                const targetHeight = 850;
-
-                // Capture using a temporary forced-style clone
-                html2canvas(root, {
-                    backgroundColor: '#1a1a1a',
-                    scale: 2, // Double resolution for clear printing
-                    useCORS: true,
-                    allowTaint: false,
-                    width: targetWidth,
-                    height: targetHeight,
-                    windowWidth: targetWidth,
-                    windowHeight: targetHeight,
-                    onclone: (clonedDoc) => {
-                        const clonedRoot = clonedDoc.getElementById('journal-root');
-                        
-                        // Force fixed dimensions on the clone
-                        clonedRoot.style.width = targetWidth + 'px';
-                        clonedRoot.style.height = targetHeight + 'px';
-                        clonedRoot.style.minHeight = targetHeight + 'px';
-                        clonedRoot.style.padding = '60px';
-                        clonedRoot.style.margin = '0';
-                        clonedRoot.style.display = 'block';
-                        clonedRoot.style.overflow = 'hidden';
-                        clonedRoot.style.borderLeft = '15px solid #3d2b1f';
-                        
-                        // Ensure header is visible and correct
-                        const clonedHeader = clonedDoc.getElementById('journal-header');
-                        clonedHeader.style.marginBottom = '40px';
-                    }
-                }).then(canvas => {
-                    const rawName = document.getElementById('user-name').innerText.trim();
-                    const name = rawName === 'Your Name' || rawName === '' ? 'Young_Naturalist' : rawName.replace(/\s+/g, '_');
-                    
-                    const link = document.createElement('a');
-                    link.download = `Colorado_Food_Web_Journal_${name}.png`;
-                    link.href = canvas.toDataURL('image/png', 1.0);
-                    link.click();
-                    
-                    // Restore UI
-                    downloadBtn.style.visibility = 'visible';
-                    downloadHint.style.visibility = 'visible';
-                }).catch(err => {
-                    console.error("Certificate Generation Failed:", err);
-                    downloadBtn.style.visibility = 'visible';
-                    downloadHint.style.visibility = 'visible';
+                const name = document.getElementById('user-name').innerText.trim() || 'Young Naturalist';
+                this.certTemplate.innerHTML = `
+                    <div style="flex: 1; border: 10px solid #3d2b1f; padding: 40px; display: flex; flex-direction: column; align-items: center; width: 100%;">
+                        <h1 style="font-family: 'Patrick Hand', cursive; font-size: 64px; margin-bottom: 0;">Colorado Food Web Journal</h1>
+                        <p style="font-family: 'Special Elite', cursive; font-size: 20px; letter-spacing: 5px; text-transform: uppercase; margin-bottom: 40px;">Master Naturalist Certificate</p>
+                        <div style="margin: 40px 0; border-bottom: 2px dashed #3d2b1f; min-width: 400px; padding: 10px;"><span style="font-family: 'Caveat', cursive; font-size: 48px; color: var(--ribbon-blue);">${name}</span></div>
+                        <p style="font-family: 'Patrick Hand', cursive; font-size: 24px; max-width: 600px; line-height: 1.4; margin-bottom: 60px;">Has demonstrated mastery of energy flow and ecosystem hierarchy across the diverse habitats of Colorado.</p>
+                        <div id="cert-grid" style="display: flex; gap: 40px; justify-content: center; flex-wrap: wrap; width: 100%;"></div>
+                        <div style="margin-top: auto; width: 100%; display: flex; justify-content: space-between; align-items: flex-end;"><div style="font-family: 'Special Elite', cursive; font-size: 12px; opacity: 0.6;">VERIFIED: ${new Date().toLocaleDateString()}</div><div style="font-family: 'Special Elite', cursive; font-size: 12px; opacity: 0.3;">BUILD v1.1.1</div></div>
+                    </div>
+                `;
+                const grid = this.certTemplate.querySelector('#cert-grid');
+                Object.keys(habitatData).forEach(key => {
+                    const data = habitatData[key]; const isComp = this.state.completed.includes(key);
+                    const html = `<div style="display: flex; flex-direction: column; align-items: center; gap: 10px; position: relative;">
+                        ${isComp ? '<div style="position: absolute; top: -5px; right: -5px; width: 30px; height: 45px; background: var(--ribbon-blue); clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 85%, 0 100%); z-index: 5; display: flex; align-items: center; justify-content: center; color: gold; font-size: 12px;">★</div>' : ''}
+                        <div style="width: 100px; height: 100px; border-radius: 50%; border: 5px solid #3d2b1f; overflow: hidden; background: #eee;">
+                            <img src="${data.img}" crossorigin="anonymous" style="width: 100%; height: 100%; object-fit: cover; ${isComp ? '' : 'filter: grayscale(1); opacity: 0.5;'}">
+                        </div>
+                        <span style="font-family: 'Special Elite', cursive; font-size: 10px; text-transform: uppercase;">${data.name.split(' ')[0]}</span>
+                    </div>`;
+                    grid.insertAdjacentHTML('beforeend', html);
+                });
+                html2canvas(this.certTemplate, { backgroundColor: '#1a1a1a', scale: 2.5, useCORS: true, width: 1100, height: 850 }).then(canvas => {
+                    const link = document.createElement('a'); link.download = `Naturalist_Cert_${name.replace(/\s+/g, '_')}.png`; link.href = canvas.toDataURL('image/png', 1.0); link.click();
                 });
             }
         };
