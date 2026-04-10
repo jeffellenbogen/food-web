@@ -206,7 +206,7 @@
                     <h1 class="text-4xl font-bold handwritten tracking-tight text-stone-800">'s Colorado Food Web Journal</h1>
                 </div>
             </div>
-            <!-- Toolbar - v1.2.1: Habitat navigation buttons -->
+            <!-- Toolbar - v1.2.2: Habitat navigation buttons -->
             <div id="workspace-tools" class="hidden flex gap-3">
                 <button id="btn-food-web-101" class="btn-ink">Food Web 101</button>
                 <button id="btn-field-guide" class="btn-ink">Field Guide</button>
@@ -225,7 +225,7 @@
                     <p id="download-hint" class="text-sm typewriter opacity-50 mt-4 text-center">Master at least one habitat to download your certificate.</p>
                 </div>
             </div>
-            <div class="version-tag">v1.2.1</div>
+            <div class="version-tag">v1.2.2</div>
         </div>
 
         <div id="screen-workspace" class="screen">
@@ -240,9 +240,9 @@
                         <p id="mode-hint" class="text-xs typewriter uppercase tracking-widest mb-2 px-4 pb-2 border-b border-stone-300">Drag to Sort</p>
                         <div id="organism-pool" class="space-y-3 overflow-y-auto p-4 flex-grow scrollbar-thin scrollbar-thumb-stone-300"></div>
                         
-                        <!-- Mode Toggle and Tools - v1.2.1: Unified mode toggle back in sidebar -->
+                        <!-- Mode Toggle and Tools - v1.2.2: Color-coded mode toggle -->
                         <div class="p-4 border-t border-stone-300 space-y-3 flex-shrink-0">
-                            <button id="btn-mode-toggle" class="btn-ink w-full bg-blue-50 text-blue-900 border-blue-900">MODE: ARRANGE</button>
+                            <button id="btn-mode-toggle" class="btn-ink w-full transition-colors duration-300">MODE: ARRANGE WEB</button>
                             <button id="btn-clear-links" class="btn-ink w-full opacity-60 text-xs">Reset Arrows</button>
                         </div>
                     </div>
@@ -261,7 +261,7 @@
                     </div>
                 </main>
             </div>
-            <div class="version-tag">v1.2.1</div>
+            <div class="version-tag">v1.2.2</div>
         </div>
 
         <!-- Modals -->
@@ -437,7 +437,6 @@
                 document.getElementById('btn-food-web-101').addEventListener('click', () => this.modals.logic.classList.add('active'));
                 document.getElementById('btn-check').addEventListener('click', () => this.checkJournal());
                 
-                // v1.2.1: Single toggle logic
                 this.btnModeToggle.addEventListener('click', () => {
                     const nextMode = this.state.tool === 'arrange' ? 'links' : 'arrange';
                     this.setTool(nextMode);
@@ -446,6 +445,15 @@
                 document.getElementById('btn-clear-links').addEventListener('click', () => this.clearLinks());
                 document.getElementById('btn-download').addEventListener('click', () => this.downloadCertificate());
                 document.querySelectorAll('.closeModal').forEach(btn => btn.addEventListener('click', (e) => e.target.closest('.overlay').classList.remove('active')));
+
+                // v1.2.2: Add escape key listener to close overlays
+                window.addEventListener('keydown', (e) => {
+                    if (e.key === 'Escape') {
+                        Object.keys(this.modals).forEach(key => {
+                            this.modals[key].classList.remove('active');
+                        });
+                    }
+                });
 
                 this.shelves.forEach(shelf => {
                     const zone = shelf.querySelector('.drop-zone');
@@ -503,8 +511,16 @@
 
             setTool(toolName) {
                 this.state.tool = toolName;
-                this.btnModeToggle.textContent = toolName === 'arrange' ? "MODE: ARRANGE" : "MODE: LINKING";
-                this.btnModeToggle.classList.toggle('active-tool', toolName === 'links');
+                
+                // v1.2.2: Color switching logic for mode toggle
+                if (toolName === 'arrange') {
+                    this.btnModeToggle.textContent = "MODE: ARRANGE WEB";
+                    this.btnModeToggle.className = 'btn-ink w-full bg-blue-50 text-blue-900 border-blue-900';
+                } else {
+                    this.btnModeToggle.textContent = "MODE: ENERGY LINKS";
+                    this.btnModeToggle.className = 'btn-ink w-full bg-green-50 text-green-900 border-green-900';
+                }
+
                 this.modeHint.textContent = toolName === 'arrange' ? "Drag to Sort" : "Drag to Link";
                 document.querySelectorAll('.sidebar-item').forEach(el => {
                     el.draggable = (toolName === 'arrange');
@@ -735,7 +751,7 @@
                         <div id="cert-grid" style="display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; width: 100%;"></div>
                         
                         <div style="margin-top: auto; width: 100%; display: flex; flex-direction: column; align-items: center; gap: 10px;">
-                            <div style="font-family: 'Special Elite', cursive; font-size: 12pt; font-weight: bold; opacity: 0.3;">BUILD v1.2.1</div>
+                            <div style="font-family: 'Special Elite', cursive; font-size: 12pt; font-weight: bold; opacity: 0.3;">BUILD v1.2.2</div>
                             <div style="font-family: 'Special Elite', cursive; font-size: 12px; opacity: 0.6;">VERIFIED: ${new Date().toLocaleDateString()}</div>
                         </div>
                     </div>
