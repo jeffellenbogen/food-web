@@ -149,10 +149,10 @@
             background-image: url("https://www.transparenttextures.com/patterns/paper-fibers.png");
         }
 
-        /* v1.3.11 Compact Feedback Modal Styling */
+        /* v1.3.12 Minimal Achievement Feedback Modal Styling */
         #modal-feedback .modal-paper {
-            max-width: 550px;
-            padding: 2rem;
+            max-width: 450px;
+            padding: 1.5rem;
         }
 
         #connection-layer {
@@ -301,7 +301,7 @@
                     <p id="download-hint" class="text-sm typewriter opacity-50 mt-4 text-center">Master at least one habitat to download your certificate. Save your data to resume later.</p>
                 </div>
             </div>
-            <div class="version-tag">v1.3.11</div>
+            <div class="version-tag">v1.3.12</div>
         </div>
 
         <div id="screen-workspace" class="screen">
@@ -346,7 +346,7 @@
                     </div>
                 </main>
             </div>
-            <div class="version-tag">v1.3.11</div>
+            <div class="version-tag">v1.3.12</div>
         </div>
 
         <div id="modal-field-guide" class="overlay">
@@ -928,22 +928,27 @@
                     const uniqueHints = [...new Set(hints)];
                     textEl.innerHTML = uniqueHints.slice(0, 3).join("<br><br>");
                 } else {
-                    // v1.3.11: Compact Achievement Success Layout
+                    // v1.3.12: High-fidelity Achievement Layout mirroring landing page badge
                     titleEl.textContent = "Mastery Achieved!";
                     const currentId = this.state.activeHabitat;
                     const data = habitatData[currentId];
+                    const multiLineName = data.name.split(' ').join('<br>');
+                    
                     textEl.innerHTML = `
-                        <div class="flex items-start gap-6 my-2">
-                            <div class="relative w-24 h-24 flex-shrink-0">
-                                <div class="w-full h-full rounded-full border-4 border-[#3d2b1f] overflow-hidden shadow-md">
-                                    <img src="${data.img}" class="w-full h-full object-cover">
+                        <div class="flex items-start gap-4 my-2">
+                            <!-- Scaled merit badge visual matching landing page style -->
+                            <div class="flex flex-col items-center flex-shrink-0 relative scale-[0.65] origin-top-left" style="margin-bottom: -40px; margin-right: -40px;">
+                                <div class="absolute -top-3 -right-3 transform rotate-[15deg] z-20">
+                                    ${getRibbonSVG(50, 70, 24)}
                                 </div>
-                                <div class="absolute -top-1 -right-1 transform rotate-[15deg]">
-                                    ${getRibbonSVG(30, 45, 16)}
+                                <div class="w-[130px] h-[130px] rounded-full border-[8px] border-[#3d2b1f] overflow-hidden shadow-lg bg-[#eee] relative">
+                                    <div class="absolute inset-0 shadow-[inset_0_0_15px_rgba(0,0,0,0.2)] z-10 pointer-events-none"></div>
+                                    <img src="${data.img}" class="w-full h-full object-cover saturate-[1.4] contrast-[1.1]">
                                 </div>
+                                <div class="mt-2 patch-label z-10">${multiLineName}</div>
                             </div>
-                            <div class="flex-grow pt-1">
-                                <p class="text-xl italic text-left text-stone-700">Excellent work. You have accurately decoded the trophic structure and energy flow of the <strong>${data.name}</strong> habitat. Your findings are recorded.</p>
+                            <div class="flex-grow pt-1 pr-2">
+                                <p class="text-lg italic text-left text-stone-700 leading-snug">Excellent work. You have accurately decoded the trophic structure and energy flow of the <strong>${data.name}</strong> habitat. Your findings are recorded in the Master Journal.</p>
                             </div>
                         </div>
                     `;
@@ -960,7 +965,7 @@
             exportJournal() {
                 const userName = document.getElementById('user-name').innerText.trim() || "Naturalist";
                 const exportData = {
-                    version: "1.3.11",
+                    version: "1.3.12",
                     userName: userName,
                     completed: this.state.completed,
                     habitatsState: this.state.habitatsState
@@ -1014,7 +1019,7 @@
                         
                         <div style="margin-top: auto; width: 100%; display: flex; flex-direction: column; align-items: center; gap: 10px;">
                             <div style="font-family: 'Special Elite', cursive; font-size: 14px; opacity: 0.8; max-width: 800px;">${statusSummary}</div>
-                            <div style="font-family: 'Special Elite', cursive; font-size: 12pt; font-weight: bold; opacity: 0.3;">BUILD v1.3.11</div>
+                            <div style="font-family: 'Special Elite', cursive; font-size: 12pt; font-weight: bold; opacity: 0.3;">BUILD v1.3.12</div>
                             <div style="font-family: 'Special Elite', cursive; font-size: 12px; opacity: 0.6;">VERIFIED: ${new Date().toLocaleDateString()}</div>
                         </div>
                     </div>
