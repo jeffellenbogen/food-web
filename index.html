@@ -64,7 +64,7 @@
             overflow: hidden;
         }
         .patch-slot:hover { transform: scale(1.1) rotate(5deg); border-color: #fff; box-shadow: 0 0 30px 10px var(--highlight-glow); }
-        .patch-image { width: 100%; height: 100%; object-fit: cover; filter: saturate(1.4) contrast(1.1); }
+        .patch-image { width: 100%; height: 100%; object-fit: cover; filter: saturate(1.4) contrast(1.1); display: block; }
 
         .ribbon {
             position: absolute; top: -10px; right: -10px; width: 50px; height: 70px;
@@ -149,9 +149,9 @@
             background-image: url("https://www.transparenttextures.com/patterns/paper-fibers.png");
         }
 
-        /* v1.3.14 Optimized Mastery Success Modal Styling */
+        /* v1.3.15 Minimal Achievement Feedback Modal Styling */
         #modal-feedback .modal-paper {
-            max-width: 450px;
+            max-width: 480px;
             padding: 1.5rem;
         }
 
@@ -301,7 +301,7 @@
                     <p id="download-hint" class="text-sm typewriter opacity-50 mt-4 text-center">Master at least one habitat to download your certificate. Save your data to resume later.</p>
                 </div>
             </div>
-            <div class="version-tag">v1.3.14</div>
+            <div class="version-tag">v1.3.15</div>
         </div>
 
         <div id="screen-workspace" class="screen">
@@ -346,7 +346,7 @@
                     </div>
                 </main>
             </div>
-            <div class="version-tag">v1.3.14</div>
+            <div class="version-tag">v1.3.15</div>
         </div>
 
         <div id="modal-field-guide" class="overlay">
@@ -928,23 +928,26 @@
                     const uniqueHints = [...new Set(hints)];
                     textEl.innerHTML = uniqueHints.slice(0, 3).join("<br><br>");
                 } else {
-                    // v1.3.14: Success Achievement visual using standardized classes
+                    // v1.3.15: Success Achievement Visual Redesign for compactness and fidelity
                     titleEl.textContent = "Mastery Achieved!";
                     const currentId = this.state.activeHabitat;
                     const data = habitatData[currentId];
                     const multiLineName = data.name.split(' ').join('<br>');
                     
                     textEl.innerHTML = `
-                        <div class="flex items-start gap-5 my-2">
-                            <!-- Proven merit badge architecture scaled for modal -->
-                            <div class="flex flex-col items-center flex-shrink-0 relative scale-[0.65] origin-top-left" style="margin-bottom: -45px; margin-right: -40px;">
-                                <div class="absolute -top-4 -right-4 transform rotate-[15deg] z-20">
-                                    ${getRibbonSVG(55, 75, 26)}
+                        <div class="flex items-start gap-6 my-2">
+                            <!-- Standardized merit badge visual fixed at 100px width -->
+                            <div class="relative flex-shrink-0" style="width: 100px;">
+                                <div class="absolute -top-3 -right-3 z-20 transform rotate-[15deg]">
+                                    ${getRibbonSVG(35, 50, 16)}
                                 </div>
-                                <div class="patch-slot cursor-default hover:transform-none">
-                                    <img src="${data.img}" crossorigin="anonymous" class="patch-image" alt="${data.name}">
+                                <div class="w-[100px] h-[100px] rounded-full border-[6px] border-[#3d2b1f] overflow-hidden shadow-lg bg-[#eee] relative">
+                                    <div class="absolute inset-0 shadow-[inset_0_0_10px_rgba(0,0,0,0.2)] z-10 pointer-events-none"></div>
+                                    <img src="${data.img}" crossorigin="anonymous" class="w-full h-full object-cover saturate-[1.4] contrast-[1.1] block" alt="${data.name}">
                                 </div>
-                                <div class="mt-2 patch-label z-10">${multiLineName}</div>
+                                <div class="mt-2 bg-white border border-[#3d2b1f] shadow-sm py-1 px-1 text-[10px] uppercase font-bold typewriter text-center leading-tight">
+                                    ${multiLineName}
+                                </div>
                             </div>
                             <div class="flex-grow pt-2">
                                 <p class="text-xl italic text-left text-stone-700 leading-snug">Excellent work. You have accurately decoded the trophic structure and energy flow of the <strong>${data.name}</strong> habitat. Your findings are recorded in the Master Journal.</p>
@@ -964,7 +967,7 @@
             exportJournal() {
                 const userName = document.getElementById('user-name').innerText.trim() || "Naturalist";
                 const exportData = {
-                    version: "1.3.14",
+                    version: "1.3.15",
                     userName: userName,
                     completed: this.state.completed,
                     habitatsState: this.state.habitatsState
@@ -1018,7 +1021,7 @@
                         
                         <div style="margin-top: auto; width: 100%; display: flex; flex-direction: column; align-items: center; gap: 10px;">
                             <div style="font-family: 'Special Elite', cursive; font-size: 14px; opacity: 0.8; max-width: 800px;">${statusSummary}</div>
-                            <div style="font-family: 'Special Elite', cursive; font-size: 12pt; font-weight: bold; opacity: 0.3;">BUILD v1.3.14</div>
+                            <div style="font-family: 'Special Elite', cursive; font-size: 12pt; font-weight: bold; opacity: 0.3;">BUILD v1.3.15</div>
                             <div style="font-family: 'Special Elite', cursive; font-size: 12px; opacity: 0.6;">VERIFIED: ${new Date().toLocaleDateString()}</div>
                         </div>
                     </div>
