@@ -170,7 +170,19 @@
 
         .workspace-habitat-badge {
             width: 60px; height: 60px; border-radius: 50%; border: 4px solid #3d2b1f; overflow: hidden;
+            position: relative;
         }
+
+        /* v1.3.5 Mastery Ribbon for Workspace */
+        .workspace-ribbon {
+            position: absolute; top: -5px; right: -5px; width: 24px; height: 35px;
+            background: var(--ribbon-blue); z-index: 10;
+            clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 85%, 0 100%);
+            display: none; align-items: center; justify-content: center;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        .workspace-ribbon::after { content: '★'; color: gold; font-size: 0.6rem; margin-bottom: 4px; }
+        .is-mastered .workspace-ribbon { display: flex; }
 
         .shelf-drag-over { background-color: rgba(212, 175, 55, 0.05); }
         .correct { border-color: var(--success-green) !important; background: #eaffea !important; }
@@ -277,7 +289,7 @@
                     <p id="download-hint" class="text-sm typewriter opacity-50 mt-4 text-center">Master at least one habitat to download your certificate. Save your data to resume later.</p>
                 </div>
             </div>
-            <div class="version-tag">v1.3.4</div>
+            <div class="version-tag">v1.3.5</div>
         </div>
 
         <div id="screen-workspace" class="screen">
@@ -308,7 +320,10 @@
 
                 <main class="lg:col-span-3 flex flex-col h-full overflow-hidden">
                     <div class="flex items-center gap-4 mb-3 flex-shrink-0">
-                        <div id="workspace-badge-container" class="workspace-habitat-badge"></div>
+                        <!-- v1.3.5 Badge with Ribbon container -->
+                        <div id="workspace-badge-container" class="workspace-habitat-badge">
+                            <div class="workspace-ribbon"></div>
+                        </div>
                         <h2 id="current-habitat-name" class="text-5xl handwritten text-stone-800 border-l-4 border-stone-800 pl-4 uppercase">Habitat Name</h2>
                     </div>
                     <div id="shelves-container" class="relative z-20 flex-grow flex flex-col overflow-hidden">
@@ -319,7 +334,7 @@
                     </div>
                 </main>
             </div>
-            <div class="version-tag">v1.3.4</div>
+            <div class="version-tag">v1.3.5</div>
         </div>
 
         <div id="modal-field-guide" class="overlay">
@@ -455,7 +470,6 @@
                 };
                 nameField.addEventListener('focus', selectAll);
                 nameField.addEventListener('mouseup', (e) => {
-                    // Prevent immediate deselect on mouse up
                     if (window.getSelection().toString() === "") {
                         selectAll();
                     }
@@ -483,7 +497,6 @@
                 this.labelLinks = document.getElementById('label-links');
             },
 
-            // v1.3.3: Helper to check if any actions have been taken
             hasProgress() {
                 if (this.state.completed.length > 0) return true;
                 return Object.values(this.state.habitatsState).some(h => 
@@ -491,20 +504,17 @@
                 );
             },
 
-            // v1.3.4: Real-time Master Status verification
             isCurrentHabitatCorrect() {
                 const id = this.state.activeHabitat;
                 if (!id) return false;
                 const currentData = habitatData[id];
                 const activeState = this.state.habitatsState[id];
 
-                // Check Placements
                 for (const org of currentData.organisms) {
                     const shelfLevel = activeState.placements[org.id];
                     if (!shelfLevel || parseInt(shelfLevel) !== org.level) return false;
                 }
 
-                // Check link accuracy (all predator links must exist)
                 for (const source of currentData.organisms) {
                     for (const predId of source.predators) {
                         const exists = activeState.connections.some(c => c.sourceId === source.id && c.targetId === predId);
@@ -512,23 +522,35 @@
                     }
                 }
 
-                // Check for invalid links
                 for (const conn of activeState.connections) {
                     const source = currentData.organisms.find(o => o.id === conn.sourceId);
-                    if (!source.predators.includes(conn.targetId)) return false;
+                    if (!source || !source.predators.includes(conn.targetId)) return false;
                 }
 
                 return true;
             },
 
-            // v1.3.4: Revoke ribbon if mastered habitat is now broken
+            // v1.3.5: Synchronize both index and workspace ribbons
             syncCompletionStatus() {
                 const id = this.state.activeHabitat;
+                if (!id) return;
+                
+                const isCorrect = this.isCurrentHabitatCorrect();
                 const index = this.state.completed.indexOf(id);
-                if (index !== -1 && !this.isCurrentHabitatCorrect()) {
+                
+                if (index !== -1 && !isCorrect) {
                     this.state.completed.splice(index, 1);
                     this.renderPatches();
                 }
+                
+                this.renderWorkspaceRibbon();
+            },
+
+            // v1.3.5: Toggle workspace ribbon visibility
+            renderWorkspaceRibbon() {
+                const id = this.state.activeHabitat;
+                const mastered = this.state.completed.includes(id);
+                this.badgeContainer.classList.toggle('is-mastered', mastered);
             },
 
             renderPatches() {
@@ -611,7 +633,7 @@
                             zone.appendChild(el); 
                             this.state.habitatsState[this.state.activeHabitat].placements[id] = shelf.dataset.level;
                             this.renderPatches(); 
-                            this.syncCompletionStatus(); // v1.3.4
+                            this.syncCompletionStatus(); 
                             this.drawArrows(); 
                         }
                     });
@@ -627,7 +649,7 @@
                         this.pool.appendChild(el); 
                         this.state.habitatsState[this.state.activeHabitat].placements[id] = null;
                         this.state.habitatsState[this.state.activeHabitat].connections = this.state.habitatsState[this.state.activeHabitat].connections.filter(c => c.sourceId !== id && c.targetId !== id);
-                        this.syncCompletionStatus(); // v1.3.4
+                        this.syncCompletionStatus(); 
                         this.drawArrows(); 
                     }
                 });
@@ -681,7 +703,7 @@
                 if (!exists) { 
                     activeState.connections.push({ sourceId, targetId }); 
                     this.renderPatches();
-                    this.syncCompletionStatus(); // v1.3.4
+                    this.syncCompletionStatus(); 
                     this.drawArrows(); 
                 }
             },
@@ -722,7 +744,7 @@
                     del.onclick = (e) => { 
                         e.stopPropagation(); 
                         activeState.connections.splice(index, 1); 
-                        this.syncCompletionStatus(); // v1.3.4
+                        this.syncCompletionStatus(); 
                         this.drawArrows(); 
                     };
                     const circ = document.createElementNS("http://www.w3.org/2000/svg", "circle"); circ.setAttribute("r", "9");
@@ -744,7 +766,14 @@
                 const data = habitatData[id];
                 const activeState = this.state.habitatsState[id];
                 this.habitatTitle.textContent = data.name;
-                this.badgeContainer.innerHTML = `<img src="${data.img}" class="w-full h-full object-cover">`;
+                
+                // v1.3.5: Retain ribbon structure in load
+                this.badgeContainer.innerHTML = `
+                    <div class="workspace-ribbon"></div>
+                    <img src="${data.img}" class="w-full h-full object-cover">
+                `;
+                this.renderWorkspaceRibbon();
+
                 document.querySelectorAll('.drop-zone').forEach(z => z.innerHTML = '');
                 this.pool.innerHTML = '';
                 data.organisms.forEach(org => {
@@ -857,13 +886,13 @@
                     titleEl.textContent = "Observation Notes";
                     const uniqueHints = [...new Set(hints)];
                     textEl.innerHTML = uniqueHints.slice(0, 3).join("<br><br>");
-                    // Handle dynamic revocation if clicking check and it's wrong (already handled by sync)
                 } else {
                     titleEl.textContent = "Mastery Achieved!"; 
                     textEl.textContent = "Excellent work. You have accurately decoded the trophic structure and energy flow of this Colorado habitat. Your findings are recorded.";
                     if (!this.state.completed.includes(this.state.activeHabitat)) {
                         this.state.completed.push(this.state.activeHabitat);
                         this.renderPatches();
+                        this.renderWorkspaceRibbon(); // v1.3.5
                     }
                 }
                 this.modals.feedback.classList.add('active');
@@ -872,7 +901,7 @@
             exportJournal() {
                 const userName = document.getElementById('user-name').innerText.trim() || "Naturalist";
                 const exportData = {
-                    version: "1.3.4",
+                    version: "1.3.5",
                     userName: userName,
                     completed: this.state.completed,
                     habitatsState: this.state.habitatsState
@@ -926,7 +955,7 @@
                         
                         <div style="margin-top: auto; width: 100%; display: flex; flex-direction: column; align-items: center; gap: 10px;">
                             <div style="font-family: 'Special Elite', cursive; font-size: 14px; opacity: 0.8; max-width: 800px;">${statusSummary}</div>
-                            <div style="font-family: 'Special Elite', cursive; font-size: 12pt; font-weight: bold; opacity: 0.3;">BUILD v1.3.4</div>
+                            <div style="font-family: 'Special Elite', cursive; font-size: 12pt; font-weight: bold; opacity: 0.3;">BUILD v1.3.5</div>
                             <div style="font-family: 'Special Elite', cursive; font-size: 12px; opacity: 0.6;">VERIFIED: ${new Date().toLocaleDateString()}</div>
                         </div>
                     </div>
