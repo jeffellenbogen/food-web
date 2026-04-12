@@ -19,6 +19,7 @@
             --success-green: #3b7a3b;
             --pencil-blue: #4a7a96;
             --ribbon-blue: #2c5282;
+            --ribbon-gold: #ffd700;
         }
 
         body {
@@ -63,16 +64,12 @@
             overflow: hidden;
         }
         .patch-slot:hover { transform: scale(1.1) rotate(5deg); border-color: #fff; box-shadow: 0 0 30px 10px var(--highlight-glow); }
-        .patch-image { width: 100%; height: 100%; object-fit: cover; filter: saturate(1.4) contrast(1.1); }
+        .patch-image { width: 100%; height: 100%; object-fit: cover; filter: saturate(1.4) contrast(1.1); display: block; }
 
         .ribbon {
             position: absolute; top: -10px; right: -10px; width: 50px; height: 70px;
-            background: var(--ribbon-blue); z-index: 10;
-            clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 85%, 0 100%);
-            display: flex; align-items: center; justify-content: center; transform: rotate(15deg);
-            border: 1px solid rgba(255,255,255,0.2);
+            z-index: 10; transform: rotate(15deg); pointer-events: none;
         }
-        .ribbon::after { content: '★'; color: gold; font-size: 1.2rem; margin-bottom: 10px; }
 
         .patch-label {
             font-family: 'Special Elite', cursive; font-size: 0.9rem; text-transform: uppercase;
@@ -85,7 +82,7 @@
         .handwritten { font-family: 'Caveat', cursive; }
         .typewriter { font-family: 'Special Elite', cursive; }
 
-        .editable-name { cursor: text; min-width: 150px; display: inline-block; outline: none; padding: 0 10px; }
+        .editable-name { cursor: text; min-width: 120px; display: inline-block; outline: none; padding: 0 2px; }
         .editable-name:focus { background: rgba(255, 255, 255, 0.8); border-radius: 4px; }
 
         .trophic-shelf {
@@ -121,8 +118,21 @@
             padding: 0.6rem 1.2rem; transition: all 0.2s; font-weight: bold; background: transparent;
             font-family: 'Special Elite', cursive; font-size: 0.9rem;
         }
-        .btn-ink:hover:not(.mode-toggle-container *) { background: var(--ink-color); color: white; transform: translateY(-1px); }
+        .btn-ink:hover:not(.mode-toggle-container *, .needs-check) { background: var(--ink-color); color: white; transform: translateY(-1px); }
         .btn-ink.active-tool { background: var(--pencil-blue); color: white; border-color: var(--pencil-blue); }
+
+        .needs-check {
+            background-color: var(--ribbon-blue) !important;
+            border: 3px solid var(--ribbon-gold) !important;
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.4);
+            transform: scale(1.05);
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .needs-check:hover {
+            filter: brightness(1.2);
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.6);
+            transform: scale(1.08);
+        }
 
         .screen { display: none; height: 100%; flex-direction: column; overflow: hidden; }
         .screen.active { display: flex; }
@@ -137,6 +147,22 @@
             background: #fff; max-width: 750px; width: 100%; padding: 2.5rem;
             border: 2px solid #3d2b1f; position: relative; box-shadow: 10px 10px 0 rgba(0,0,0,0.2);
             background-image: url("https://www.transparenttextures.com/patterns/paper-fibers.png");
+        }
+
+        /* v1.3.22 Tightened Feedback Modal Styling */
+        #modal-feedback .modal-paper {
+            max-width: 460px;
+            padding: 1.25rem 1.5rem;
+            max-height: 85vh;
+            overflow-y: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        #modal-feedback h3 {
+            margin-top: 0;
+            margin-bottom: 0.5rem;
+            font-size: 2.4rem;
+            line-height: 1.1;
         }
 
         #connection-layer {
@@ -169,8 +195,16 @@
         }
 
         .workspace-habitat-badge {
-            width: 60px; height: 60px; border-radius: 50%; border: 4px solid #3d2b1f; overflow: hidden;
+            width: 60px; height: 60px; border-radius: 50%; border: 4px solid #3d2b1f; 
+            position: relative;
         }
+
+        .workspace-ribbon {
+            position: absolute; top: -10px; right: -10px; width: 30px; height: 45px;
+            z-index: 10; transform: rotate(15deg); pointer-events: none;
+            display: none;
+        }
+        .is-mastered .workspace-ribbon { display: block; }
 
         .shelf-drag-over { background-color: rgba(212, 175, 55, 0.05); }
         .correct { border-color: var(--success-green) !important; background: #eaffea !important; }
@@ -245,7 +279,6 @@
         <header id="journal-header" class="flex justify-between items-center mb-6 border-b-2 border-stone-300 pb-3 flex-shrink-0">
             <div class="flex items-center gap-6">
                 <button id="btn-to-cover" class="hidden btn-ink">&larr; INDEX</button>
-                <!-- v1.2.7: Right-justified name field for better flow -->
                 <div class="flex items-baseline">
                     <span id="user-name" class="handwritten text-4xl text-blue-900 border-b border-dashed border-stone-400 pl-4 pr-0 min-w-[120px] outline-none text-right inline-block" contenteditable="true">Your Name</span><h1 class="text-4xl font-bold handwritten tracking-tight text-stone-800 ml-0">'s Colorado Food Web Journal</h1>
                 </div>
@@ -253,7 +286,7 @@
             <div id="workspace-tools" class="hidden flex gap-3">
                 <button id="btn-food-web-101" class="btn-ink">Food Web 101</button>
                 <button id="btn-field-guide" class="btn-ink">Field Guide</button>
-                <button id="btn-check" class="btn-ink bg-stone-800 text-white shadow-md">Check Journal</button>
+                <button id="btn-check" class="btn-ink bg-stone-800 text-white shadow-md transition-all">Check Journal</button>
             </div>
         </header>
 
@@ -269,7 +302,7 @@
                         <button id="btn-download" class="btn-ink uppercase bg-blue-900 text-white shadow-xl hover:bg-blue-800 hidden">Download Master Naturalist Certificate</button>
                         
                         <div class="flex flex-col gap-2">
-                             <button id="btn-export-journal" class="btn-ink text-xs uppercase opacity-70">Save Journal Data</button>
+                             <button id="btn-export-journal" class="hidden btn-ink text-xs uppercase opacity-70">Save Journal Data</button>
                              <label for="input-import-journal" class="btn-ink text-xs uppercase opacity-70 cursor-pointer text-center">Load Journal Data</label>
                              <input type="file" id="input-import-journal" class="hidden" accept=".json">
                         </div>
@@ -278,7 +311,7 @@
                     <p id="download-hint" class="text-sm typewriter opacity-50 mt-4 text-center">Master at least one habitat to download your certificate. Save your data to resume later.</p>
                 </div>
             </div>
-            <div class="version-tag">v1.3.1</div>
+            <div class="version-tag">v1.3.22</div>
         </div>
 
         <div id="screen-workspace" class="screen">
@@ -299,14 +332,20 @@
                                 <div id="label-arrange" class="mode-label active">Arrange Species</div>
                                 <div id="label-links" class="mode-label inactive">Drag Energy Links</div>
                             </div>
-                            <button id="btn-clear-links" class="btn-ink w-full opacity-60 text-[10px]">Reset Arrows</button>
+                            <div class="flex gap-2">
+                                <button id="btn-clear-links" class="btn-ink flex-1 opacity-60 text-[10px]">Reset Arrows</button>
+                                <button id="btn-export-journal-workspace" class="hidden btn-ink flex-1 bg-stone-100 text-[10px] uppercase">Save Progress</button>
+                            </div>
                         </div>
                     </div>
                 </aside>
 
                 <main class="lg:col-span-3 flex flex-col h-full overflow-hidden">
                     <div class="flex items-center gap-4 mb-3 flex-shrink-0">
-                        <div id="workspace-badge-container" class="workspace-habitat-badge"></div>
+                        <div id="workspace-badge-container" class="workspace-habitat-badge">
+                            <div class="workspace-ribbon"></div>
+                            <div class="w-full h-full rounded-full border-4 border-[#3d2b1f] overflow-hidden" id="workspace-badge-img-host"></div>
+                        </div>
                         <h2 id="current-habitat-name" class="text-5xl handwritten text-stone-800 border-l-4 border-stone-800 pl-4 uppercase">Habitat Name</h2>
                     </div>
                     <div id="shelves-container" class="relative z-20 flex-grow flex flex-col overflow-hidden">
@@ -317,7 +356,7 @@
                     </div>
                 </main>
             </div>
-            <div class="version-tag">v1.3.1</div>
+            <div class="version-tag">v1.3.22</div>
         </div>
 
         <div id="modal-field-guide" class="overlay">
@@ -351,11 +390,11 @@
         <div id="modal-feedback" class="overlay">
             <div class="modal-paper text-center">
                 <h3 id="feedback-title" class="handwritten text-5xl mb-4">Reviewing Journal...</h3>
-                <div class="max-h-[40vh] overflow-y-auto pr-4 text-left">
-                    <p id="feedback-text" class="text-xl italic leading-relaxed whitespace-pre-wrap px-4"></p>
+                <div class="text-left">
+                    <div id="feedback-text" class="text-xl italic leading-relaxed whitespace-pre-wrap px-2"></div>
                 </div>
-                <div id="feedback-status" class="mt-6 font-bold typewriter text-sm uppercase"></div>
-                <button class="btn-ink mt-8 w-full closeModal uppercase">Return to Journal</button>
+                <div id="feedback-status" class="mt-4 font-bold typewriter text-sm uppercase"></div>
+                <button class="btn-ink mt-4 w-full closeModal uppercase">Return to Journal</button>
             </div>
         </div>
     </div>
@@ -363,6 +402,14 @@
     <div id="cert-template"></div>
 
     <script>
+        // v1.3.8: Unified Ribbon SVG generator to ensure consistency across views and exports
+        const getRibbonSVG = (width, height, starSize) => `
+            <svg width="${width}" height="${height}" viewBox="0 0 50 70" style="filter: drop-shadow(2px 2px 3px rgba(0,0,0,0.3));">
+                <path d="M 3 3 L 47 3 L 47 67 L 25 53 L 3 67 Z" fill="#2c5282" stroke="#ffd700" stroke-width="3" stroke-linejoin="round" />
+                <text x="25" y="38" fill="#ffd700" font-size="${starSize}" text-anchor="middle" style="font-family: Arial, sans-serif; font-weight: bold;">★</text>
+            </svg>
+        `;
+
         const habitatData = {
             grassland: {
                 name: "Eastern Shortgrass",
@@ -416,7 +463,7 @@
                     { id: 's2', name: 'Jackrabbit', level: 2, icon: '🐇', notes: "A fast primary consumer that converts sagebrush and desert grasses into energy for predators.", predators: ['s4', 's5'] },
                     { id: 's3', name: 'Sage Thrasher', level: 2, icon: '🐦', notes: "A primary consumer bird that depends on sagebrush for food and protection.", predators: ['s4', 's5'] },
                     { id: 's4', name: 'Badger', level: 3, icon: '🐾', notes: "A powerful secondary consumer that digs for rodents across the mesa plains.", predators: ['s5'] },
-                    { id: 's5', name: 'Red-tailed Hawk', level: 4, icon: '🦅', notes: "The tertiary consumer watching from the thermals, hunting across the open shrubland.", predators: [] }
+                    { id: 's5', name: 'Red-tailed Hawk', level: 4, icon: '🦅', notes: "The tertiary consumer watching from the thermals, hunt across the open shrubland.", predators: [] }
                 ]
             }
         };
@@ -429,6 +476,7 @@
                 tool: 'arrange',
                 linkingSource: null,
                 isDraggingLink: false,
+                uncheckedChanges: false,
                 habitatsState: {
                     grassland: { connections: [], placements: {} },
                     tundra: { connections: [], placements: {} },
@@ -443,6 +491,19 @@
                 this.renderPatches();
                 this.bindEvents();
                 window.addEventListener('resize', () => this.drawArrows());
+                
+                const nameField = document.getElementById('user-name');
+                const selectAll = () => {
+                    setTimeout(() => {
+                        document.execCommand('selectAll', false, null);
+                    }, 0);
+                };
+                nameField.addEventListener('focus', selectAll);
+                nameField.addEventListener('mouseup', (e) => {
+                    if (window.getSelection().toString() === "") {
+                        selectAll();
+                    }
+                });
             },
 
             cacheDOM() {
@@ -460,10 +521,80 @@
                 this.rootEl = document.getElementById('journal-root');
                 this.certTemplate = document.getElementById('cert-template');
                 this.badgeContainer = document.getElementById('workspace-badge-container');
+                this.badgeImgHost = document.getElementById('workspace-badge-img-host');
                 this.modeSwitch = document.getElementById('mode-switch');
                 this.modeSlider = document.getElementById('mode-slider');
                 this.labelArrange = document.getElementById('label-arrange');
                 this.labelLinks = document.getElementById('label-links');
+                this.btnCheck = document.getElementById('btn-check');
+            },
+
+            markAsUnchecked() {
+                this.state.uncheckedChanges = true;
+                this.btnCheck.classList.add('needs-check');
+            },
+
+            clearUncheckedStatus() {
+                this.state.uncheckedChanges = false;
+                this.btnCheck.classList.remove('needs-check');
+            },
+
+            hasProgress() {
+                if (this.state.completed.length > 0) return true;
+                return Object.values(this.state.habitatsState).some(h => 
+                    Object.keys(h.placements).length > 0 || h.connections.length > 0
+                );
+            },
+
+            isCurrentHabitatCorrect() {
+                const id = this.state.activeHabitat;
+                if (!id) return false;
+                const currentData = habitatData[id];
+                const activeState = this.state.habitatsState[id];
+
+                for (const org of currentData.organisms) {
+                    const shelfLevel = activeState.placements[org.id];
+                    if (!shelfLevel || parseInt(shelfLevel) !== org.level) return false;
+                }
+
+                for (const source of currentData.organisms) {
+                    for (const predId of source.predators) {
+                        const exists = activeState.connections.some(c => c.sourceId === source.id && c.targetId === predId);
+                        if (!exists) return false;
+                    }
+                }
+
+                for (const conn of activeState.connections) {
+                    const source = currentData.organisms.find(o => o.id === conn.sourceId);
+                    if (!source || !source.predators.includes(conn.targetId)) return false;
+                }
+
+                return true;
+            },
+
+            syncCompletionStatus() {
+                const id = this.state.activeHabitat;
+                if (!id) return;
+                
+                const isCorrect = this.isCurrentHabitatCorrect();
+                const index = this.state.completed.indexOf(id);
+                
+                if (index !== -1 && !isCorrect) {
+                    this.state.completed.splice(index, 1);
+                    this.renderPatches();
+                }
+                
+                this.renderWorkspaceRibbon();
+            },
+
+            renderWorkspaceRibbon() {
+                const id = this.state.activeHabitat;
+                const mastered = this.state.completed.includes(id);
+                this.badgeContainer.classList.toggle('is-mastered', mastered);
+                const ribbonSlot = this.badgeContainer.querySelector('.workspace-ribbon');
+                if (mastered && ribbonSlot) {
+                    ribbonSlot.innerHTML = getRibbonSVG(28, 42, 22);
+                }
             },
 
             renderPatches() {
@@ -476,7 +607,7 @@
                     container.className = 'patch-container';
                     const multiLineName = data.name.split(' ').join('<br>');
                     container.innerHTML = `
-                        ${isCompleted ? '<div class="ribbon"></div>' : ''}
+                        <div class="ribbon">${isCompleted ? getRibbonSVG(50, 70, 24) : ''}</div>
                         <div class="patch-slot" onclick="app.startHabitat('${key}')">
                             <img src="${data.img}" crossorigin="anonymous" class="patch-image" alt="${data.name}">
                         </div>
@@ -484,29 +615,48 @@
                     `;
                     grid.appendChild(container);
                 });
+                
+                const btnExport = document.getElementById('btn-export-journal');
                 const btnDownload = document.getElementById('btn-download');
                 const progressSummary = document.getElementById('progress-summary');
                 const count = this.state.completed.length;
+                
                 progressSummary.textContent = `Earned ${count} of 5 badges`;
-                if (count > 0) { btnDownload.classList.remove('hidden'); }
+                if (count > 0) btnDownload.classList.remove('hidden');
+                
+                if (this.hasProgress()) {
+                    btnExport.classList.remove('hidden');
+                    const wsExport = document.getElementById('btn-export-journal-workspace');
+                    if (wsExport) wsExport.classList.remove('hidden');
+                } else {
+                    btnExport.classList.add('hidden');
+                }
             },
 
             bindEvents() {
                 this.btnToCover.addEventListener('click', () => this.goToScreen('cover'));
                 document.getElementById('btn-field-guide').addEventListener('click', () => this.showFieldGuide());
                 document.getElementById('btn-food-web-101').addEventListener('click', () => this.modals.logic.classList.add('active'));
-                document.getElementById('btn-check').addEventListener('click', () => this.checkJournal());
+                
+                this.btnCheck.addEventListener('click', () => {
+                    this.clearUncheckedStatus();
+                    this.checkJournal();
+                });
                 
                 this.modeSwitch.addEventListener('click', () => {
                     const nextMode = this.state.tool === 'arrange' ? 'links' : 'arrange';
                     this.setTool(nextMode);
                 });
 
-                document.getElementById('btn-clear-links').addEventListener('click', () => this.clearLinks());
-                document.getElementById('btn-download').addEventListener('click', () => this.downloadCertificate());
+                document.getElementById('btn-clear-links').addEventListener('click', () => {
+                    this.clearLinks();
+                    this.markAsUnchecked(); 
+                    this.syncCompletionStatus();
+                });
                 
-                // v1.3.1: Export/Import events
+                document.getElementById('btn-download').addEventListener('click', () => this.downloadCertificate());
                 document.getElementById('btn-export-journal').addEventListener('click', () => this.exportJournal());
+                document.getElementById('btn-export-journal-workspace').addEventListener('click', () => this.exportJournal());
                 document.getElementById('input-import-journal').addEventListener('change', (e) => this.importJournal(e));
 
                 document.querySelectorAll('.closeModal').forEach(btn => btn.addEventListener('click', (e) => e.target.closest('.overlay').classList.remove('active')));
@@ -531,6 +681,9 @@
                         if (el) { 
                             zone.appendChild(el); 
                             this.state.habitatsState[this.state.activeHabitat].placements[id] = shelf.dataset.level;
+                            this.renderPatches(); 
+                            this.markAsUnchecked(); 
+                            this.syncCompletionStatus(); 
                             this.drawArrows(); 
                         }
                     });
@@ -546,6 +699,8 @@
                         this.pool.appendChild(el); 
                         this.state.habitatsState[this.state.activeHabitat].placements[id] = null;
                         this.state.habitatsState[this.state.activeHabitat].connections = this.state.habitatsState[this.state.activeHabitat].connections.filter(c => c.sourceId !== id && c.targetId !== id);
+                        this.markAsUnchecked(); 
+                        this.syncCompletionStatus(); 
                         this.drawArrows(); 
                     }
                 });
@@ -598,6 +753,9 @@
                 const exists = activeState.connections.some(c => c.sourceId === sourceId && c.targetId === targetId);
                 if (!exists) { 
                     activeState.connections.push({ sourceId, targetId }); 
+                    this.renderPatches();
+                    this.markAsUnchecked(); 
+                    this.syncCompletionStatus(); 
                     this.drawArrows(); 
                 }
             },
@@ -635,7 +793,13 @@
                     const del = document.createElementNS("http://www.w3.org/2000/svg", "g");
                     del.setAttribute("class", "delete-btn");
                     del.setAttribute("transform", `translate(${midX}, ${midY})`);
-                    del.onclick = (e) => { e.stopPropagation(); activeState.connections.splice(index, 1); this.drawArrows(); };
+                    del.onclick = (e) => { 
+                        e.stopPropagation(); 
+                        activeState.connections.splice(index, 1); 
+                        this.markAsUnchecked(); 
+                        this.syncCompletionStatus(); 
+                        this.drawArrows(); 
+                    };
                     const circ = document.createElementNS("http://www.w3.org/2000/svg", "circle"); circ.setAttribute("r", "9");
                     const txt = document.createElementNS("http://www.w3.org/2000/svg", "text"); txt.setAttribute("text-anchor", "middle"); txt.setAttribute("dy", "5"); txt.textContent = "×";
                     del.appendChild(circ); del.appendChild(txt);
@@ -655,7 +819,12 @@
                 const data = habitatData[id];
                 const activeState = this.state.habitatsState[id];
                 this.habitatTitle.textContent = data.name;
-                this.badgeContainer.innerHTML = `<img src="${data.img}" class="w-full h-full object-cover">`;
+                
+                this.badgeImgHost.innerHTML = `<img src="${data.img}" crossorigin="anonymous" class="w-full h-full object-cover">`;
+                
+                this.clearUncheckedStatus(); 
+                this.renderWorkspaceRibbon();
+
                 document.querySelectorAll('.drop-zone').forEach(z => z.innerHTML = '');
                 this.pool.innerHTML = '';
                 data.organisms.forEach(org => {
@@ -682,6 +851,7 @@
                     } else { this.pool.appendChild(el); }
                 });
                 if (this.state.tool === 'links') { document.querySelectorAll('.sidebar-item').forEach(el => el.classList.add('can-be-linked')); }
+                this.renderPatches(); 
             },
 
             goToScreen(screenId) {
@@ -717,6 +887,7 @@
             checkJournal() {
                 const currentData = habitatData[this.state.activeHabitat];
                 const activeState = this.state.habitatsState[this.state.activeHabitat];
+                
                 let hints = []; 
                 let correctCount = 0;
 
@@ -724,7 +895,7 @@
                     const el = document.querySelector(`[data-id="${org.id}"]`);
                     const shelf = el.closest('.trophic-shelf');
                     if (!shelf) {
-                        hints.push(`Researcher's Hint: The **${org.name}** specimen hasn't been placed yet. Check the Specimen pool.`);
+                        hints.push(`Observation: The **${org.name}** has not yet been integrated into the ecosystem map.`);
                     } else {
                         const level = parseInt(shelf.dataset.level);
                         if (level === org.level) {
@@ -732,8 +903,7 @@
                             correctCount++;
                         } else {
                             el.classList.add('incorrect'); el.classList.remove('correct');
-                            const dir = level < org.level ? "higher" : "lower";
-                            hints.push(`Researcher's Hint: The **${org.name}** isn't quite right on this shelf. How to fix: Try moving it to a **${dir}** trophic level.`);
+                            hints.push(`Ecological Note: The **${org.name}** is currently placed at a trophic level that doesn't quite match its biological role.`);
                         }
                     }
                 });
@@ -742,18 +912,19 @@
                     activeState.connections.forEach(c => {
                         const source = currentData.organisms.find(o => o.id === c.sourceId);
                         const target = currentData.organisms.find(o => o.id === c.targetId);
+                        
                         if (target.predators.includes(source.id)) {
-                            hints.push(`Energy Hint: Energy flows from prey to predator. Your link between **${source.name}** and **${target.name}** is backwards. How to fix: Delete the arrow and redraw it pointing from the food to the eater.`);
+                            hints.push(`Flow Analysis: The energy link between **${source.name}** and **${target.name}** seems to conflict with the principle of energy moving from food to consumer.`);
                         } else if (!source.predators.includes(target.id)) {
-                            hints.push(`Relationship Hint: I don't believe a **${target.name}** eats a **${source.name}**. How to fix: Review the Field Research Notes for the ${target.name}'s specific diet.`);
+                            hints.push(`Data Inconsistency: A biological relationship between **${source.name}** and **${target.name}** is not supported by our field research data.`);
                         }
                     });
+
                     currentData.organisms.forEach(source => {
                         source.predators.forEach(predId => {
                             const linkFound = activeState.connections.some(c => c.sourceId === source.id && c.targetId === predId);
                             if (!linkFound) {
-                                const target = currentData.organisms.find(o => o.id === predId);
-                                hints.push(`Missing Flow: We are missing a link showing energy moving from the **${source.name}**. Hint: What predator on the **${target.name.split(' ')[0]}** level eats it?`);
+                                hints.push(`Incomplete Web: Our records suggest that the energy transfer originating from the **${source.name}** is not fully documented in your map.`);
                             }
                         });
                     });
@@ -761,24 +932,32 @@
 
                 const titleEl = document.getElementById('feedback-title'); 
                 const textEl = document.getElementById('feedback-text');
+                
                 if (hints.length > 0) {
                     titleEl.textContent = "Observation Notes";
-                    textEl.innerHTML = hints.slice(0, 3).join("<br><br>");
+                    const uniqueHints = [...new Set(hints)];
+                    textEl.innerHTML = uniqueHints.slice(0, 3).join("<br><br>");
                 } else {
-                    titleEl.textContent = "Mastery Achieved!"; 
-                    textEl.textContent = "Excellent! You have perfectly mapped the energy flow and trophic hierarchy of this ecosystem.";
+                    // v1.3.22 Reverted to clean, text-only success state
+                    titleEl.textContent = "Mastery Achieved!";
+                    const currentId = this.state.activeHabitat;
+                    const data = habitatData[currentId];
+                    textEl.textContent = `Excellent work. You have accurately decoded the trophic structure and energy flow of the ${data.name} habitat. Your findings are officially recorded in the Master Journal.`;
+                    
                     if (!this.state.completed.includes(this.state.activeHabitat)) {
                         this.state.completed.push(this.state.activeHabitat);
                         this.renderPatches();
+                        this.renderWorkspaceRibbon(); 
                     }
                 }
                 this.modals.feedback.classList.add('active');
             },
 
             exportJournal() {
+                const userName = document.getElementById('user-name').innerText.trim() || "Naturalist";
                 const exportData = {
-                    version: "1.3.1",
-                    userName: document.getElementById('user-name').innerText.trim(),
+                    version: "1.3.22",
+                    userName: userName,
                     completed: this.state.completed,
                     habitatsState: this.state.habitatsState
                 };
@@ -786,8 +965,7 @@
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement('a');
                 a.href = url;
-                // v1.3.1: Updated filename format
-                a.download = `${exportData.userName.replace(/\s+/g, '_')}-Colorado-FoodWeb.json`;
+                a.download = `${userName.replace(/\s+/g, '_')}-Colorado-FoodWeb.json`;
                 a.click();
                 URL.revokeObjectURL(url);
             },
@@ -804,9 +982,8 @@
                             this.state.habitatsState = imported.habitatsState;
                             document.getElementById('user-name').innerText = imported.userName || "Your Name";
                             this.renderPatches();
-                            // Logic success message
-                            document.getElementById('feedback-title').textContent = "Journal Loaded";
-                            document.getElementById('feedback-text').textContent = "Field notes and energy maps have been restored.";
+                            document.getElementById('feedback-title').textContent = "Journal Restored";
+                            document.getElementById('feedback-text').textContent = "Expedition data and energy flow maps have been synchronized.";
                             this.modals.feedback.classList.add('active');
                         }
                     } catch (err) {
@@ -833,7 +1010,7 @@
                         
                         <div style="margin-top: auto; width: 100%; display: flex; flex-direction: column; align-items: center; gap: 10px;">
                             <div style="font-family: 'Special Elite', cursive; font-size: 14px; opacity: 0.8; max-width: 800px;">${statusSummary}</div>
-                            <div style="font-family: 'Special Elite', cursive; font-size: 12pt; font-weight: bold; opacity: 0.3;">BUILD v1.3.1</div>
+                            <div style="font-family: 'Special Elite', cursive; font-size: 12pt; font-weight: bold; opacity: 0.3;">BUILD v1.3.22</div>
                             <div style="font-family: 'Special Elite', cursive; font-size: 12px; opacity: 0.6;">VERIFIED: ${new Date().toLocaleDateString()}</div>
                         </div>
                     </div>
@@ -842,8 +1019,11 @@
                 Object.keys(habitatData).forEach(key => {
                     const data = habitatData[key]; const isComp = this.state.completed.includes(key);
                     const multiLineName = data.name.split(' ').join('<br>');
+                    
+                    const ribbonHtml = isComp ? `<div style="position: absolute; top: -10px; right: -10px; width: 35px; height: 55px; transform: rotate(15deg);">${getRibbonSVG(35, 55, 14)}</div>` : '';
+
                     grid.insertAdjacentHTML('beforeend', `<div style="display: flex; flex-direction: column; align-items: center; gap: 10px; position: relative;">
-                        ${isComp ? '<div style="position: absolute; top: -5px; right: -5px; width: 30px; height: 45px; background: var(--ribbon-blue); clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 85%, 0 100%); z-index: 5; display: flex; align-items: center; justify-content: center; color: gold; font-size: 12px;">★</div>' : ''}
+                        ${ribbonHtml}
                         <div style="width: 100px; height: 100px; border-radius: 50%; border: 5px solid #3d2b1f; overflow: hidden;"><img src="${data.img}" crossorigin="anonymous" style="width: 100%; height: 100%; object-fit: cover; ${isComp ? '' : 'filter: grayscale(1); opacity: 0.5;'}"></div>
                         <div style="font-family: 'Special Elite', cursive; font-size: 14px; text-transform: uppercase; background: #fff; border: 1px solid #3d2b1f; width: 140px; height: 58px; display: flex; align-items: center; justify-content: center; text-align: center; line-height: 1.1;">${multiLineName}</div>
                     </div>`);
