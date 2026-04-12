@@ -245,7 +245,6 @@
         <header id="journal-header" class="flex justify-between items-center mb-6 border-b-2 border-stone-300 pb-3 flex-shrink-0">
             <div class="flex items-center gap-6">
                 <button id="btn-to-cover" class="hidden btn-ink">&larr; INDEX</button>
-                <!-- v1.2.7: Right-justified name field for better flow -->
                 <div class="flex items-baseline">
                     <span id="user-name" class="handwritten text-4xl text-blue-900 border-b border-dashed border-stone-400 pl-4 pr-0 min-w-[120px] outline-none text-right inline-block" contenteditable="true">Your Name</span><h1 class="text-4xl font-bold handwritten tracking-tight text-stone-800 ml-0">'s Colorado Food Web Journal</h1>
                 </div>
@@ -278,7 +277,7 @@
                     <p id="download-hint" class="text-sm typewriter opacity-50 mt-4 text-center">Master at least one habitat to download your certificate. Save your data to resume later.</p>
                 </div>
             </div>
-            <div class="version-tag">v1.3.1</div>
+            <div class="version-tag">v1.3.2</div>
         </div>
 
         <div id="screen-workspace" class="screen">
@@ -317,7 +316,7 @@
                     </div>
                 </main>
             </div>
-            <div class="version-tag">v1.3.1</div>
+            <div class="version-tag">v1.3.2</div>
         </div>
 
         <div id="modal-field-guide" class="overlay">
@@ -505,7 +504,6 @@
                 document.getElementById('btn-clear-links').addEventListener('click', () => this.clearLinks());
                 document.getElementById('btn-download').addEventListener('click', () => this.downloadCertificate());
                 
-                // v1.3.1: Export/Import events
                 document.getElementById('btn-export-journal').addEventListener('click', () => this.exportJournal());
                 document.getElementById('input-import-journal').addEventListener('change', (e) => this.importJournal(e));
 
@@ -717,14 +715,16 @@
             checkJournal() {
                 const currentData = habitatData[this.state.activeHabitat];
                 const activeState = this.state.habitatsState[this.state.activeHabitat];
+                
                 let hints = []; 
                 let correctCount = 0;
 
+                // 1. Placement Analysis - v1.3.2: Increased nuance
                 currentData.organisms.forEach(org => {
                     const el = document.querySelector(`[data-id="${org.id}"]`);
                     const shelf = el.closest('.trophic-shelf');
                     if (!shelf) {
-                        hints.push(`Researcher's Hint: The **${org.name}** specimen hasn't been placed yet. Check the Specimen pool.`);
+                        hints.push(`Observation: The **${org.name}** has not yet been integrated into the ecosystem map.`);
                     } else {
                         const level = parseInt(shelf.dataset.level);
                         if (level === org.level) {
@@ -732,28 +732,31 @@
                             correctCount++;
                         } else {
                             el.classList.add('incorrect'); el.classList.remove('correct');
-                            const dir = level < org.level ? "higher" : "lower";
-                            hints.push(`Researcher's Hint: The **${org.name}** isn't quite right on this shelf. How to fix: Try moving it to a **${dir}** trophic level.`);
+                            hints.push(`Ecological Note: The **${org.name}** is currently placed at a trophic level that doesn't quite match its biological role.`);
                         }
                     }
                 });
 
+                // 2. Link Analysis - v1.3.2: Directional and relational nuance
                 if (hints.length === 0) {
                     activeState.connections.forEach(c => {
                         const source = currentData.organisms.find(o => o.id === c.sourceId);
                         const target = currentData.organisms.find(o => o.id === c.targetId);
+                        
+                        // Check if backward
                         if (target.predators.includes(source.id)) {
-                            hints.push(`Energy Hint: Energy flows from prey to predator. Your link between **${source.name}** and **${target.name}** is backwards. How to fix: Delete the arrow and redraw it pointing from the food to the eater.`);
+                            hints.push(`Flow Analysis: The energy link between **${source.name}** and **${target.name}** seems to conflict with the principle of energy moving from food to consumer.`);
                         } else if (!source.predators.includes(target.id)) {
-                            hints.push(`Relationship Hint: I don't believe a **${target.name}** eats a **${source.name}**. How to fix: Review the Field Research Notes for the ${target.name}'s specific diet.`);
+                            hints.push(`Data Inconsistency: A biological relationship between **${source.name}** and **${target.name}** is not supported by our field research data.`);
                         }
                     });
+
+                    // 3. Check for Missing Links
                     currentData.organisms.forEach(source => {
                         source.predators.forEach(predId => {
                             const linkFound = activeState.connections.some(c => c.sourceId === source.id && c.targetId === predId);
                             if (!linkFound) {
-                                const target = currentData.organisms.find(o => o.id === predId);
-                                hints.push(`Missing Flow: We are missing a link showing energy moving from the **${source.name}**. Hint: What predator on the **${target.name.split(' ')[0]}** level eats it?`);
+                                hints.push(`Incomplete Web: Our records suggest that the energy transfer originating from the **${source.name}** is not fully documented in your map.`);
                             }
                         });
                     });
@@ -761,12 +764,15 @@
 
                 const titleEl = document.getElementById('feedback-title'); 
                 const textEl = document.getElementById('feedback-text');
+                
                 if (hints.length > 0) {
                     titleEl.textContent = "Observation Notes";
-                    textEl.innerHTML = hints.slice(0, 3).join("<br><br>");
+                    // Filter duplicate placement messages if many exist
+                    const uniqueHints = [...new Set(hints)];
+                    textEl.innerHTML = uniqueHints.slice(0, 3).join("<br><br>");
                 } else {
                     titleEl.textContent = "Mastery Achieved!"; 
-                    textEl.textContent = "Excellent! You have perfectly mapped the energy flow and trophic hierarchy of this ecosystem.";
+                    textEl.textContent = "Excellent work. You have accurately decoded the trophic structure and energy flow of this Colorado habitat. Your findings are recorded.";
                     if (!this.state.completed.includes(this.state.activeHabitat)) {
                         this.state.completed.push(this.state.activeHabitat);
                         this.renderPatches();
@@ -776,9 +782,10 @@
             },
 
             exportJournal() {
+                const userName = document.getElementById('user-name').innerText.trim() || "Naturalist";
                 const exportData = {
-                    version: "1.3.1",
-                    userName: document.getElementById('user-name').innerText.trim(),
+                    version: "1.3.2",
+                    userName: userName,
                     completed: this.state.completed,
                     habitatsState: this.state.habitatsState
                 };
@@ -786,8 +793,8 @@
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement('a');
                 a.href = url;
-                // v1.3.1: Updated filename format
-                a.download = `${exportData.userName.replace(/\s+/g, '_')}-Colorado-FoodWeb.json`;
+                // v1.3.2 Updated filename format
+                a.download = `${userName.replace(/\s+/g, '_')}-Colorado-FoodWeb.json`;
                 a.click();
                 URL.revokeObjectURL(url);
             },
@@ -804,9 +811,8 @@
                             this.state.habitatsState = imported.habitatsState;
                             document.getElementById('user-name').innerText = imported.userName || "Your Name";
                             this.renderPatches();
-                            // Logic success message
-                            document.getElementById('feedback-title').textContent = "Journal Loaded";
-                            document.getElementById('feedback-text').textContent = "Field notes and energy maps have been restored.";
+                            document.getElementById('feedback-title').textContent = "Journal Restored";
+                            document.getElementById('feedback-text').textContent = "Expedition data and energy flow maps have been synchronized.";
                             this.modals.feedback.classList.add('active');
                         }
                     } catch (err) {
@@ -833,7 +839,7 @@
                         
                         <div style="margin-top: auto; width: 100%; display: flex; flex-direction: column; align-items: center; gap: 10px;">
                             <div style="font-family: 'Special Elite', cursive; font-size: 14px; opacity: 0.8; max-width: 800px;">${statusSummary}</div>
-                            <div style="font-family: 'Special Elite', cursive; font-size: 12pt; font-weight: bold; opacity: 0.3;">BUILD v1.3.1</div>
+                            <div style="font-family: 'Special Elite', cursive; font-size: 12pt; font-weight: bold; opacity: 0.3;">BUILD v1.3.2</div>
                             <div style="font-family: 'Special Elite', cursive; font-size: 12px; opacity: 0.6;">VERIFIED: ${new Date().toLocaleDateString()}</div>
                         </div>
                     </div>
