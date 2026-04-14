@@ -109,7 +109,7 @@
             padding: 0.6rem 1.2rem; transition: all 0.2s; font-weight: bold; background: transparent;
             font-family: 'Special Elite', cursive; font-size: 0.9rem; text-transform: uppercase;
         }
-        .btn-ink:hover { background: var(--ink-color); color: white; transform: translateY(-1px); }
+        .btn-ink:hover:not(.needs-check) { background: var(--ink-color); color: white; transform: translateY(-1px); }
 
         .needs-check {
             background-color: var(--ribbon-blue) !important; color: white !important;
@@ -133,8 +133,9 @@
         .sidebar-item {
             transition: all 0.2s; background: #fff; border: 2px solid #3d2b1f;
             border-radius: 8px; user-select: none; box-shadow: 2px 2px 0 rgba(0,0,0,0.1);
-            position: relative; z-index: 20; padding: 0.6rem; cursor: grab;
+            position: relative; z-index: 20; padding: 0.6rem;
         }
+        .sidebar-item[draggable="true"] { cursor: grab; }
 
         .mode-toggle-container {
             background: rgba(0,0,0,0.05); border: 2px solid #3d2b1f; border-radius: 10px;
@@ -224,7 +225,7 @@
                     </svg>
                 </div>
             </div>
-            <div class="version-tag mt-4 text-center">BUILD v2.1.1</div>
+            <div class="version-tag mt-4 text-center">BUILD v2.1.2</div>
         </div>
 
         <!-- Regional Landing -->
@@ -237,7 +238,7 @@
                     <button id="btn-export-journal" class="btn-ink text-xs opacity-70">Save Global Data</button>
                 </div>
             </div>
-            <div class="version-tag absolute bottom-4 left-1/2 -translate-x-1/2">v2.1.1</div>
+            <div class="version-tag absolute bottom-4 left-1/2 -translate-x-1/2">v2.1.2</div>
         </div>
 
         <!-- Workspace -->
@@ -254,7 +255,7 @@
                             <div id="label-arrange" class="mode-label active">Arrange</div>
                             <div id="label-links" class="mode-label inactive">Draw Links</div>
                         </div>
-                        <button id="btn-clear-links" class="btn-ink w-full text-[10px]">Reset Links</button>
+                        <button id="btn-clear-links" class="btn-ink w-full text-[10px]">Reset Energy Links</button>
                     </div>
                 </aside>
                 <main class="lg:col-span-3 flex flex-col h-full overflow-hidden">
@@ -270,7 +271,7 @@
                     </div>
                 </main>
             </div>
-            <div class="version-tag absolute bottom-4 left-1/2 -translate-x-1/2">v2.1.1</div>
+            <div class="version-tag absolute bottom-4 left-1/2 -translate-x-1/2">v2.1.2</div>
         </div>
 
         <!-- Feedback Modal -->
@@ -291,39 +292,39 @@
                 title: "Colorado Rockies Expeditions",
                 habitats: {
                     grassland: { name: "Eastern Shortgrass", img: "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=400", organisms: [
-                        { id: 'c1', name: 'Blue Grama Grass', level: 1, icon: '🌾', predators: ['c2'] },
-                        { id: 'c2', name: 'Prairie Dog', level: 2, icon: '🐿️', predators: ['c3', 'c4'] },
-                        { id: 'c3', name: 'Black-footed Ferret', level: 3, icon: '🐾', predators: ['c5'] },
-                        { id: 'c4', name: 'Coyote', level: 3, icon: '🐺', predators: ['c5'] },
-                        { id: 'c5', name: 'Golden Eagle', level: 4, icon: '🦅', predators: [] }
+                        { id: 'c1', name: 'Blue Grama Grass', level: 1, icon: '🌾', note: "The base of the prairie web.", predators: ['c2'] },
+                        { id: 'c2', name: 'Prairie Dog', level: 2, icon: '🐿️', note: "Burrowing herbivore and keystone species.", predators: ['c3', 'c4'] },
+                        { id: 'c3', name: 'Black-footed Ferret', level: 3, icon: '🐾', note: "Specialist hunter of prairie dogs.", predators: ['c5'] },
+                        { id: 'c4', name: 'Coyote', level: 3, icon: '🐺', note: "Opportunistic secondary consumer.", predators: ['c5'] },
+                        { id: 'c5', name: 'Golden Eagle', level: 4, icon: '🦅', note: "Top avian predator of the plains.", predators: [] }
                     ]},
                     tundra: { name: "Alpine Tundra", img: "https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=400", organisms: [
-                        { id: 'c6', name: 'Lichen', level: 1, icon: '🍄', predators: ['c7'] },
-                        { id: 'c7', name: 'Pika', level: 2, icon: '🐹', predators: ['c9'] },
-                        { id: 'c8', name: 'Yellow-bellied Marmot', level: 2, icon: '🐻', predators: ['c10'] },
-                        { id: 'c9', name: 'Ermine', level: 3, icon: '🦦', predators: ['c10'] },
-                        { id: 'c10', name: 'Mountain Lion', level: 4, icon: '🦁', predators: [] }
+                        { id: 'c6', name: 'Lichen', level: 1, icon: '🍄', note: "Rugged producer growing on rocks.", predators: ['c7'] },
+                        { id: 'c7', name: 'Pika', level: 2, icon: '🐹', note: "Alpine herbivore that dries hay piles.", predators: ['c9'] },
+                        { id: 'c8', name: 'Yellow-bellied Marmot', level: 2, icon: '🐻', note: "High altitude hibernating herbivore.", predators: ['c10'] },
+                        { id: 'c9', name: 'Ermine', level: 3, icon: '🦦', note: "Small secondary consumer with white winter coat.", predators: ['c10'] },
+                        { id: 'c10', name: 'Mountain Lion', level: 4, icon: '🦁', note: "The top terrestrial predator.", predators: [] }
                     ]},
                     riparian: { name: "Riparian Wetland", img: "https://images.unsplash.com/photo-1470770841072-f978cf4d019e?auto=format&fit=crop&w=400", organisms: [
-                        { id: 'c11', name: 'Cottonwood', level: 1, icon: '🌳', predators: ['c12'] },
-                        { id: 'c12', name: 'Aquatic Insects', level: 2, icon: '🐝', predators: ['c13'] },
-                        { id: 'c13', name: 'Leopard Frog', level: 3, icon: '🐸', predators: ['c15'] },
-                        { id: 'c14', name: 'Garter Snake', level: 3, icon: '🐍', predators: ['c15'] },
-                        { id: 'c15', name: 'Great Blue Heron', level: 4, icon: '🐦', predators: [] }
+                        { id: 'c11', name: 'Cottonwood', level: 1, icon: '🌳', note: "Water-dependent primary producer.", predators: ['c12'] },
+                        { id: 'c12', name: 'Aquatic Insects', level: 2, icon: '🐝', note: "Insects that feed on decaying leaves.", predators: ['c13'] },
+                        { id: 'c13', name: 'Leopard Frog', level: 3, icon: '🐸', note: "Insect-eating secondary consumer.", predators: ['c15'] },
+                        { id: 'c14', name: 'Garter Snake', level: 3, icon: '🐍', note: "Small predator of the stream bank.", predators: ['c15'] },
+                        { id: 'c15', name: 'Great Blue Heron', level: 4, icon: '🐦', note: "Tall tertiary predator of the wetlands.", predators: [] }
                     ]},
                     ponderosa: { name: "Montane Ponderosa", img: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=400", organisms: [
-                        { id: 'c16', name: 'Ponderosa Pine', level: 1, icon: '🌲', predators: ['c17', 'c18'] },
-                        { id: 'c17', name: 'Abert\'s Squirrel', level: 2, icon: '🦫', predators: ['c19', 'c20'] },
-                        { id: 'c18', name: 'Steller\'s Jay', level: 2, icon: '🐦‍⬛', predators: ['c19', 'c20'] },
-                        { id: 'c19', name: 'Goshawk', level: 3, icon: '🪶', predators: ['c20'] },
-                        { id: 'c20', name: 'Bobcat', level: 4, icon: '🐱', predators: [] }
+                        { id: 'c16', name: 'Ponderosa Pine', level: 1, icon: '🌲', note: "Drought-resistant primary producer.", predators: ['c17', 'c18'] },
+                        { id: 'c17', name: 'Abert\'s Squirrel', level: 2, icon: '🦫', note: "Depends on pine bark and seeds.", predators: ['c19', 'c20'] },
+                        { id: 'c18', name: 'Steller\'s Jay', level: 2, icon: '🐦‍⬛', note: "Omnivorous bird of the high forest.", predators: ['c19', 'c20'] },
+                        { id: 'c19', name: 'Goshawk', level: 3, icon: '🪶', note: "Fierce forest hunter of smaller birds.", predators: ['c20'] },
+                        { id: 'c20', name: 'Bobcat', level: 4, icon: '🐱', note: "Stealthy tertiary predator of the mountains.", predators: [] }
                     ]},
                     shrubland: { name: "Steppe Shrubland", img: "https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?auto=format&fit=crop&w=400", organisms: [
-                        { id: 'c21', name: 'Sagebrush', level: 1, icon: '🌵', predators: ['c22', 'c23'] },
-                        { id: 'c22', name: 'Jackrabbit', level: 2, icon: '🐇', predators: ['c24', 'c25'] },
-                        { id: 'c23', name: 'Sage Thrasher', level: 2, icon: '🦢', predators: ['c24', 'c25'] },
-                        { id: 'c24', name: 'Badger', level: 3, icon: '🦡', predators: ['c25'] },
-                        { id: 'c25', name: 'Red-tailed Hawk', level: 4, icon: '🪁', predators: [] }
+                        { id: 'c21', name: 'Sagebrush', level: 1, icon: '🌵', note: "Fragrant producer of the arid steppe.", predators: ['c22', 'c23'] },
+                        { id: 'c22', name: 'Jackrabbit', level: 2, icon: '🐇', note: "Fast-moving primary consumer.", predators: ['c24', 'c25'] },
+                        { id: 'c23', name: 'Sage Thrasher', level: 2, icon: '🦢', note: "Bird that nests in thick sagebrush.", predators: ['c24', 'c25'] },
+                        { id: 'c24', name: 'Badger', level: 3, icon: '🦡', note: "Powerful digging secondary consumer.", predators: ['c25'] },
+                        { id: 'c25', name: 'Red-tailed Hawk', level: 4, icon: '🪁', note: "Soaring tertiary predator.", predators: [] }
                     ]}
                 }
             },
@@ -331,54 +332,54 @@
                 title: "Nigerian Ecosystems",
                 habitats: {
                     mangrove: { name: "Mangrove Swamp", img: "https://images.unsplash.com/photo-1542366810-4316719859f5?auto=format&fit=crop&w=400", organisms: [
-                        { id: 'n1', name: 'Red Mangrove', level: 1, icon: '🎋', predators: ['n3'] },
-                        { id: 'n2', name: 'Water Hyacinth', level: 1, icon: '🌸', predators: ['n4'] },
-                        { id: 'n3', name: 'Fiddler Crab', level: 2, icon: '🦀', predators: ['n5'] },
-                        { id: 'n4', name: 'Tilapia', level: 2, icon: '🐟', predators: ['n5', 'n6'] },
-                        { id: 'n5', name: 'Monitor Lizard', level: 3, icon: '🦎', predators: ['n7'] },
-                        { id: 'n6', name: 'Kingfisher', level: 3, icon: '🦜', predators: ['n8'] },
-                        { id: 'n7', name: 'Nile Crocodile', level: 4, icon: '🐊', predators: [] },
-                        { id: 'n8', name: 'Fish Eagle', level: 4, icon: '🦉', predators: [] }
+                        { id: 'n1', name: 'Red Mangrove', level: 1, icon: '🎋', note: "Salt-tolerant shoreline stabilizer.", predators: ['n3'] },
+                        { id: 'n2', name: 'Water Hyacinth', level: 1, icon: '🌸', note: "Floating producer in brackish waters.", predators: ['n4'] },
+                        { id: 'n3', name: 'Fiddler Crab', level: 2, icon: '🦀', note: "Sifts organic matter from the mud.", predators: ['n5'] },
+                        { id: 'n4', name: 'Tilapia', level: 2, icon: '🐟', note: "Abundant fish in mangrove roots.", predators: ['n5', 'n6'] },
+                        { id: 'n5', name: 'Monitor Lizard', level: 3, icon: '🦎', note: "Stealthy predator of the wetlands.", predators: ['n7'] },
+                        { id: 'n6', name: 'Kingfisher', level: 3, icon: '🦜', note: "Jewel-toned fish specialist.", predators: ['n8'] },
+                        { id: 'n7', name: 'Nile Crocodile', level: 4, icon: '🐊', note: "The ancient river apex.", predators: [] },
+                        { id: 'n8', name: 'Fish Eagle', level: 4, icon: '🦉', note: "Master of the mangrove skies.", predators: [] }
                     ]},
                     rainforest: { name: "Rainforest Canopy", img: "https://images.unsplash.com/photo-1581450209675-900f074d081b?auto=format&fit=crop&w=400", organisms: [
-                        { id: 'n9', name: 'Iroko Tree', level: 1, icon: '🪵', predators: ['n11'] },
-                        { id: 'n10', name: 'Oil Palm', level: 1, icon: '🌴', predators: ['n12'] },
-                        { id: 'n11', name: 'Chimpanzee', level: 2, icon: '🐵', predators: ['n13'] },
-                        { id: 'n12', name: 'Fruit Bat', level: 2, icon: '🦇', predators: ['n14'] },
-                        { id: 'n13', name: 'Leopard', level: 3, icon: '🐆', predators: ['n15'] },
-                        { id: 'n14', name: 'Forest Cobra', level: 3, icon: '🦂', predators: ['n15'] },
-                        { id: 'n15', name: 'African Rock Python', level: 4, icon: '🐉', predators: [] },
-                        { id: 'n16', name: 'Martial Eagle', level: 4, icon: '🦚', predators: [] }
+                        { id: 'n9', name: 'Iroko Tree', level: 1, icon: '🪵', note: "Giant of the Nigerian forest.", predators: ['n11'] },
+                        { id: 'n10', name: 'Oil Palm', level: 1, icon: '🌴', note: "Essential energy-rich palm.", predators: ['n12'] },
+                        { id: 'n11', name: 'Chimpanzee', level: 2, icon: '🐵', note: "Intelligent forest omnivore.", predators: ['n13'] },
+                        { id: 'n12', name: 'Fruit Bat', level: 2, icon: '🦇', note: "Nocturnal seed disperser.", predators: ['n14'] },
+                        { id: 'n13', name: 'Leopard', level: 3, icon: '🐆', note: "Dappled shadow hunter.", predators: ['n15'] },
+                        { id: 'n14', name: 'Forest Cobra', level: 3, icon: '🦂', note: "Venomous canopy inhabitant.", predators: ['n15'] },
+                        { id: 'n15', name: 'African Rock Python', level: 4, icon: '🐉', note: "Massive constrictor predator.", predators: [] },
+                        { id: 'n16', name: 'Martial Eagle', level: 4, icon: '🦚', note: "The forest's highest raptor.", predators: [] }
                     ]},
                     savanna: { name: "Guinea Savanna", img: "https://images.unsplash.com/photo-1516026672322-bc52d61a55d5?auto=format&fit=crop&w=400", organisms: [
-                        { id: 'n17', name: 'Elephant Grass', level: 1, icon: '🎍', predators: ['n19'] },
-                        { id: 'n18', name: 'Baobab', level: 1, icon: '☘️', predators: ['n20'] },
-                        { id: 'n19', name: 'Warthog', level: 2, icon: '🐗', predators: ['n21'] },
-                        { id: 'n20', name: 'Elephant', level: 2, icon: '🐘', predators: ['n23'] },
-                        { id: 'n21', name: 'Hyena', level: 3, icon: '🦴', predators: ['n23'] },
-                        { id: 'n22', name: 'Wild Dog', level: 3, icon: '🐕', predators: ['n23'] },
-                        { id: 'n23', name: 'Lion', level: 4, icon: '🐯', predators: [] },
-                        { id: 'n24', name: 'Vulture', level: 4, icon: '🦩', predators: [] }
+                        { id: 'n17', name: 'Elephant Grass', level: 1, icon: '🎍', note: "Fast-growing savanna cover.", predators: ['n19'] },
+                        { id: 'n18', name: 'Baobab', level: 1, icon: '☘️', note: "Water-storing tree of life.", predators: ['n20'] },
+                        { id: 'n19', name: 'Warthog', level: 2, icon: '🐗', note: "Savanna grazer and rooter.", predators: ['n21'] },
+                        { id: 'n20', name: 'Elephant', level: 2, icon: '🐘', note: "Ecosystem engineer.", predators: ['n23'] },
+                        { id: 'n21', name: 'Hyena', level: 3, icon: '🦴', note: "Powerful hunter-scavenger.", predators: ['n23'] },
+                        { id: 'n22', name: 'Wild Dog', level: 3, icon: '🐕', note: "Highly social pack hunter.", predators: ['n23'] },
+                        { id: 'n23', name: 'Lion', level: 4, icon: '🐯', note: "King of the grasslands.", predators: [] },
+                        { id: 'n24', name: 'Vulture', level: 4, icon: '🦩', note: "Apex scavenger of the plains.", predators: [] }
                     ]},
                     river: { name: "Freshwater River", img: "https://images.unsplash.com/photo-1511497584788-876760111969?auto=format&fit=crop&w=400", organisms: [
-                        { id: 'n25', name: 'Water Lily', level: 1, icon: '🪷', predators: ['n27'] },
-                        { id: 'n26', name: 'Papyrus Reed', level: 1, icon: '🪴', predators: ['n28'] },
-                        { id: 'n27', name: 'Freshwater Shrimp', level: 2, icon: '🦐', predators: ['n29'] },
-                        { id: 'n28', name: 'Tilapia variant', level: 2, icon: '🐠', predators: ['n30'] },
-                        { id: 'n29', name: 'Catfish', level: 3, icon: '🐡', predators: ['n31'] },
-                        { id: 'n30', name: 'Clawless Otter', level: 3, icon: '🐩', predators: ['n31'] },
-                        { id: 'n31', name: 'Nile Crocodile', level: 4, icon: '🐢', predators: [] },
-                        { id: 'n32', name: 'Fish Eagle', level: 4, icon: '🦆', predators: [] }
+                        { id: 'n25', name: 'Water Lily', level: 1, icon: '🪷', note: "Aquatic primary producer.", predators: ['n27'] },
+                        { id: 'n26', name: 'Papyrus Reed', level: 1, icon: '🪴', note: "Wetland producer providing habitat.", predators: ['n28'] },
+                        { id: 'n27', name: 'Freshwater Shrimp', level: 2, icon: '🦐', note: "Small scavenger consumer.", predators: ['n29'] },
+                        { id: 'n28', name: 'Tilapia-R', level: 2, icon: '🐠', note: "River-dwelling herbivorous fish.", predators: ['n30'] },
+                        { id: 'n29', name: 'Catfish', level: 3, icon: '🐡', note: "Bottom-feeding secondary consumer.", predators: ['n31'] },
+                        { id: 'n30', name: 'Clawless Otter', level: 3, icon: '🐩', note: "Fish-eating mammal of the river.", predators: ['n31'] },
+                        { id: 'n31', name: 'Croc-R', level: 4, icon: '🐢', note: "Freshwater apex predator.", predators: [] },
+                        { id: 'n32', name: 'Eagle-R', level: 4, icon: '🦆', note: "River-scoping apex predator.", predators: [] }
                     ]},
                     sahel: { name: "Sahel Scrubland", img: "https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?auto=format&fit=crop&w=400", organisms: [
-                        { id: 'n33', name: 'Acacia', level: 1, icon: '🌿', predators: ['n35'] },
-                        { id: 'n34', name: 'Doum Palm', level: 1, icon: '🥥', predators: ['n36'] },
-                        { id: 'n35', name: 'Dorcas Gazelle', level: 2, icon: '🦌', predators: ['n37'] },
-                        { id: 'n36', name: 'Desert Locust', level: 2, icon: '🦗', predators: ['n38'] },
-                        { id: 'n37', name: 'Fennec Fox', level: 3, icon: '🦊', predators: ['n39'] },
-                        { id: 'n38', name: 'Chanting Goshawk', level: 3, icon: '🕊️', predators: ['n40'] },
-                        { id: 'n39', name: 'Python Variant', level: 4, icon: '🐌', predators: [] },
-                        { id: 'n40', name: 'Caracal', level: 4, icon: '🐜', predators: [] }
+                        { id: 'n33', name: 'Acacia', level: 1, icon: '🌿', note: "Hardy scrubland shrub.", predators: ['n35'] },
+                        { id: 'n34', name: 'Doum Palm', level: 1, icon: '🥥', note: "Desert-fringe fruit producer.", predators: ['n36'] },
+                        { id: 'n35', name: 'Dorcas Gazelle', level: 2, icon: '🦌', note: "Drought-adapted primary consumer.", predators: ['n37'] },
+                        { id: 'n36', name: 'Desert Locust', level: 2, icon: '🦗', note: "Mass-migrating herbivore.", predators: ['n38'] },
+                        { id: 'n37', name: 'Fennec Fox', level: 3, icon: '🦊', note: "Small desert secondary consumer.", predators: ['n39'] },
+                        { id: 'n38', name: 'Goshawk-S', level: 3, icon: '🕊️', note: "Pale scrubland raptor.", predators: ['n40'] },
+                        { id: 'n39', name: 'Python-S', level: 4, icon: '🐌', note: "Semi-arid constrictor predator.", predators: [] },
+                        { id: 'n40', name: 'Caracal', level: 4, icon: '🐜', note: "The agile jumping apex cat.", predators: [] }
                     ]}
                 }
             }
@@ -394,6 +395,8 @@
                 this.cacheDOM(); this.bindEvents();
                 window.onmousemove = (e) => this.handleMouseMove(e);
                 window.onmouseup = () => this.handleMouseUp();
+                const nameField = document.getElementById('user-name');
+                nameField.addEventListener('focus', () => setTimeout(() => document.execCommand('selectAll', false, null), 0));
             },
 
             cacheDOM() {
@@ -448,7 +451,8 @@
                 hData.organisms.forEach(org => {
                     const el = document.createElement('div'); el.className = 'sidebar-item flex items-center gap-3 bg-white border-2 border-stone-800 rounded';
                     el.dataset.id = org.id; el.innerHTML = `<span class="text-2xl">${org.icon}</span><span class="font-bold text-lg">${org.name}</span>`;
-                    el.draggable = true; el.ondragstart = (e) => e.dataTransfer.setData('text', org.id);
+                    el.draggable = (this.state.tool === 'arrange');
+                    el.ondragstart = (e) => e.dataTransfer.setData('text', org.id);
                     el.onmousedown = (e) => { if(this.state.tool === 'links') { this.state.linkingSource = org.id; e.stopPropagation(); } };
                     el.onmouseup = () => { if(this.state.tool === 'links' && this.state.linkingSource && this.state.linkingSource !== org.id) this.createLink(this.state.linkingSource, org.id); };
                     const shelf = hState.placements[org.id];
@@ -458,6 +462,7 @@
                     shelf.ondragover = (e) => e.preventDefault();
                     shelf.ondrop = (e) => {
                         const id = e.dataTransfer.getData('text'), el = document.querySelector(`[data-id="${id}"]`);
+                        if (!el) return;
                         shelf.querySelector('.drop-zone').appendChild(el); hState.placements[id] = shelf.dataset.level; this.drawArrows();
                     };
                 });
@@ -468,6 +473,8 @@
                 document.getElementById('mode-slider').classList.toggle('links-active', t === 'links');
                 document.getElementById('label-arrange').classList.toggle('active', t === 'arrange');
                 document.getElementById('label-links').classList.toggle('active', t === 'links');
+                // v2.1.2: Sync draggable state with tool selection
+                document.querySelectorAll('.sidebar-item').forEach(el => el.draggable = (t === 'arrange'));
             },
 
             handleMouseMove(e) {
