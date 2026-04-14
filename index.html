@@ -279,10 +279,11 @@
                     <div class="flex gap-4">
                         <label for="input-import-journal" class="btn-ink text-xs uppercase opacity-70 cursor-pointer text-center">Load Journal Data</label>
                         <input type="file" id="input-import-journal" class="hidden" accept=".json">
-                        <button id="btn-export-global" class="btn-ink text-xs uppercase opacity-70">Save Journal Data</button>
+                        <button id="btn-export-global" class="hidden btn-ink text-xs uppercase opacity-70">Save Journal Data</button>
                     </div>
                 </div>
             </div>
+            <div class="version-tag">Build v2.1.0 GLOBAL EXPEDITION</div>
         </div>
 
         <!-- SCREEN: REGIONAL COVER -->
@@ -300,6 +301,7 @@
                     <p id="download-hint" class="text-sm typewriter opacity-50 mt-4 text-center">Master all habitats in this region to download your regional certificate.</p>
                 </div>
             </div>
+            <div class="version-tag">Build v2.1.0 GLOBAL EXPEDITION</div>
         </div>
 
         <!-- SCREEN: WORKSPACE -->
@@ -337,6 +339,7 @@
                     </div>
                 </main>
             </div>
+            <div class="version-tag">Build v2.1.0 GLOBAL EXPEDITION</div>
         </div>
 
         <div id="modal-field-guide" class="overlay">
@@ -376,7 +379,6 @@
                 <button class="btn-ink mt-4 w-full closeModal uppercase">Return to Journal</button>
             </div>
         </div>
-        <div class="version-tag">Build v3.0.0 GLOBAL EXPEDITION</div>
     </div>
 
     <div id="cert-template"></div>
@@ -797,7 +799,7 @@
             exportJournal() {
                 const name = this.userNameField.innerText.trim();
                 const exportData = {
-                    version: "3.0.0",
+                    version: "2.1.0",
                     userName: name,
                     globalProgress: this.state.globalProgress
                 };
