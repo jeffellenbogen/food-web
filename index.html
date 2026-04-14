@@ -3,43 +3,53 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Food Web Explorers</title>
+    <title>Global Food Web Expedition</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- html2canvas for certificate generation -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&family=Patrick+Hand&family=Special+Elite&display=swap" rel="stylesheet">
     <style>
         :root {
+            /* Default Base Theme (Neutral/Expedition) */
             --journal-bg: #f5f0e1;
-            --journal-border: #c4b5a0;
+            --journal-border: #3d2b1f;
             --ink-color: #2b2624;
             --thread-gold: #d4af37;
             --highlight-glow: rgba(255, 255, 255, 1);
             --error-red: #a33b3b;
             --success-green: #3b7a3b;
-            --pencil-blue: #4a7a96;
-            --ribbon-blue: #2c5282;
+            --pencil-color: #2c5282; /* Unified Arrange Blue */
+            --ribbon-main: #2c5282;
             --ribbon-gold: #ffd700;
-            --map-sea: #e5dfcf;
+            --app-bg: #1a1a1a;
         }
 
+        /* Theming classes applied via JS */
+        body.theme-colorado { --ribbon-main: #2c5282; --app-bg: #1a1a1a; --journal-border: #3d2b1f; }
+        body.theme-nigeria { --ribbon-main: #008751; --app-bg: #0a1f0a; --journal-border: #1a331a; }
+
         body {
-            background-color: #1a1a1a;
+            background-color: var(--app-bg);
             font-family: 'Patrick Hand', cursive;
             color: var(--ink-color);
             background-image: radial-gradient(#333 10%, transparent 10%);
             background-size: 20px 20px;
             overflow: hidden; 
+            transition: background-color 0.5s ease;
         }
 
         .sketchbook {
             background-color: var(--journal-bg);
             background-image: url("https://www.transparenttextures.com/patterns/paper-fibers.png");
             box-shadow: 15px 15px 50px rgba(0,0,0,0.8);
-            border-left: 15px solid #3d2b1f;
+            border-left: 15px solid var(--journal-border);
             position: relative;
-            height: 94vh; width: 96vw; max-width: 1400px;
-            display: flex; flex-direction: column; transition: all 0.3s ease;
+            height: 94vh; 
+            width: 96vw;
+            max-width: 1400px;
+            display: flex;
+            flex-direction: column;
+            transition: all 0.3s ease;
         }
 
         .spiral {
@@ -52,143 +62,167 @@
             border-radius: 10px; box-shadow: 2px 2px 5px rgba(0,0,0,0.3);
         }
 
-        .screen { display: none; height: 100%; flex-direction: column; overflow: hidden; position: relative; }
-        .screen.active { display: flex; }
-
-        /* World Map Navigation */
-        .world-map-container {
-            background-color: var(--map-sea);
-            background-image: url("https://www.transparenttextures.com/patterns/old-map.png");
-            height: 100%; width: 100%; position: relative;
-            border: 2px solid #8c7e6a; border-radius: 4px;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-        }
-        .map-grid {
-            position: absolute; inset: 0;
-            background-size: 100px 100px;
-            background-image: linear-gradient(to right, rgba(140, 126, 106, 0.1) 1px, transparent 1px),
-                              linear-gradient(to bottom, rgba(140, 126, 106, 0.1) 1px, transparent 1px);
-        }
-        .expedition-stamp {
-            position: absolute; cursor: pointer; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            display: flex; flex-direction: column; align-items: center; gap: 8px; z-index: 20;
-        }
-        .expedition-stamp:hover { transform: scale(1.15) rotate(-2deg); z-index: 30; }
-        .stamp-visual {
-            width: 140px; height: 140px; border-radius: 50%; border: 4px double #3d2b1f;
-            padding: 10px; background: rgba(255,255,255,0.2);
-            display: flex; items-center; justify-content: center; position: relative;
-            box-shadow: 4px 4px 0 rgba(0,0,0,0.1);
-        }
-        .stamp-visual img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; filter: grayscale(0.4) sepia(0.3); }
-        .stamp-label {
-            background: #3d2b1f; color: #f5f0e1; padding: 4px 12px; font-family: 'Special Elite', cursive;
-            font-size: 1rem; text-transform: uppercase; box-shadow: 3px 3px 0 rgba(0,0,0,0.2);
-        }
-
-        /* Trophic Structure & UI */
         .patch-container { display: flex; flex-direction: column; align-items: center; gap: 0.75rem; position: relative; }
         .patch-slot {
-            width: 125px; height: 125px; border-radius: 50%; position: relative; cursor: pointer;
-            transition: all 0.3s ease; background-color: #eee; border: 8px solid #3d2b1f;
+            width: 130px; height: 130px; border-radius: 50%; position: relative; cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            background-color: #eee; border: 8px solid var(--journal-border);
             box-shadow: 0 6px 12px rgba(0,0,0,0.3), inset 0 0 15px rgba(0,0,0,0.2);
             overflow: hidden;
         }
-        .patch-slot:hover { transform: scale(1.1); border-color: #fff; box-shadow: 0 0 30px 10px var(--highlight-glow); }
+        .patch-slot:hover { transform: scale(1.1) rotate(5deg); border-color: #fff; box-shadow: 0 0 30px 10px var(--highlight-glow); }
         .patch-image { width: 100%; height: 100%; object-fit: cover; filter: saturate(1.4) contrast(1.1); display: block; }
+
+        .ribbon {
+            position: absolute; top: -10px; right: -10px; width: 50px; height: 70px;
+            z-index: 10; transform: rotate(15deg); pointer-events: none;
+        }
+
         .patch-label {
             font-family: 'Special Elite', cursive; font-size: 0.9rem; text-transform: uppercase;
-            letter-spacing: 0.05em; background: #fff; border: 1px solid #3d2b1f;
+            letter-spacing: 0.05em; background: #fff; border: 1px solid var(--journal-border);
             box-shadow: 2px 2px 0 rgba(0,0,0,0.1); transform: rotate(-1deg); font-weight: bold;
-            width: 145px; min-height: 58px; text-align: center; display: flex; align-items: center; 
+            width: 145px; height: 58px; text-align: center; display: flex; align-items: center; 
             justify-content: center; line-height: 1.1; padding: 4px;
         }
 
-        .btn-ink {
-            border: 2px solid var(--ink-color); border-radius: 5px 15px 5px 10px / 10px 5px 15px 5px;
-            padding: 0.6rem 1.2rem; transition: all 0.2s; font-weight: bold; background: transparent;
-            font-family: 'Special Elite', cursive; font-size: 0.9rem; text-transform: uppercase;
-        }
-        .btn-ink:hover:not(.needs-check) { background: var(--ink-color); color: white; transform: translateY(-1px); }
+        .handwritten { font-family: 'Caveat', cursive; }
+        .typewriter { font-family: 'Special Elite', cursive; }
 
-        .needs-check {
-            background-color: var(--ribbon-blue) !important; color: white !important;
-            border: 3px solid var(--ribbon-gold) !important;
-            box-shadow: 0 0 15px rgba(255, 215, 0, 0.4); transform: scale(1.05);
-        }
+        .editable-name { cursor: text; min-width: 120px; display: inline-block; outline: none; padding: 0 2px; }
+        .editable-name:focus { background: rgba(255, 255, 255, 0.8); border-radius: 4px; }
 
         .trophic-shelf {
-            border-bottom: 2px dashed rgba(0,0,0,0.1); flex: 1; min-height: 80px; position: relative;
+            border-bottom: 2px dashed rgba(0,0,0,0.1); 
+            flex: 1; min-height: 80px; position: relative;
             background-image: linear-gradient(to right, transparent 10%, rgba(0,0,0,0.01) 10%);
             background-size: 50px 100%; transition: background-color 0.2s;
         }
+
         .shelf-label {
             position: absolute; left: -10px; top: 10px; transform: rotate(-1.5deg);
             background: #fff9eb; padding: 3px 15px; border: 1px solid #dcd3bc;
             font-size: 0.7rem; font-weight: bold; text-transform: uppercase;
             box-shadow: 3px 3px 0 rgba(0,0,0,0.05); z-index: 5; font-family: 'Special Elite', cursive;
         }
-        .drop-zone { height: 100%; width: 100%; display: flex; flex-wrap: wrap; gap: 0.75rem; padding: 1.5rem 2rem 0.5rem 2rem; align-items: center; }
+
+        .drop-zone {
+            height: 100%; width: 100%; display: flex; flex-wrap: wrap; gap: 0.75rem; padding: 1.5rem 2rem 0.5rem 2rem; align-items: center;
+        }
 
         .sidebar-item {
-            transition: all 0.2s; background: #fff; border: 2px solid #3d2b1f;
+            transition: all 0.2s; background: #fff; border: 2px solid var(--journal-border);
             border-radius: 8px; user-select: none; box-shadow: 2px 2px 0 rgba(0,0,0,0.1);
-            position: relative; z-index: 20; padding: 0.6rem;
+            position: relative; z-index: 20; padding: 0.75rem;
         }
         .sidebar-item[draggable="true"] { cursor: grab; }
-        .sidebar-item.correct { border-color: var(--success-green) !important; background: #eaffea !important; }
-        .sidebar-item.incorrect { border-color: var(--error-red) !important; background: #ffeaea !important; }
+        .sidebar-item[draggable="true"]:active { cursor: grabbing; transform: scale(0.95); }
 
-        .mode-toggle-container {
-            background: rgba(0,0,0,0.05); border: 2px solid #3d2b1f; border-radius: 10px;
-            display: flex; position: relative; cursor: pointer; padding: 4px;
+        .btn-ink {
+            border: 2px solid var(--ink-color); border-radius: 5px 15px 5px 10px / 10px 5px 15px 5px;
+            padding: 0.6rem 1.2rem; transition: all 0.2s; font-weight: bold; background: transparent;
+            font-family: 'Special Elite', cursive; font-size: 0.9rem;
         }
-        .mode-toggle-slider {
-            position: absolute; top: 4px; left: 4px; width: calc(50% - 4px); height: calc(100% - 8px);
-            background: var(--pencil-blue); border-radius: 6px; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); z-index: 1;
-        }
-        .mode-toggle-slider.links-active { left: 50%; background: var(--success-green); }
-        .mode-label { flex: 1; text-align: center; padding: 8px 0; font-family: 'Special Elite', cursive; font-size: 11px; z-index: 2; font-weight: bold; }
-        .mode-label.active { color: white; }
+        .btn-ink:hover:not(.mode-toggle-container *, .needs-check) { background: var(--ink-color); color: white; transform: translateY(-1px); }
+        .btn-ink.active-tool { background: #2c5282; color: white; border-color: #2c5282; }
 
-        #connection-layer { position: absolute; inset: 0; pointer-events: none; z-index: 40; }
-        .connection-group { pointer-events: auto; }
-        .connection-arrow { fill: none; stroke: var(--pencil-blue); stroke-width: 3; stroke-linecap: round; marker-end: url(#arrowhead); opacity: 0.6; }
-        #temp-link { fill: none; stroke: var(--pencil-blue); stroke-width: 2; stroke-dasharray: 5,5; pointer-events: none; }
-        
-        .delete-btn { opacity: 0; transition: opacity 0.2s; cursor: pointer; }
-        .connection-group:hover .delete-btn { opacity: 1; }
-        .delete-btn circle { fill: var(--error-red); stroke: #fff; stroke-width: 1.5; }
-        .delete-btn text { fill: white; font-family: sans-serif; font-size: 14px; font-weight: bold; pointer-events: none; }
+        .needs-check {
+            background-color: var(--ribbon-main) !important;
+            border: 3px solid var(--ribbon-gold) !important;
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.4);
+            transform: scale(1.05);
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            color: white;
+        }
+        .needs-check:hover { filter: brightness(1.2); box-shadow: 0 0 20px rgba(255, 215, 0, 0.6); transform: scale(1.08); }
+
+        .screen { display: none; height: 100%; flex-direction: column; overflow: hidden; }
+        .screen.active { display: flex; }
 
         .overlay {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.7); z-index: 100; align-items: center; justify-content: center; padding: 2rem;
         }
         .overlay.active { display: flex; }
+
         .modal-paper {
-            background: #fff; max-width: 700px; width: 100%; padding: 2.5rem;
-            border: 2px solid #3d2b1f; position: relative; box-shadow: 10px 10px 0 rgba(0,0,0,0.2);
+            background: #fff; max-width: 750px; width: 100%; padding: 2.5rem;
+            border: 2px solid var(--journal-border); position: relative; box-shadow: 10px 10px 0 rgba(0,0,0,0.2);
             background-image: url("https://www.transparenttextures.com/patterns/paper-fibers.png");
         }
 
-        #modal-feedback .modal-paper { max-width: 480px; padding: 1.25rem 1.5rem; }
+        #modal-feedback .modal-paper { max-width: 460px; padding: 1.25rem 1.5rem; max-height: 85vh; overflow-y: hidden; display: flex; flex-direction: column; }
+        #modal-feedback h3 { margin-top: 0; margin-bottom: 0.5rem; font-size: 2.4rem; line-height: 1.1; }
 
-        .workspace-habitat-badge { width: 60px; height: 60px; border-radius: 50%; border: 4px solid #3d2b1f; position: relative; }
-        .workspace-ribbon { position: absolute; top: -10px; right: -10px; width: 30px; height: 45px; z-index: 10; transform: rotate(15deg); display: none; }
-        .is-mastered .workspace-ribbon { display: block; }
+        #connection-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 40; }
+        .connection-group { pointer-events: auto; cursor: default; }
+        .connection-arrow { fill: none; stroke: var(--pencil-color); stroke-width: 3; stroke-linecap: round; marker-end: url(#arrowhead); opacity: 0.6; }
+        .connection-hit-area { fill: none; stroke: transparent; stroke-width: 20; cursor: pointer; }
+        .delete-btn { opacity: 0; transition: opacity 0.2s; cursor: pointer; }
+        .connection-group:hover .connection-arrow { opacity: 1; stroke-width: 4; stroke: var(--error-red); marker-end: url(#arrowhead-error); }
+        .connection-group:hover .delete-btn { opacity: 1; }
+        .delete-btn circle { fill: var(--error-red); stroke: #fff; stroke-width: 1.5; }
+        .delete-btn text { fill: white; font-family: sans-serif; font-size: 14px; font-weight: bold; pointer-events: none; }
+
+        #temp-link { fill: none; stroke: var(--pencil-color); stroke-width: 2; stroke-dasharray: 5,5; pointer-events: none; }
+        .can-be-linked { cursor: crosshair !important; }
         
-        .version-tag { font-family: 'Special Elite', cursive; opacity: 0.4; font-size: 12px; font-weight: bold; }
-        .compass-rose { position: absolute; bottom: 40px; right: 40px; width: 150px; height: 150px; opacity: 0.3; pointer-events: none; }
+        .version-tag {
+            position: absolute; bottom: 0.5rem; left: 50%; transform: translateX(-50%);
+            font-family: 'Special Elite', cursive; font-size: 10pt; font-weight: bold; 
+            opacity: 0.4; pointer-events: none;
+        }
+
+        #cert-template {
+            position: fixed; top: -3000px; left: -3000px; width: 1100px; height: 850px;
+            background: #fdfaf3; background-image: url("https://www.transparenttextures.com/patterns/paper-fibers.png");
+            border: 30px double var(--journal-border); padding: 60px; display: flex; flex-direction: column; align-items: center; color: var(--journal-border); text-align: center;
+        }
+
+        .workspace-habitat-badge { width: 60px; height: 60px; border-radius: 50%; border: 4px solid var(--journal-border); position: relative; }
+        .workspace-ribbon { position: absolute; top: -10px; right: -10px; width: 30px; height: 45px; z-index: 10; transform: rotate(15deg); pointer-events: none; display: none; }
+        .is-mastered .workspace-ribbon { display: block; }
+
+        .shelf-drag-over { background-color: rgba(0, 0, 0, 0.05); }
+        .correct { border-color: var(--success-green) !important; background: #eaffea !important; }
+        .incorrect { border-color: var(--error-red) !important; background: #ffeaea !important; }
+
+        .mode-toggle-container {
+            background: rgba(0,0,0,0.05); border: 2px solid var(--journal-border); border-radius: 10px;
+            display: flex; position: relative; cursor: pointer; overflow: hidden; padding: 4px;
+            box-shadow: inset 2px 2px 5px rgba(0,0,0,0.1);
+        }
+        .mode-toggle-slider {
+            position: absolute; top: 4px; left: 4px; width: calc(50% - 4px); height: calc(100% - 8px);
+            background: #2c5282; /* Blue for Arrange */
+            border-radius: 6px; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); z-index: 1;
+        }
+        .mode-toggle-slider.links-active { left: 50%; background: #008751; /* Green for Links */ }
+        .mode-label { flex: 1; text-align: center; padding: 8px 0; font-family: 'Special Elite', cursive; font-size: 11px; font-weight: bold; z-index: 2; transition: color 0.3s; user-select: none; }
+        .mode-label.active { color: white; }
+        .mode-label.inactive { color: rgba(0, 0, 0, 0.4); }
+
+        /* Destination Picker Cards */
+        .destination-card {
+            background: #fff; border: 3px solid var(--journal-border);
+            transition: all 0.3s ease; cursor: pointer; position: relative;
+        }
+        .destination-card:hover { transform: scale(1.05) rotate(1deg); box-shadow: 10px 10px 0 rgba(0,0,0,0.1); }
+        .destination-card img { width: 100%; height: 200px; object-fit: cover; border-bottom: 2px solid var(--journal-border); }
+
+        .global-badge { position: absolute; top: -15px; right: -15px; z-index: 20; transform: rotate(10deg); }
     </style>
 </head>
-<body class="p-2 md:p-4 flex justify-center items-center min-h-screen">
+<body class="p-2 md:p-4 flex justify-center items-center min-h-screen text-lg">
 
     <div id="journal-root" class="sketchbook p-6 md:p-10">
         <svg style="width:0; height:0; position:absolute;">
             <defs>
                 <marker id="arrowhead" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
-                    <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--pencil-blue)" />
+                    <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--pencil-color)" />
+                </marker>
+                <marker id="arrowhead-error" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+                    <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--error-red)" />
                 </marker>
             </defs>
         </svg>
@@ -200,428 +234,625 @@
         </div>
 
         <header id="journal-header" class="flex justify-between items-center mb-6 border-b-2 border-stone-300 pb-3 flex-shrink-0">
-            <div class="flex items-center gap-4">
-                <button id="btn-to-world" class="hidden btn-ink">&larr; Global Map</button>
-                <button id="btn-to-cover" class="hidden btn-ink">&larr; Region Index</button>
+            <div class="flex items-center gap-6">
+                <button id="btn-back-nav" class="hidden btn-ink">&larr; BACK</button>
                 <div class="flex items-baseline">
-                    <span id="user-name" class="handwritten text-4xl text-blue-900 border-b border-dashed border-stone-400 pl-4 min-w-[120px] outline-none text-right inline-block" contenteditable="true">Your Name</span>
-                    <h1 class="text-4xl font-bold handwritten tracking-tight text-stone-800 ml-2">@ Food Web Explorers</h1>
+                    <span id="user-name" class="handwritten text-4xl text-blue-900 border-b border-dashed border-stone-400 pl-4 pr-0 min-w-[120px] outline-none text-right inline-block" contenteditable="true">Your Name</span><h1 class="text-4xl font-bold handwritten tracking-tight text-stone-800 ml-0">'s <span id="main-title-dynamic">Expedition Journal</span></h1>
                 </div>
             </div>
             <div id="workspace-tools" class="hidden flex gap-3">
+                <button id="btn-save-workspace" class="btn-ink bg-stone-100 opacity-80">Save Progress</button>
                 <button id="btn-food-web-101" class="btn-ink">Food Web 101</button>
                 <button id="btn-field-guide" class="btn-ink">Field Guide</button>
-                <button id="btn-check" class="btn-ink bg-stone-800 text-white shadow-md">Check Journal</button>
+                <button id="btn-check" class="btn-ink bg-stone-800 text-white shadow-md transition-all">Check Journal</button>
             </div>
         </header>
 
-        <!-- World Map Screen -->
-        <div id="screen-world" class="screen active">
-            <div class="world-map-container">
-                <div class="map-grid"></div>
-                <h2 class="text-6xl font-bold typewriter mb-2 px-12 py-3 bg-stone-800 text-white transform -rotate-1 relative z-10">Food Web Explorers</h2>
-                <p class="typewriter opacity-60 mb-12 uppercase tracking-widest relative z-10">Select a region to begin expeditions</p>
-                
-                <div class="expedition-stamp" style="top: 32%; left: 18%;" onclick="app.selectRegion('colorado')">
-                    <div class="stamp-visual"><img src="https://images.unsplash.com/photo-1499244015948-ac7a63e28aa2?auto=format&fit=crop&w=300"></div>
-                    <span class="stamp-label">Colorado Rockies</span>
-                </div>
-
-                <div class="expedition-stamp" style="top: 55%; left: 51%;" onclick="app.selectRegion('nigeria')">
-                    <div class="stamp-visual"><img src="https://images.unsplash.com/photo-1542366810-4316719859f5?auto=format&fit=crop&w=300"></div>
-                    <span class="stamp-label">Nigeria Ecosystems</span>
-                </div>
-
-                <div class="compass-rose">
-                    <svg viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="1.5">
-                        <circle cx="50" cy="50" r="45" stroke-dasharray="2 4"/><path d="M50 5 L55 45 L95 50 L55 55 L50 95 L45 55 L5 50 L45 45 Z" fill="#3d2b1f"/><text x="48" y="15" fill="#3d2b1f" font-family="serif" font-size="10">N</text>
-                    </svg>
-                </div>
-            </div>
-            <div class="version-tag mt-4 text-center">BUILD v2.2.0</div>
-        </div>
-
-        <!-- Regional Landing Hub -->
-        <div id="screen-cover" class="screen">
+        <!-- SCREEN: LANDING / DESTINATION PICKER -->
+        <div id="screen-landing" class="screen active">
             <div class="flex flex-col items-center py-4 flex-grow overflow-y-auto">
-                <h2 id="region-title" class="text-4xl font-bold typewriter mb-16 px-12 py-3 bg-stone-800 text-white transform rotate-1 uppercase tracking-widest">Region Habitats</h2>
-                <div class="grid grid-cols-2 md:grid-cols-5 gap-12 w-full max-w-5xl" id="patch-grid"></div>
-                <div class="mt-auto pt-10 flex flex-col items-center w-full gap-4">
-                    <div id="progress-summary" class="typewriter text-lg font-bold">Earned 0 of 5 badges</div>
+                <h2 class="text-4xl font-bold typewriter mb-12 px-12 py-3 bg-stone-800 text-white rounded-sm transform -rotate-1">Select Your Expedition</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-12 w-full max-w-4xl px-8">
+                    
+                    <div class="destination-card group" onclick="app.selectRegion('colorado')">
+                        <div id="badge-count-colorado" class="global-badge"></div>
+                        <img src="https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=600&q=80" alt="Colorado">
+                        <div class="p-6 text-center">
+                            <h3 class="typewriter text-2xl font-bold mb-2">North America</h3>
+                            <p class="handwritten text-3xl text-blue-800">Colorado Rockies & Plains</p>
+                        </div>
+                    </div>
+
+                    <div class="destination-card group" onclick="app.selectRegion('nigeria')">
+                        <div id="badge-count-nigeria" class="global-badge"></div>
+                        <img src="https://images.unsplash.com/photo-1516026672322-bc52d61a55d5?auto=format&fit=crop&w=600&q=80" alt="Nigeria">
+                        <div class="p-6 text-center">
+                            <h3 class="typewriter text-2xl font-bold mb-2">West Africa</h3>
+                            <p class="handwritten text-3xl text-green-800">Nigerian Bio-Hotspots</p>
+                        </div>
+                    </div>
+
+                </div>
+                
+                <div class="mt-auto pt-10 flex flex-col items-center w-full">
+                    <p class="typewriter opacity-60 text-sm mb-4">Master 10 total habitats to become a Global Naturalist.</p>
                     <div class="flex gap-4">
-                        <button id="btn-download" class="btn-ink bg-blue-900 text-white hidden">Mastery Certificate</button>
-                        <button id="btn-export-journal" class="btn-ink text-xs opacity-70">Save Global Journal</button>
-                        <label for="input-import-journal" class="btn-ink text-xs opacity-70 cursor-pointer">Load Journal</label>
-                        <input type="file" id="input-import-journal" class="hidden">
+                        <label for="input-import-journal" class="btn-ink text-xs uppercase opacity-70 cursor-pointer text-center">Load Journal Data</label>
+                        <input type="file" id="input-import-journal" class="hidden" accept=".json">
+                        <button id="btn-export-global" class="btn-ink text-xs uppercase opacity-70">Save Journal Data</button>
                     </div>
                 </div>
             </div>
-            <div class="version-tag absolute bottom-4 left-1/2 -translate-x-1/2">v2.2.0</div>
         </div>
 
-        <!-- Workspace Habitat Screen -->
+        <!-- SCREEN: REGIONAL COVER -->
+        <div id="screen-cover" class="screen">
+            <div class="flex flex-col items-center py-4 flex-grow overflow-y-auto">
+                <h2 id="regional-merit-title" class="text-4xl font-bold typewriter mb-16 px-12 py-3 bg-stone-800 text-white rounded-sm transform rotate-1">Expedition Merit Badges</h2>
+                <div class="grid grid-cols-2 md:grid-cols-5 gap-12 w-full max-w-5xl" id="patch-grid"></div>
+                
+                <div id="management-zone" class="mt-auto pt-10 flex flex-col items-center w-full">
+                    <div id="progress-summary" class="typewriter text-lg mb-4 font-bold">Earned 0 of 5 badges</div>
+                    <div class="flex gap-4 items-center">
+                        <button id="btn-export-regional" class="btn-ink text-xs uppercase opacity-70">Save Journal Data</button>
+                        <button id="btn-download" class="btn-ink uppercase bg-blue-900 text-white shadow-xl hover:brightness-110 hidden">Download Master Certificate</button>
+                    </div>
+                    <p id="download-hint" class="text-sm typewriter opacity-50 mt-4 text-center">Master all habitats in this region to download your regional certificate.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- SCREEN: WORKSPACE -->
         <div id="screen-workspace" class="screen">
             <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 relative flex-grow overflow-hidden">
                 <svg id="connection-layer"><path id="temp-link" d=""></path></svg>
-                <aside class="lg:col-span-1 flex flex-col h-full overflow-hidden border-r-2 border-stone-200">
-                    <h3 class="font-bold text-3xl handwritten mb-1 px-4 pt-2 text-stone-700">Species</h3>
-                    <p id="mode-hint" class="text-xs typewriter uppercase tracking-widest mb-2 px-4 pb-2 border-b border-stone-300">Drag to Sort</p>
-                    <div id="organism-pool" class="space-y-3 overflow-y-auto p-4 flex-grow"></div>
-                    <div class="p-4 space-y-3 flex-shrink-0">
-                        <div class="mode-toggle-container" id="mode-switch">
-                            <div id="mode-slider" class="mode-toggle-slider"></div>
-                            <div id="label-arrange" class="mode-label active">Arrange Species</div>
-                            <div id="label-links" class="mode-label inactive">Draw Links</div>
+                <aside class="lg:col-span-1 flex flex-col h-full overflow-hidden">
+                    <div class="bg-white/40 flex-grow shadow-inner relative z-30 flex flex-col overflow-hidden border-r-2 border-stone-200">
+                        <h3 class="font-bold text-3xl handwritten mb-1 px-4 pt-2 text-stone-700">Species</h3>
+                        <p id="mode-hint" class="text-xs typewriter uppercase tracking-widest mb-2 px-4 pb-2 border-b border-stone-300">Drag to Sort</p>
+                        <div id="organism-pool" class="space-y-3 overflow-y-auto p-4 flex-grow scrollbar-thin scrollbar-thumb-stone-300"></div>
+                        <div class="p-4 border-t border-stone-300 space-y-3 flex-shrink-0">
+                            <div class="mode-toggle-container" id="mode-switch">
+                                <div id="mode-slider" class="mode-toggle-slider"></div>
+                                <div id="label-arrange" class="mode-label active">Arrange Species</div>
+                                <div id="label-links" class="mode-label inactive">Drag Energy Links</div>
+                            </div>
+                            <button id="btn-clear-links" class="btn-ink w-full opacity-60 text-[10px]">Reset Arrows</button>
                         </div>
-                        <button id="btn-clear-links" class="btn-ink w-full text-[10px]">Reset Energy Links</button>
                     </div>
                 </aside>
                 <main class="lg:col-span-3 flex flex-col h-full overflow-hidden">
                     <div class="flex items-center gap-4 mb-3 flex-shrink-0">
-                        <div id="workspace-badge-container" class="workspace-habitat-badge"><div class="workspace-ribbon"></div><div id="workspace-badge-img-host" class="w-full h-full rounded-full overflow-hidden"></div></div>
-                        <h2 id="current-habitat-name" class="text-5xl handwritten text-stone-800 uppercase">Habitat</h2>
+                        <div id="workspace-badge-container" class="workspace-habitat-badge">
+                            <div class="workspace-ribbon"></div>
+                            <div class="w-full h-full rounded-full border-4 border-stone-800 overflow-hidden" id="workspace-badge-img-host"></div>
+                        </div>
+                        <h2 id="current-habitat-name" class="text-5xl handwritten text-stone-800 border-l-4 border-stone-800 pl-4 uppercase">Habitat Name</h2>
                     </div>
                     <div id="shelves-container" class="relative z-20 flex-grow flex flex-col overflow-hidden">
-                        <div class="trophic-shelf" data-level="4"><span class="shelf-label">Tertiary Consumers</span><div class="drop-zone"></div></div>
+                        <div class="trophic-shelf" data-level="4"><span id="label-apex" class="shelf-label">Apex Predators</span><div class="drop-zone"></div></div>
                         <div class="trophic-shelf" data-level="3"><span class="shelf-label">Secondary Consumers</span><div class="drop-zone"></div></div>
                         <div class="trophic-shelf" data-level="2"><span class="shelf-label">Primary Consumers</span><div class="drop-zone"></div></div>
                         <div class="trophic-shelf" data-level="1"><span class="shelf-label">Producers</span><div class="drop-zone"></div></div>
                     </div>
                 </main>
             </div>
-            <div class="version-tag absolute bottom-4 left-1/2 -translate-x-1/2">v2.2.0</div>
         </div>
 
-        <!-- Modals -->
-        <div id="modal-feedback" class="overlay"><div class="modal-paper text-center"><h3 id="feedback-title" class="handwritten text-5xl mb-4">...</h3><div id="feedback-text" class="text-xl italic leading-relaxed whitespace-pre-wrap px-2"></div><button class="btn-ink mt-8 w-full closeModal">Return to Journal</button></div></div>
-        <div id="modal-field-guide" class="overlay"><div class="modal-paper"><h3 class="typewriter text-2xl border-b-2 border-stone-800 mb-4">Field Research Notes</h3><div id="field-guide-content" class="space-y-4 max-h-[50vh] overflow-y-auto"></div><button class="btn-ink mt-8 w-full closeModal">Close Notes</button></div></div>
-        <div id="modal-food-web-101" class="overlay"><div class="modal-paper"><h3 class="typewriter text-3xl border-b-2 border-stone-800 mb-4 text-center">Food Web 101</h3><div class="space-y-4 text-lg italic leading-relaxed"><p>Arrows represent energy moving from food to consumer. The arrow points from the <strong>prey</strong> to the <strong>predator</strong>.</p><div class="bg-stone-50 p-4 border-l-4 border-stone-300"><p class="font-bold">Levels:</p><p>Producers: Get energy from the Sun. Primary Consumers: Eat plants. Secondary Consumers: Eat herbivores. Tertiary Consumers: Apex predators at the top of the chain.</p></div></div><button class="btn-ink mt-8 w-full closeModal">Got it</button></div></div>
+        <div id="modal-field-guide" class="overlay">
+            <div class="modal-paper">
+                <h3 class="typewriter text-2xl border-b-2 border-stone-800 mb-4 pb-2">Field Research Notes</h3>
+                <div id="field-guide-content" class="space-y-4 max-h-[55vh] overflow-y-auto pr-6"></div>
+                <button class="btn-ink mt-8 w-full closeModal uppercase">Back to Notebook</button>
+            </div>
+        </div>
+
+        <div id="modal-food-web-101" class="overlay">
+            <div class="modal-paper">
+                <h3 class="typewriter text-3xl border-b-2 border-stone-800 mb-6 pb-2">Food Web 101</h3>
+                <div class="space-y-6 text-xl leading-relaxed max-h-[55vh] overflow-y-auto pr-6">
+                    <p><strong>Energy Flow:</strong> Arrows represent energy moving from food to eater. The arrow points from the <strong>prey</strong> to the <strong>predator</strong>.</p>
+                    <div class="bg-stone-50 p-6 border-l-4 border-stone-300">
+                        <p class="font-bold mb-4">Trophic Levels:</p>
+                        <ul class="space-y-4">
+                            <li><span class="font-bold text-green-700">Producers:</span> Organisms that get energy from the Sun.</li>
+                            <li><span class="font-bold text-orange-700">Primary Consumers:</span> Herbivores that eat producers.</li>
+                            <li><span class="font-bold text-red-700">Secondary Consumers:</span> Predators that eat herbivores.</li>
+                            <li><span class="font-bold text-purple-900">Apex Predators:</span> The top predators in the ecosystem.</li>
+                        </ul>
+                    </div>
+                    <p class="italic text-lg">Tip: Every link you draw should point UPWARDS through the levels as energy moves from the ground to the sky.</p>
+                </div>
+                <button class="btn-ink mt-8 w-full closeModal uppercase">Back to Journal</button>
+            </div>
+        </div>
+
+        <div id="modal-feedback" class="overlay">
+            <div class="modal-paper text-center">
+                <h3 id="feedback-title" class="handwritten text-5xl mb-4">Reviewing Journal...</h3>
+                <div class="text-left">
+                    <div id="feedback-text" class="text-xl italic leading-relaxed whitespace-pre-wrap px-2"></div>
+                </div>
+                <button class="btn-ink mt-4 w-full closeModal uppercase">Return to Journal</button>
+            </div>
+        </div>
+        <div class="version-tag">Build v3.0.0 GLOBAL EXPEDITION</div>
     </div>
 
     <div id="cert-template"></div>
 
     <script>
-        const getRibbonSVG = (w, h, sz) => `<svg width="${w}" height="${h}" viewBox="0 0 50 70" style="filter: drop-shadow(2px 2px 3px rgba(0,0,0,0.3));"><path d="M 3 3 L 47 3 L 47 67 L 25 53 L 3 67 Z" fill="#2c5282" stroke="#ffd700" stroke-width="3"/><text x="25" y="38" fill="#ffd700" font-size="${sz}" text-anchor="middle" style="font-family: Arial, sans-serif; font-weight: bold;">★</text></svg>`;
+        const getRibbonSVG = (width, height, starSize, color) => `
+            <svg width="${width}" height="${height}" viewBox="0 0 50 70" style="filter: drop-shadow(2px 2px 3px rgba(0,0,0,0.3));">
+                <path d="M 3 3 L 47 3 L 47 67 L 25 53 L 3 67 Z" fill="${color || 'var(--ribbon-main)'}" stroke="#ffd700" stroke-width="3" stroke-linejoin="round" />
+                <text x="25" y="38" fill="#ffd700" font-size="${starSize}" text-anchor="middle" style="font-family: Arial, sans-serif; font-weight: bold;">★</text>
+            </svg>
+        `;
 
-        const regions = {
+        const regionalData = {
+            landing: { title: "Global Food Web Expedition" },
             colorado: {
-                title: "Colorado Rockies Expeditions",
+                id: 'colorado',
+                title: "Colorado Food Web Journal",
+                apexLabel: "Tertiary Consumers",
+                ribbonColor: "#2c5282",
                 habitats: {
-                    grassland: { name: "Eastern Shortgrass", img: "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=400", organisms: [
-                        { id: 'c1', name: 'Blue Grama Grass', level: 1, icon: '🌾', notes: "Drought-hardy base of the prairie.", predators: ['c2'] },
-                        { id: 'c2', name: 'Prairie Dog', level: 2, icon: '🐿️', notes: "Burrowing herbivore and keystone engineer.", predators: ['c3', 'c4'] },
-                        { id: 'c3', name: 'Black-footed Ferret', level: 3, icon: '🐾', notes: "Specialist hunter of the dog colonies.", predators: ['c5'] },
-                        { id: 'c4', name: 'Coyote', level: 3, icon: '🐺', notes: "Highly adaptable plains predator.", predators: ['c5'] },
-                        { id: 'c5', name: 'Golden Eagle', level: 4, icon: '🦅', notes: "The apex hunter of the grassland skies.", predators: [] }
-                    ]},
-                    tundra: { name: "Alpine Tundra", img: "https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=400", organisms: [
-                        { id: 'c6', name: 'Lichen', level: 1, icon: '🍄', notes: "Symbiotic pioneer growing on barren rock.", predators: ['c7', 'c8'] },
-                        { id: 'c7', name: 'Pika', level: 2, icon: '🐹', notes: "Collects plants to survive high winter.", predators: ['c9'] },
-                        { id: 'c8', name: 'Yellow-bellied Marmot', level: 2, icon: '🐻', notes: "Large rodent that hibernates for months.", predators: ['c10'] },
-                        { id: 'c9', name: 'Ermine', level: 3, icon: '🦦', notes: "Small but fierce predator of rodents.", predators: ['c10'] },
-                        { id: 'c10', name: 'Mountain Lion', level: 4, icon: '🦁', notes: "Top predator of the mountain ranges.", predators: [] }
-                    ]},
-                    riparian: { name: "Riparian Wetland", img: "https://images.unsplash.com/photo-1470770841072-f978cf4d019e?auto=format&fit=crop&w=400", organisms: [
-                        { id: 'c11', name: 'Cottonwood', level: 1, icon: '🌳', notes: "Anchors riverbanks and provides energy.", predators: ['c12'] },
-                        { id: 'c12', name: 'Aquatic Insects', level: 2, icon: '🐝', notes: "Feed on plant material in the stream.", predators: ['c13'] },
-                        { id: 'c13', name: 'Leopard Frog', level: 3, icon: '🐸', notes: "Preys on insects along the mudbanks.", predators: ['c15'] },
-                        { id: 'c14', name: 'Garter Snake', level: 3, icon: '🐍', notes: "Stealthy hunter of frogs and small fish.", predators: ['c15'] },
-                        { id: 'c15', name: 'Great Blue Heron', level: 4, icon: '🐦', notes: "Apex predator of the wetland waters.", predators: [] }
-                    ]},
-                    ponderosa: { name: "Montane Ponderosa", img: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=400", organisms: [
-                        { id: 'c16', name: 'Ponderosa Pine', level: 1, icon: '🌲', notes: "Produces calorie-dense seeds for years.", predators: ['c17', 'c18'] },
-                        { id: 'c17', name: 'Abert\'s Squirrel', level: 2, icon: '🦫', notes: "Depends entirely on these specific pines.", predators: ['c19', 'c20'] },
-                        { id: 'c18', name: 'Steller\'s Jay', level: 2, icon: '🐦‍⬛', notes: "Caches seeds across the forest floor.", predators: ['c19', 'c20'] },
-                        { id: 'c19', name: 'Goshawk', level: 3, icon: '🪶', notes: "High-speed hunter within thick branches.", predators: ['c20'] },
-                        { id: 'c20', name: 'Bobcat', level: 4, icon: '🐱', notes: "Stalks prey through dappled forest shadows.", predators: [] }
-                    ]},
-                    shrubland: { name: "Steppe Shrubland", img: "https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?auto=format&fit=crop&w=400", organisms: [
-                        { id: 'c21', name: 'Sagebrush', level: 1, icon: '🌵', notes: "Fragrant dominant shrub of the high desert.", predators: ['c22', 'c23'] },
-                        { id: 'c22', name: 'Jackrabbit', level: 2, icon: '🐇', notes: "Fast herbivore adapted for open terrain.", predators: ['c24', 'c25'] },
-                        { id: 'c23', name: 'Sage Thrasher', level: 2, icon: '🦢', notes: "Songbird dependent on sage cover.", predators: ['c24', 'c25'] },
-                        { id: 'c24', name: 'Badger', level: 3, icon: '🦡', notes: "Powerful digger that hunts rodents.", predators: ['c25'] },
-                        { id: 'c25', name: 'Red-tailed Hawk', level: 4, icon: '🪁', notes: "Soaring hunter watching from above.", predators: [] }
-                    ]}
+                    grassland: { name: "Eastern Shortgrass", img: "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=400&q=80", organisms: [{ id: 'g1', name: 'Blue Grama Grass', level: 1, icon: '🌾', notes: "The hardy producer at the base of the prairie web.", predators: ['g2'] }, { id: 'g2', name: 'Prairie Dog', level: 2, icon: '🐿️', notes: "A primary consumer that provides a critical food source.", predators: ['g3', 'g4', 'g5'] }, { id: 'g3', name: 'Black-footed Ferret', level: 3, icon: '🐾', notes: "A specialist secondary consumer.", predators: ['g5'] }, { id: 'g4', name: 'Coyote', level: 3, icon: '🐺', notes: "An opportunistic secondary consumer.", predators: ['g5'] }, { id: 'g5', name: 'Golden Eagle', level: 4, icon: '🦅', notes: "The apex predator of the grasslands.", predators: [] }] },
+                    tundra: { name: "Alpine Tundra", img: "https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=400&q=80", organisms: [{ id: 't1', name: 'Lichen', level: 1, icon: '🍄', notes: "A rugged producer providing essential winter calories.", predators: ['t2', 't3'] }, { id: 't2', name: 'Pika', level: 2, icon: '🐹', notes: "A primary consumer that dries 'hay' piles.", predators: ['t4', 't5'] }, { id: 't3', name: 'Marmot', level: 2, icon: '🐻', notes: "Large rodents that graze on alpine flowers.", predators: ['t5'] }, { id: 't4', name: 'Ermine', level: 3, icon: '🦦', notes: "A fierce secondary consumer.", predators: ['t5'] }, { id: 't5', name: 'Mountain Lion', level: 4, icon: '🦁', notes: "The top predator of the Rockies.", predators: [] }] },
+                    riparian: { name: "Riparian Wetland", img: "https://images.unsplash.com/photo-1470770841072-f978cf4d019e?auto=format&fit=crop&w=400&q=80", organisms: [{ id: 'r1', name: 'Cottonwood Tree', level: 1, icon: '🌳', notes: "A massive producer anchoring the riverbank.", predators: ['r2'] }, { id: 'r2', name: 'Aquatic Insects', level: 2, icon: '🐝', notes: "Primary consumers recycling fallen leaf litter.", predators: ['r3'] }, { id: 'r3', name: 'Leopard Frog', level: 3, icon: '🐸', notes: "A secondary consumer hunting near water.", predators: ['r4', 'r5'] }, { id: 'r4', name: 'Garter Snake', level: 3, icon: '🐍', notes: "A stealthy secondary consumer.", predators: ['r5'] }, { id: 'r5', name: 'Great Blue Heron', level: 4, icon: '🐦', notes: "A majestic tertiary consumer.", predators: [] }] },
+                    forest: { name: "Montane Ponderosa", img: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=400&q=80", organisms: [{ id: 'f1', name: 'Ponderosa Pine', level: 1, icon: '🌲', notes: "The primary producer of the forest.", predators: ['f2', 'f3'] }, { id: 'f2', name: 'Abert\'s Squirrel', level: 2, icon: '🐿️', notes: "Has a symbiotic relationship with these specific pines.", predators: ['f4', 'f5'] }, { id: 'f3', name: 'Steller\'s Jay', level: 2, icon: '🐦', notes: "An intelligent primary consumer.", predators: ['f4', 'f5'] }, { id: 'f4', name: 'Goshawk', level: 3, icon: '🦅', notes: "Navigates thick branches with precision.", predators: ['f5'] }, { id: 'f5', name: 'Bobcat', level: 4, icon: '🐱', notes: "The top tertiary consumer of the forest.", predators: [] }] },
+                    shrubland: { name: "Steppe Shrubland", img: "https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?auto=format&fit=crop&w=400&q=80", organisms: [{ id: 's1', name: 'Sagebrush', level: 1, icon: '🌿', notes: "Dominates the arid landscape.", predators: ['s2', 's3'] }, { id: 's2', name: 'Jackrabbit', level: 2, icon: '🐇', notes: "Fast primary consumer converting shrubs to energy.", predators: ['s4', 's5'] }, { id: 's3', name: 'Sage Thrasher', level: 2, icon: '🐦', notes: "Depends on sagebrush for protection.", predators: ['s4', 's5'] }, { id: 's4', name: 'Badger', level: 3, icon: '🐾', notes: "Powerful secondary consumer digging for rodents.", predators: ['s5'] }, { id: 's5', name: 'Red-tailed Hawk', level: 4, icon: '🦅', notes: "Tertiary consumer watching from the thermals.", predators: [] }] }
                 }
             },
             nigeria: {
-                title: "Nigerian Expeditions",
+                id: 'nigeria',
+                title: "Nigerian Food Web Journal",
+                apexLabel: "Apex Predators",
+                ribbonColor: "#008751",
                 habitats: {
-                    mangrove: { name: "Mangrove Swamp", img: "https://images.unsplash.com/photo-1542366810-4316719859f5?auto=format&fit=crop&w=400", organisms: [
-                        { id: 'n1', name: 'Red Mangrove', level: 1, icon: '🎋', notes: "Salt-tolerant base of the coastal web.", predators: ['n3'] },
-                        { id: 'n2', name: 'Water Hyacinth', level: 1, icon: '🌸', notes: "Floating aquatic producer.", predators: ['n3'] },
-                        { id: 'n3', name: 'Tilapia', level: 2, icon: '🐟', notes: "Prolific fish feeding on plant matter.", predators: ['n4', 'n6'] },
-                        { id: 'n4', name: 'Monitor Lizard', level: 3, icon: '🦎', notes: "Preys on small fish and crab.", predators: ['n5'] },
-                        { id: 'n5', name: 'Nile Crocodile', level: 4, icon: '🐊', notes: "Massive apex river predator.", predators: [] },
-                        { id: 'n6', name: 'Fish Eagle', level: 4, icon: '🦉', notes: "Top avian hunter of the delta.", predators: [] }
-                    ]},
-                    rainforest: { name: "Rainforest Canopy", img: "https://images.unsplash.com/photo-1581450209675-900f074d081b?auto=format&fit=crop&w=400", organisms: [
-                        { id: 'n7', name: 'Iroko Tree', level: 1, icon: '🪵', notes: "Ancient timber tree of West Africa.", predators: ['n8'] },
-                        { id: 'n8', name: 'Fruit Bat', level: 2, icon: '🦇', notes: "Essential seed disperser of the canopy.", predators: ['n9', 'n10'] },
-                        { id: 'n9', name: 'Leopard', level: 3, icon: '🐆', notes: "Solitary forest floor hunter.", predators: ['n11'] },
-                        { id: 'n10', name: 'Forest Cobra', level: 3, icon: '🦂', notes: "Venomous hunter of small mammals.", predators: ['n11'] },
-                        { id: 'n11', name: 'African Rock Python', level: 4, icon: '🐉', notes: "Huge constrictor apex predator.", predators: [] },
-                        { id: 'n12', name: 'Martial Eagle', level: 4, icon: '🦚', notes: "Large raptor ruling the forest skies.", predators: [] }
-                    ]},
-                    savanna: { name: "Guinea Savanna", img: "https://images.unsplash.com/photo-1516026672322-bc52d61a55d5?auto=format&fit=crop&w=400", organisms: [
-                        { id: 'n13', name: 'Baobab', level: 1, icon: '☘️', notes: "Water-storing 'Tree of Life'.", predators: ['n14'] },
-                        { id: 'n14', name: 'Warthog', level: 2, icon: '🐗', notes: "Roots for bulbs and tubers.", predators: ['n15', 'n16'] },
-                        { id: 'n15', name: 'Hyena', level: 3, icon: '🦴', notes: "Powerful scavenger-hunter.", predators: ['n17'] },
-                        { id: 'n16', name: 'Wild Dog', level: 3, icon: '🐕', notes: "Strategic social pack hunter.", predators: ['n17'] },
-                        { id: 'n17', name: 'Lion', level: 4, icon: '🐯', notes: "The supreme savanna predator.", predators: [] },
-                        { id: 'n18', name: 'Vulture', level: 4, icon: '🦩', notes: "Essential apex scavenger.", predators: [] }
-                    ]},
-                    river: { name: "Freshwater River", img: "https://images.unsplash.com/photo-1511497584788-876760111969?auto=format&fit=crop&w=400", organisms: [
-                        { id: 'n19', name: 'Water Lily', level: 1, icon: '🪷', notes: "Provides food and river cover.", predators: ['n20'] },
-                        { id: 'n20', name: 'Freshwater Shrimp', level: 2, icon: '🦐', notes: "Small primary consumer of algae.", predators: ['n21'] },
-                        { id: 'n21', name: 'Catfish', level: 3, icon: '🐡', notes: "Secondary consumer of the riverbed.", predators: ['n23'] },
-                        { id: 'n22', name: 'Clawless Otter', level: 3, icon: '🐩', notes: "Fast mammal preying on fish.", predators: ['n23'] },
-                        { id: 'n23', name: 'Croc-R', level: 4, icon: '🐢', notes: "Freshwater crocodile variant.", predators: [] },
-                        { id: 'n24', name: 'Eagle-R', level: 4, icon: '🦆', notes: "River-scoping eagle variant.", predators: [] }
-                    ]},
-                    sahel: { name: "Sahel Scrubland", img: "https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?auto=format&fit=crop&w=400", organisms: [
-                        { id: 'n25', name: 'Acacia', level: 1, icon: '🌿', notes: "Hardy scrubland shrub.", predators: ['n26'] },
-                        { id: 'n26', name: 'Dorcas Gazelle', level: 2, icon: '🦌', notes: "Highly drought-adapted consumer.", predators: ['n28'] },
-                        { id: 'n27', name: 'Desert Locust', level: 2, icon: '🦗', notes: "Mass migratory plant eater.", predators: ['n28'] },
-                        { id: 'n28', name: 'Fennec Fox', level: 3, icon: '🦊', notes: "Small desert secondary consumer.", predators: ['n30'] },
-                        { id: 'n29', name: 'Python-S', level: 4, icon: '🐌', notes: "Python adapted for scrubland.", predators: [] },
-                        { id: 'n30', name: 'Caracal', level: 4, icon: '🐜', notes: "Agile, leaping desert cat.", predators: [] }
-                    ]}
+                    savanna: { name: "Yankari Savanna", img: "https://images.unsplash.com/photo-1516026672322-bc52d61a55d5?auto=format&fit=crop&w=400&q=80", organisms: [{ id: 'ny1', name: 'Elephant Grass', level: 1, icon: '🌾', notes: "Tall perennial grass providing base energy.", predators: ['ny2', 'ny3'] }, { id: 'ny2', name: 'Bush Elephant', level: 2, icon: '🐘', notes: "A massive primary consumer.", predators: ['ny5'] }, { id: 'ny3', name: 'Patas Monkey', level: 2, icon: '🐒', notes: "A ground-dwelling herbivore.", predators: ['ny4', 'ny5'] }, { id: 'ny4', name: 'Rock Python', level: 3, icon: '🐍', notes: "Powerful secondary consumer.", predators: ['ny5'] }, { id: 'ny5', name: 'West African Lion', level: 4, icon: '🦁', notes: "Apex predator of the savanna.", predators: [] }] },
+                    mangrove: { name: "Niger Delta Mangroves", img: "https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=400&q=80", organisms: [{ id: 'nm1', name: 'Red Mangrove', level: 1, icon: '🌳', notes: "Root systems sheltering the delta.", predators: ['nm2'] }, { id: 'nm2', name: 'African Manatee', level: 2, icon: '🐋', notes: "Gentle aquatic primary consumer.", predators: ['nm5'] }, { id: 'nm3', name: 'Mudskipper', level: 2, icon: '🐟', notes: "Amphibious fish feeding on algae.", predators: ['nm4', 'nm5'] }, { id: 'nm4', name: 'Dwarf Crocodile', level: 3, icon: '🐊', notes: "Fierce secondary consumer.", predators: ['nm5'] }, { id: 'nm5', name: 'Great Blue Heron', level: 4, icon: '🐦', notes: "Top tertiary consumer of the swamp.", predators: [] }] },
+                    rainforest: { name: "Cross River Rainforest", img: "https://images.unsplash.com/photo-1511497584788-876760111969?auto=format&fit=crop&w=400&q=80", organisms: [{ id: 'nr1', name: 'Mahogany Tree', level: 1, icon: '🌲', notes: "Rainforest giant providing canopy fruit.", predators: ['nr2', 'nr3'] }, { id: 'nr2', name: 'Cross River Gorilla', level: 2, icon: '🦍', notes: "Rarest great ape, primary consumer.", predators: ['nr5'] }, { id: 'nr3', name: 'Grey Parrot', level: 2, icon: '🐦', notes: "Feeds on seeds and fruit.", predators: ['nr4', 'nr5'] }, { id: 'nr4', name: 'Gaboon Viper', level: 3, icon: '🐍', notes: "Stealthy secondary consumer.", predators: ['nr5'] }, { id: 'nr5', name: 'Leopard', level: 4, icon: '🐆', notes: "Elusive apex predator of the rainforest.", predators: [] }] },
+                    highlands: { name: "Gashaka Gumti", img: "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=400&q=80", organisms: [{ id: 'nh1', name: 'Highland Ferns', level: 1, icon: '🌿', notes: "Adapted to the cooler montane region.", predators: ['nh2', 'nh3'] }, { id: 'nh2', name: 'Chimpanzee', level: 2, icon: '🐒', notes: "Intelligent primary consumers.", predators: ['nh5'] }, { id: 'nh3', name: 'Yellow-backed Duiker', level: 2, icon: '🦌', notes: "Shy highland antelope.", predators: ['nh4', 'nh5'] }, { id: 'nh4', name: 'Golden Cat', level: 3, icon: '🐱', notes: "Secretive predator of highlands.", predators: ['nh5'] }, { id: 'nh5', name: 'Crowned Eagle', level: 4, icon: '🦅', notes: "Powerful apex raptor.", predators: [] }] },
+                    sahel: { name: "Lake Chad Sahel", img: "https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?auto=format&fit=crop&w=400&q=80", organisms: [{ id: 'ns1', name: 'Baobab Tree', level: 1, icon: '🌳', notes: "The 'Tree of Life'.", predators: ['ns2'] }, { id: 'ns2', name: 'Dorcas Gazelle', level: 2, icon: '🦌', notes: "Grazing on desert grasses.", predators: ['ns4', 'ns5'] }, { id: 'ns3', name: 'Sahel Locust', level: 2, icon: '🦗', notes: "Converts shrubs to energy.", predators: ['ns4'] }, { id: 'ns4', name: 'Monitor Lizard', level: 3, icon: '🦎', notes: "Hunts locusts across the scrub.", predators: ['ns5'] }, { id: 'ns5', name: 'Striped Hyena', level: 4, icon: '🐾', notes: "Versatile apex scavenger.", predators: [] }] }
                 }
             }
         };
 
         const app = {
             state: {
-                currentScreen: 'world', currentRegion: null, activeHabitat: null, tool: 'arrange', linkingSource: null,
-                regionsState: { colorado: { completed: [], hState: {} }, nigeria: { completed: [], hState: {} } }
+                currentScreen: 'landing',
+                activeRegion: null,
+                activeHabitat: null,
+                tool: 'arrange',
+                linkingSource: null,
+                isDraggingLink: false,
+                globalProgress: {
+                    colorado: { completed: [], habitatsState: {} },
+                    nigeria: { completed: [], habitatsState: {} }
+                }
             },
 
             init() {
-                this.cacheDOM(); this.bindEvents();
-                window.onmousemove = (e) => this.handleMouseMove(e);
-                window.onmouseup = () => this.handleMouseUp();
-                const nameField = document.getElementById('user-name');
-                nameField.addEventListener('focus', () => setTimeout(() => document.execCommand('selectAll', false, null), 0));
+                this.cacheDOM();
+                this.bindEvents();
+                this.updateLandingBadges();
+                this.updateGlobalTitle();
+                window.addEventListener('resize', () => this.drawArrows());
             },
 
             cacheDOM() {
-                this.screens = { world: document.getElementById('screen-world'), cover: document.getElementById('screen-cover'), workspace: document.getElementById('screen-workspace') };
-                this.btnWorld = document.getElementById('btn-to-world'); this.btnCover = document.getElementById('btn-to-cover');
-                this.btnCheck = document.getElementById('btn-check'); this.pool = document.getElementById('organism-pool');
+                this.screens = { landing: document.getElementById('screen-landing'), cover: document.getElementById('screen-cover'), workspace: document.getElementById('screen-workspace') };
+                this.modals = { guide: document.getElementById('modal-field-guide'), logic: document.getElementById('modal-food-web-101'), feedback: document.getElementById('modal-feedback') };
+                this.btnBackNav = document.getElementById('btn-back-nav');
+                this.workspaceTools = document.getElementById('workspace-tools');
+                this.pool = document.getElementById('organism-pool');
+                this.habitatTitle = document.getElementById('current-habitat-name');
+                this.shelves = document.querySelectorAll('.trophic-shelf');
+                this.svgLayer = document.getElementById('connection-layer');
                 this.tempPath = document.getElementById('temp-link');
-                this.badgeContainer = document.getElementById('workspace-badge-container');
+                this.workspaceEl = document.getElementById('screen-workspace');
+                this.modeSlider = document.getElementById('mode-slider');
+                this.btnCheck = document.getElementById('btn-check');
+                this.userNameField = document.getElementById('user-name');
+                this.dynamicTitleField = document.getElementById('main-title-dynamic');
+                this.btnSaveWorkspace = document.getElementById('btn-save-workspace');
+                this.btnExportGlobal = document.getElementById('btn-export-global');
+                this.btnExportRegional = document.getElementById('btn-export-regional');
             },
 
             bindEvents() {
-                this.btnWorld.onclick = () => this.goToScreen('world');
-                this.btnCover.onclick = () => this.goToScreen('cover');
+                this.btnBackNav.onclick = () => {
+                    if (this.state.currentScreen === 'workspace') this.goToScreen('cover');
+                    else if (this.state.currentScreen === 'cover') this.goToScreen('landing');
+                };
+
+                this.userNameField.addEventListener('input', () => this.updateGlobalTitle());
+
+                const saveFn = () => this.exportJournal();
+                this.btnSaveWorkspace.onclick = saveFn;
+                this.btnExportGlobal.onclick = saveFn;
+                this.btnExportRegional.onclick = saveFn;
+
+                document.getElementById('btn-check').onclick = () => {
+                    this.btnCheck.classList.remove('needs-check');
+                    this.checkJournal();
+                };
+
                 document.getElementById('btn-field-guide').onclick = () => this.showFieldGuide();
-                document.getElementById('btn-food-web-101').onclick = () => document.getElementById('modal-food-web-101').classList.add('active');
+                document.getElementById('btn-food-web-101').onclick = () => this.modals.logic.classList.add('active');
                 document.getElementById('mode-switch').onclick = () => this.setTool(this.state.tool === 'arrange' ? 'links' : 'arrange');
-                document.getElementById('btn-check').onclick = () => this.checkJournal();
-                document.querySelectorAll('.closeModal').forEach(b => b.onclick = (e) => e.target.closest('.overlay').classList.remove('active'));
-                document.getElementById('btn-clear-links').onclick = () => { if(this.state.activeHabitat) { this.state.regionsState[this.state.currentRegion].hState[this.state.activeHabitat].connections = []; this.drawArrows(); } };
-                document.getElementById('btn-export-journal').onclick = () => this.exportJournal();
-                document.getElementById('input-import-journal').onchange = (e) => this.importJournal(e);
+                document.getElementById('btn-clear-links').onclick = () => { this.clearLinks(); this.markAsUnchecked(); this.syncCompletionStatus(); };
                 document.getElementById('btn-download').onclick = () => this.downloadCertificate();
-            },
+                
+                document.getElementById('input-import-journal').onchange = (e) => this.importJournal(e);
 
-            goToScreen(id) {
-                Object.keys(this.screens).forEach(k => this.screens[k].classList.toggle('active', k === id));
-                this.btnWorld.classList.toggle('hidden', id === 'world');
-                this.btnCover.classList.toggle('hidden', id !== 'workspace');
-                document.getElementById('workspace-tools').classList.toggle('hidden', id !== 'workspace');
-                if (id === 'cover') this.renderRegionHub();
-            },
+                document.querySelectorAll('.closeModal').forEach(btn => btn.onclick = (e) => e.target.closest('.overlay').classList.remove('active'));
 
-            selectRegion(id) { this.state.currentRegion = id; this.goToScreen('cover'); },
-
-            renderRegionHub() {
-                const reg = regions[this.state.currentRegion], rState = this.state.regionsState[this.state.currentRegion];
-                document.getElementById('region-title').textContent = reg.title;
-                const grid = document.getElementById('patch-grid'); grid.innerHTML = '';
-                Object.keys(reg.habitats).forEach(hid => {
-                    const h = reg.habitats[hid], mastered = rState.completed.includes(hid);
-                    grid.insertAdjacentHTML('beforeend', `<div class="patch-container">${mastered ? getRibbonSVG(40,60,18) : ''}<div class="patch-slot" onclick="app.startHabitat('${hid}')"><img src="${h.img}" class="patch-image"></div><span class="patch-label">${h.name.split(' ').join('<br>')}</span></div>`);
-                });
-                const count = rState.completed.length;
-                document.getElementById('progress-summary').textContent = `Earned ${count} of ${Object.keys(reg.habitats).length} badges`;
-                document.getElementById('btn-download').classList.toggle('hidden', count === 0);
-            },
-
-            startHabitat(id) {
-                this.state.activeHabitat = id; const rState = this.state.regionsState[this.state.currentRegion];
-                if (!rState.hState[id]) rState.hState[id] = { placements: {}, connections: [] };
-                document.getElementById('current-habitat-name').textContent = regions[this.state.currentRegion].habitats[id].name;
-                document.getElementById('workspace-badge-img-host').innerHTML = `<img src="${regions[this.state.currentRegion].habitats[id].img}" class="w-full h-full object-cover">`;
-                this.setTool('arrange'); this.loadSpecies(); this.goToScreen('workspace'); this.syncWorkspaceRibbon(); this.drawArrows();
-            },
-
-            loadSpecies() {
-                this.pool.innerHTML = ''; document.querySelectorAll('.drop-zone').forEach(z => z.innerHTML = '');
-                const hData = regions[this.state.currentRegion].habitats[this.state.activeHabitat];
-                const hState = this.state.regionsState[this.state.currentRegion].hState[this.state.activeHabitat];
-                hData.organisms.forEach(org => {
-                    const el = document.createElement('div'); el.className = 'sidebar-item flex items-center gap-3 bg-white border-2 border-stone-800 rounded';
-                    el.dataset.id = org.id; el.innerHTML = `<span class="text-2xl">${org.icon}</span><span class="font-bold text-lg">${org.name}</span>`;
-                    el.draggable = (this.state.tool === 'arrange');
-                    el.ondragstart = (e) => e.dataTransfer.setData('text', org.id);
-                    el.onmousedown = (e) => { if(this.state.tool === 'links') { this.state.linkingSource = org.id; e.stopPropagation(); } };
-                    el.onmouseup = () => { if(this.state.tool === 'links' && this.state.linkingSource && this.state.linkingSource !== org.id) this.createLink(this.state.linkingSource, org.id); };
-                    const shelf = hState.placements[org.id];
-                    if (shelf) document.querySelector(`.trophic-shelf[data-level="${shelf}"] .drop-zone`).appendChild(el); else this.pool.appendChild(el);
-                });
-                document.querySelectorAll('.trophic-shelf').forEach(shelf => {
-                    shelf.ondragover = (e) => e.preventDefault();
+                this.shelves.forEach(shelf => {
+                    shelf.ondragover = (e) => { e.preventDefault(); shelf.classList.add('shelf-drag-over'); };
+                    shelf.ondragleave = () => shelf.classList.remove('shelf-drag-over');
                     shelf.ondrop = (e) => {
-                        const id = e.dataTransfer.getData('text'), el = document.querySelector(`[data-id="${id}"]`);
-                        if (!el) return;
-                        shelf.querySelector('.drop-zone').appendChild(el); hState.placements[id] = shelf.dataset.level; this.drawArrows(); this.btnCheck.classList.add('needs-check'); this.syncMasteryRevocation();
+                        e.preventDefault(); shelf.classList.remove('shelf-drag-over');
+                        const id = e.dataTransfer.getData('text/plain');
+                        const el = document.querySelector(`[data-id="${id}"]`);
+                        if (el) {
+                            shelf.querySelector('.drop-zone').appendChild(el);
+                            this.updatePlacement(id, shelf.dataset.level);
+                        }
                     };
                 });
+
+                this.pool.ondragover = (e) => e.preventDefault();
+                this.pool.ondrop = (e) => {
+                    e.preventDefault();
+                    const id = e.dataTransfer.getData('text/plain');
+                    const el = document.querySelector(`[data-id="${id}"]`);
+                    if (el) { this.pool.appendChild(el); this.updatePlacement(id, null); }
+                };
+
+                window.onmousemove = (e) => {
+                    if (this.state.isDraggingLink && this.state.linkingSource) {
+                        const workspaceRect = this.workspaceEl.getBoundingClientRect();
+                        const sRect = document.querySelector(`[data-id="${this.state.linkingSource}"]`).getBoundingClientRect();
+                        this.tempPath.setAttribute("d", `M ${(sRect.left + sRect.width/2) - workspaceRect.left} ${(sRect.top + sRect.height/2) - workspaceRect.top} L ${e.clientX - workspaceRect.left} ${e.clientY - workspaceRect.top}`);
+                    }
+                };
+                window.onmouseup = () => { this.state.isDraggingLink = false; this.tempPath.setAttribute("d", ""); };
+            },
+
+            updateGlobalTitle() {
+                const region = this.state.activeRegion;
+                this.dynamicTitleField.textContent = region ? regionalData[region].title : regionalData.landing.title;
+            },
+
+            selectRegion(regionId) {
+                this.state.activeRegion = regionId;
+                document.body.className = `theme-${regionId}`;
+                this.updateGlobalTitle();
+                document.getElementById('label-apex').textContent = regionalData[regionId].apexLabel;
+                this.goToScreen('cover');
+            },
+
+            goToScreen(screenId) {
+                this.state.currentScreen = screenId;
+                if (screenId === 'landing') {
+                    this.state.activeRegion = null;
+                    document.body.className = '';
+                    this.updateGlobalTitle();
+                }
+                this.btnBackNav.classList.toggle('hidden', screenId === 'landing');
+                this.workspaceTools.classList.toggle('hidden', screenId !== 'workspace');
+                Object.keys(this.screens).forEach(k => this.screens[k].classList.toggle('active', k === screenId));
+                
+                if (screenId === 'landing') this.updateLandingBadges();
+                if (screenId === 'cover') this.renderPatches();
+                if (screenId === 'workspace') setTimeout(() => this.drawArrows(), 50);
+            },
+
+            updateLandingBadges() {
+                ['colorado', 'nigeria'].forEach(r => {
+                    const count = this.state.globalProgress[r].completed.length;
+                    const el = document.getElementById(`badge-count-${r}`);
+                    const color = regionalData[r].ribbonColor;
+                    el.innerHTML = count > 0 ? getRibbonSVG(40, 60, 20, color) : '';
+                    if (count > 0) el.insertAdjacentHTML('beforeend', `<span class="absolute bottom-0 left-1/2 -translate-x-1/2 text-white font-bold text-xs">${count}</span>`);
+                });
+            },
+
+            renderPatches() {
+                const region = regionalData[this.state.activeRegion];
+                const grid = document.getElementById('patch-grid');
+                grid.innerHTML = '';
+                Object.keys(region.habitats).forEach(key => {
+                    const data = region.habitats[key];
+                    const isCompleted = this.state.globalProgress[this.state.activeRegion].completed.includes(key);
+                    grid.insertAdjacentHTML('beforeend', `
+                        <div class="patch-container">
+                            <div class="ribbon">${isCompleted ? getRibbonSVG(50, 70, 24, region.ribbonColor) : ''}</div>
+                            <div class="patch-slot" onclick="app.startHabitat('${key}')">
+                                <img src="${data.img}" crossorigin="anonymous" class="patch-image" alt="${data.name}">
+                            </div>
+                            <span class="patch-label">${data.name.split(' ').join('<br>')}</span>
+                        </div>`);
+                });
+
+                const count = this.state.globalProgress[this.state.activeRegion].completed.length;
+                document.getElementById('progress-summary').textContent = `Earned ${count} of 5 badges`;
+                document.getElementById('btn-download').classList.toggle('hidden', count < 5);
+            },
+
+            startHabitat(habitatId) {
+                this.state.activeHabitat = habitatId;
+                this.setTool('arrange');
+                this.goToScreen('workspace');
+                const data = regionalData[this.state.activeRegion].habitats[habitatId];
+                this.habitatTitle.textContent = data.name;
+                document.getElementById('workspace-badge-img-host').innerHTML = `<img src="${data.img}" crossorigin="anonymous" class="w-full h-full object-cover">`;
+                
+                if (!this.state.globalProgress[this.state.activeRegion].habitatsState[habitatId]) {
+                    this.state.globalProgress[this.state.activeRegion].habitatsState[habitatId] = { connections: [], placements: {} };
+                }
+                
+                const activeState = this.state.globalProgress[this.state.activeRegion].habitatsState[habitatId];
+                this.renderWorkspaceRibbon();
+                document.querySelectorAll('.drop-zone').forEach(z => z.innerHTML = '');
+                this.pool.innerHTML = '';
+
+                data.organisms.forEach(org => {
+                    const el = document.createElement('div');
+                    el.className = 'sidebar-item flex items-center gap-3';
+                    el.draggable = (this.state.tool === 'arrange');
+                    el.dataset.id = org.id;
+                    el.innerHTML = `<span class="text-3xl">${org.icon}</span><span class="font-bold handwritten text-2xl">${org.name}</span>`;
+                    el.ondragstart = (e) => e.dataTransfer.setData('text/plain', org.id);
+                    el.onmousedown = () => { if (this.state.tool === 'links' && el.closest('.trophic-shelf')) { this.state.isDraggingLink = true; this.state.linkingSource = org.id; } };
+                    el.onmouseup = () => { if (this.state.isDraggingLink && this.state.linkingSource && this.state.linkingSource !== org.id) this.createLink(this.state.linkingSource, org.id); };
+                    
+                    const shelfLvl = activeState.placements[org.id];
+                    if (shelfLvl) document.querySelector(`.trophic-shelf[data-level="${shelfLvl}"] .drop-zone`).appendChild(el);
+                    else this.pool.appendChild(el);
+                });
+                this.drawArrows();
+            },
+
+            updatePlacement(id, level) {
+                const rId = this.state.activeRegion;
+                const hId = this.state.activeHabitat;
+                const hState = this.state.globalProgress[rId].habitatsState[hId];
+                hState.placements[id] = level;
+                if (!level) hState.connections = hState.connections.filter(c => c.sourceId !== id && c.targetId !== id);
+                this.markAsUnchecked();
+                this.syncCompletionStatus();
+                this.drawArrows();
+            },
+
+            createLink(s, t) {
+                const rId = this.state.activeRegion;
+                const hId = this.state.activeHabitat;
+                const hState = this.state.globalProgress[rId].habitatsState[hId];
+                if (!hState.connections.some(c => c.sourceId === s && c.targetId === t)) {
+                    hState.connections.push({ sourceId: s, targetId: t });
+                    this.markAsUnchecked();
+                    this.syncCompletionStatus();
+                    this.drawArrows();
+                }
+            },
+
+            isCurrentHabitatCorrect() {
+                const rId = this.state.activeRegion;
+                const hId = this.state.activeHabitat;
+                if (!rId || !hId) return false;
+                
+                const data = regionalData[rId].habitats[hId];
+                const hState = this.state.globalProgress[rId].habitatsState[hId];
+                if (!hState) return false;
+
+                // Check placements
+                for (const org of data.organisms) {
+                    const shelfLevel = hState.placements[org.id];
+                    if (!shelfLevel || parseInt(shelfLevel) !== org.level) return false;
+                }
+
+                // Check required links
+                for (const source of data.organisms) {
+                    for (const predId of source.predators) {
+                        const exists = hState.connections.some(c => c.sourceId === source.id && c.targetId === predId);
+                        if (!exists) return false;
+                    }
+                }
+
+                // Check for wrong links
+                for (const conn of hState.connections) {
+                    const source = data.organisms.find(o => o.id === conn.sourceId);
+                    if (!source || !source.predators.includes(conn.targetId)) return false;
+                }
+
+                return true;
+            },
+
+            syncCompletionStatus() {
+                const rId = this.state.activeRegion;
+                const hId = this.state.activeHabitat;
+                if (!rId || !hId) return;
+
+                const isCorrect = this.isCurrentHabitatCorrect();
+                const prog = this.state.globalProgress[rId];
+                const index = prog.completed.indexOf(hId);
+
+                // Recreate legacy UX: If completed but now incorrect, strip the badge.
+                if (index !== -1 && !isCorrect) {
+                    prog.completed.splice(index, 1);
+                }
+                this.renderWorkspaceRibbon();
+            },
+
+            drawArrows() {
+                this.svgLayer.querySelectorAll('.connection-group').forEach(g => g.remove());
+                if (!this.state.activeHabitat) return;
+                const rect = this.workspaceEl.getBoundingClientRect();
+                const hState = this.state.globalProgress[this.state.activeRegion].habitatsState[this.state.activeHabitat];
+                hState.connections.forEach((conn, i) => {
+                    const s = document.querySelector(`[data-id="${conn.sourceId}"]`);
+                    const t = document.querySelector(`[data-id="${conn.targetId}"]`);
+                    if (!s || !t || !s.closest('.trophic-shelf') || !t.closest('.trophic-shelf')) return;
+                    const sr = s.getBoundingClientRect(), tr = t.getBoundingClientRect();
+                    const x1 = (sr.left + sr.width/2) - rect.left, y1 = (sr.top + sr.height/2) - rect.top;
+                    const x2 = (tr.left + tr.width/2) - rect.left, y2 = (tr.top + tr.height/2) - rect.top;
+                    const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+                    g.setAttribute("class", "connection-group");
+                    const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+                    path.setAttribute("d", `M ${x1} ${y1} Q ${(x1+x2)/2} ${(y1+y2)/2 - 25} ${x2} ${y2}`);
+                    path.setAttribute("class", "connection-arrow");
+                    const del = document.createElementNS("http://www.w3.org/2000/svg", "g");
+                    del.setAttribute("class", "delete-btn");
+                    del.setAttribute("transform", `translate(${(x1+x2)/2}, ${(y1+y2)/2 - 15})`);
+                    del.onclick = (e) => { 
+                        e.stopPropagation();
+                        hState.connections.splice(i, 1); 
+                        this.markAsUnchecked(); 
+                        this.syncCompletionStatus();
+                        this.drawArrows(); 
+                    };
+                    del.innerHTML = `<circle r="9"/><text text-anchor="middle" dy="5">×</text>`;
+                    g.appendChild(path); g.appendChild(del); this.svgLayer.appendChild(g);
+                });
+            },
+
+            checkJournal() {
+                const data = regionalData[this.state.activeRegion].habitats[this.state.activeHabitat];
+                const hState = this.state.globalProgress[this.state.activeRegion].habitatsState[this.state.activeHabitat];
+                let errs = [];
+                data.organisms.forEach(o => {
+                    const el = document.querySelector(`[data-id="${o.id}"]`);
+                    const shelf = el.closest('.trophic-shelf');
+                    if (!shelf) errs.push(`The **${o.name}** is missing from the web.`);
+                    else if (parseInt(shelf.dataset.level) !== o.level) errs.push(`The **${o.name}** is at the wrong trophic level.`);
+                });
+                if (errs.length === 0) {
+                    data.organisms.forEach(o => o.predators.forEach(pId => {
+                        if (!hState.connections.some(c => c.sourceId === o.id && c.targetId === pId)) errs.push(`Energy flow from **${o.name}** is incomplete.`);
+                    }));
+                }
+
+                if (errs.length === 0) {
+                    const prog = this.state.globalProgress[this.state.activeRegion];
+                    if (!prog.completed.includes(this.state.activeHabitat)) prog.completed.push(this.state.activeHabitat);
+                    document.getElementById('feedback-title').textContent = "Mastery Achieved!";
+                    document.getElementById('feedback-text').textContent = "Expedition findings verified and archived.";
+                    this.renderWorkspaceRibbon();
+                } else {
+                    document.getElementById('feedback-title').textContent = "Field Review";
+                    document.getElementById('feedback-text').innerHTML = errs.slice(0, 3).join("<br><br>");
+                }
+                this.modals.feedback.classList.add('active');
             },
 
             setTool(t) {
                 this.state.tool = t;
-                document.getElementById('mode-slider').classList.toggle('links-active', t === 'links');
+                this.modeSlider.classList.toggle('links-active', t === 'links');
                 document.getElementById('label-arrange').classList.toggle('active', t === 'arrange');
                 document.getElementById('label-links').classList.toggle('active', t === 'links');
-                document.querySelectorAll('.sidebar-item').forEach(el => el.draggable = (t === 'arrange'));
-            },
-
-            handleMouseMove(e) {
-                if (this.state.linkingSource) {
-                    const startEl = document.querySelector(`[data-id="${this.state.linkingSource}"]`), r1 = startEl.getBoundingClientRect(), wr = this.screens.workspace.getBoundingClientRect();
-                    const x1 = r1.left + r1.width/2 - wr.left, y1 = r1.top + r1.height/2 - wr.top;
-                    this.tempPath.setAttribute("d", `M ${x1} ${y1} L ${e.clientX - wr.left} ${e.clientY - wr.top}`);
-                }
-            },
-
-            handleMouseUp() { this.state.linkingSource = null; this.tempPath.setAttribute("d", ""); },
-
-            createLink(s, t) {
-                const hState = this.state.regionsState[this.state.currentRegion].hState[this.state.activeHabitat];
-                if (!hState.connections.some(c => c.s === s && c.t === t)) { hState.connections.push({ s, t }); this.drawArrows(); this.btnCheck.classList.add('needs-check'); this.syncMasteryRevocation(); }
-            },
-
-            drawArrows() {
-                const svg = document.getElementById('connection-layer'); svg.querySelectorAll('.connection-group').forEach(g => g.remove());
-                const hState = this.state.regionsState[this.state.currentRegion].hState[this.state.activeHabitat];
-                if (!hState) return;
-                hState.connections.forEach((c, idx) => {
-                    const sEl = document.querySelector(`[data-id="${c.s}"]`), tEl = document.querySelector(`[data-id="${c.t}"]`);
-                    if (!sEl || !tEl || !sEl.closest('.trophic-shelf') || !tEl.closest('.trophic-shelf')) return;
-                    const r1 = sEl.getBoundingClientRect(), r2 = tEl.getBoundingClientRect(), wr = this.screens.workspace.getBoundingClientRect();
-                    const x1 = r1.left + r1.width/2 - wr.left, y1 = r1.top + r1.height/2 - wr.top, x2 = r2.left + r2.width/2 - wr.left, y2 = r2.top + r2.height/2 - wr.top;
-                    const g = document.createElementNS("http://www.w3.org/2000/svg", "g"); g.setAttribute("class", "connection-group");
-                    const path = document.createElementNS("http://www.w3.org/2000/svg", "path"); path.setAttribute("d", `M ${x1} ${y1} Q ${(x1+x2)/2} ${(y1+y2)/2 - 20} ${x2} ${y2}`); path.setAttribute("class", "connection-arrow");
-                    const del = document.createElementNS("http://www.w3.org/2000/svg", "g"); del.setAttribute("transform", `translate(${(x1+x2)/2}, ${(y1+y2)/2 - 10})`); del.style.cursor = "pointer";
-                    del.onclick = () => { hState.connections.splice(idx, 1); this.drawArrows(); this.btnCheck.classList.add('needs-check'); this.syncMasteryRevocation(); };
-                    del.innerHTML = `<circle r="8" fill="#a33b3b"/><text fill="white" text-anchor="middle" dy="5" font-size="12">×</text>`;
-                    g.appendChild(path); g.appendChild(del); svg.appendChild(g);
+                document.querySelectorAll('.sidebar-item').forEach(el => {
+                    el.draggable = (t === 'arrange');
+                    el.classList.toggle('can-be-linked', t === 'links');
                 });
             },
 
-            syncWorkspaceRibbon() {
-                const mastered = this.state.regionsState[this.state.currentRegion].completed.includes(this.state.activeHabitat);
-                this.badgeContainer.classList.toggle('is-mastered', mastered);
-                const slot = this.badgeContainer.querySelector('.workspace-ribbon');
-                if (mastered) slot.innerHTML = getRibbonSVG(32, 48, 18);
+            markAsUnchecked() { this.btnCheck.classList.add('needs-check'); },
+            clearLinks() { 
+                const hState = this.state.globalProgress[this.state.activeRegion].habitatsState[this.state.activeHabitat];
+                hState.connections = []; 
+                this.drawArrows(); 
             },
 
-            syncMasteryRevocation() {
-                const region = this.state.currentRegion, habitat = this.state.activeHabitat;
-                const index = this.state.regionsState[region].completed.indexOf(habitat);
-                if (index !== -1 && !this.verifyIntegrity()) {
-                    this.state.regionsState[region].completed.splice(index, 1);
-                    this.syncWorkspaceRibbon();
-                }
+            hasAnyProgress() {
+                return Object.values(this.state.globalProgress).some(r => 
+                    r.completed.length > 0 || 
+                    Object.values(r.habitatsState).some(h => 
+                        Object.keys(h.placements).length > 0 || h.connections.length > 0
+                    )
+                );
             },
 
-            verifyIntegrity() {
-                const hData = regions[this.state.currentRegion].habitats[this.state.activeHabitat];
-                const hState = this.state.regionsState[this.state.currentRegion].hState[this.state.activeHabitat];
-                for (let o of hData.organisms) { if (hState.placements[o.id] != o.level) return false; }
-                for (let source of hData.organisms) {
-                    for (let pid of source.predators) { if (!hState.connections.some(c => c.s === source.id && c.t === pid)) return false; }
-                }
-                for (let conn of hState.connections) {
-                    const src = hData.organisms.find(o => o.id === conn.s);
-                    if (!src.predators.includes(conn.t)) return false;
-                }
-                return true;
+            renderWorkspaceRibbon() {
+                const region = regionalData[this.state.activeRegion];
+                const isComp = this.state.globalProgress[this.state.activeRegion].completed.includes(this.state.activeHabitat);
+                const badge = document.getElementById('workspace-badge-container');
+                badge.classList.toggle('is-mastered', isComp);
+                if (isComp) badge.querySelector('.workspace-ribbon').innerHTML = getRibbonSVG(28, 42, 22, region.ribbonColor);
+                else badge.querySelector('.workspace-ribbon').innerHTML = '';
             },
 
             showFieldGuide() {
-                const hData = regions[this.state.currentRegion].habitats[this.state.activeHabitat];
-                document.getElementById('field-guide-content').innerHTML = hData.organisms.map(o => `
-                    <div class="border-b border-stone-200 pb-3"><div class="flex items-center gap-2"><span class="text-3xl">${o.icon}</span><strong>${o.name}</strong></div><p class="italic text-stone-600">${o.notes}</p></div>
-                `).join('');
-                document.getElementById('modal-field-guide').classList.add('active');
-            },
-
-            checkJournal() {
-                const hData = regions[this.state.currentRegion].habitats[this.state.activeHabitat], hState = this.state.regionsState[this.state.currentRegion].hState[this.state.activeHabitat];
-                let hints = [];
-                hData.organisms.forEach(o => {
-                    const shelf = hState.placements[o.id];
-                    if (!shelf) hints.push(`Observation: The **${o.name}** has not yet been integrated into the ecosystem.`);
-                    else if (shelf != o.level) hints.push(`Ecological Note: The **${o.name}** is currently placed at a trophic level that doesn't quite match its role.`);
-                });
-                if (hints.length === 0) {
-                    hState.connections.forEach(c => {
-                        const src = hData.organisms.find(o => o.id === c.s), tar = hData.organisms.find(o => o.id === c.t);
-                        if (tar.predators.includes(src.id)) hints.push(`Flow Analysis: The energy link between **${src.name}** and **${tar.name}** seems reversed.`);
-                        else if (!src.predators.includes(tar.id)) hints.push(`Data Inconsistency: A biological relationship between **${src.name}** and **${tar.name}** is unsupported.`);
-                    });
-                    hData.organisms.forEach(s => s.predators.forEach(p => { if (!hState.connections.some(c => c.s === s.id && c.t === p)) hints.push(`Incomplete Web: The energy transfer from the **${s.name}** is not fully documented.`); }));
-                }
-
-                const title = document.getElementById('feedback-title'), text = document.getElementById('feedback-text');
-                if (hints.length > 0) {
-                    title.textContent = "Observation Notes"; text.innerHTML = [...new Set(hints)].slice(0, 3).join("<br><br>");
-                } else {
-                    title.textContent = "Mastery Achieved!";
-                    text.innerHTML = `<div style="display:flex;gap:20px;align-items:flex-start;margin:10px 0;"><div style="width:85px;flex-shrink:0;position:relative;"><div style="position:absolute;top:-10px;right:-10px;z-index:20;transform:rotate(15deg);">${getRibbonSVG(32,48,18)}</div><div style="width:85px;height:85px;border:6px solid #3d2b1f;border-radius:50%;overflow:hidden;background:#eee;box-shadow:0 4px 8px rgba(0,0,0,0.2);"><img src="${hData.img}" style="width:100%;height:100%;object-fit:cover;filter:saturate(1.4) contrast(1.1);display:block;"></div><div style="margin-top:6px;background:#fff;border:1px solid #3d2b1f;padding:4px 2px;font-family:'Special Elite',cursive;font-size:8px;font-weight:bold;text-align:center;text-transform:uppercase;line-height:1.1;">${hData.name.split(' ').join('<br>')}</div></div><p style="flex:1;text-align:left;padding-top:10px;">Perfectly mapped! Your decoded trophic structure for the ${hData.name} has been recorded.</p></div>`;
-                    if (!this.state.regionsState[this.state.currentRegion].completed.includes(this.state.activeHabitat)) { this.state.regionsState[this.state.currentRegion].completed.push(this.state.activeHabitat); this.syncWorkspaceRibbon(); }
-                }
-                this.btnCheck.classList.remove('needs-check');
-                document.getElementById('modal-feedback').classList.add('active');
+                const data = regionalData[this.state.activeRegion].habitats[this.state.activeHabitat];
+                document.getElementById('field-guide-content').innerHTML = data.organisms.map(o => `
+                    <div class="border-b pb-4">
+                        <span class="text-3xl">${o.icon}</span> <strong class="handwritten text-3xl">${o.name}</strong>
+                        <p class="italic text-stone-600">${o.notes}</p>
+                    </div>`).join('');
+                this.modals.guide.classList.add('active');
             },
 
             exportJournal() {
-                const blob = new Blob([JSON.stringify({ v: "2.2.0", user: document.getElementById('user-name').innerText, data: this.state.regionsState }, null, 2)], { type: 'application/json' });
-                const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `${document.getElementById('user-name').innerText.trim()}-Global-FoodWeb.json`; a.click();
+                const name = this.userNameField.innerText.trim();
+                const exportData = {
+                    version: "3.0.0",
+                    userName: name,
+                    globalProgress: this.state.globalProgress
+                };
+                const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+                const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+                a.download = `${name.replace(/\s+/g, '_')}_Global_Expedition.json`; a.click();
             },
 
             importJournal(e) {
-                const reader = new FileReader(); reader.onload = (ev) => { const imp = JSON.parse(ev.target.result); this.state.regionsState = imp.data; document.getElementById('user-name').innerText = imp.user; this.renderRegionHub(); };
-                reader.readAsText(e.target.files[0]);
+                const file = e.target.files[0]; if (!file) return;
+                const reader = new FileReader();
+                reader.onload = (ev) => {
+                    try {
+                        const data = JSON.parse(ev.target.result);
+                        if (data.globalProgress) {
+                            this.state.globalProgress = data.globalProgress;
+                            this.userNameField.innerText = data.userName || "Your Name";
+                            this.updateLandingBadges();
+                            this.goToScreen('landing');
+                            document.getElementById('feedback-title').textContent = "Expedition Restored";
+                            document.getElementById('feedback-text').textContent = "Your global maps and habitat data have been synchronized.";
+                            this.modals.feedback.classList.add('active');
+                        }
+                    } catch (err) {
+                        console.error("Import failed:", err);
+                    }
+                };
+                reader.readAsText(file);
             },
 
             downloadCertificate() {
-                const name = document.getElementById('user-name').innerText.trim() || 'Naturalist';
-                const regKey = this.state.currentRegion, reg = regions[regKey], rState = this.state.regionsState[regKey];
+                const name = this.userNameField.innerText.trim();
+                const region = regionalData[this.state.activeRegion];
+                const mastered = this.state.globalProgress[this.state.activeRegion].completed;
                 this.certTemplate.innerHTML = `
-                    <div style="flex:1;border:10px solid #3d2b1f;padding:40px;display:flex;flex-direction:column;align-items:center;width:100%;color:#3d2b1f;">
-                        <h1 style="font-family:'Patrick Hand',cursive;font-size:64px;margin-bottom:0;">Food Web Explorers</h1>
-                        <p style="font-family:'Special Elite',cursive;font-size:20px;letter-spacing:5px;text-transform:uppercase;margin-bottom:40px;">${reg.title} Certificate</p>
-                        <div style="margin:40px 0;border-bottom:2px dashed #3d2b1f;min-width:400px;"><span style="font-family:'Caveat',cursive;font-size:48px;color:var(--ribbon-blue);">${name}</span></div>
-                        <p style="font-family:'Patrick Hand',cursive;font-size:24px;max-width:600px;line-height:1.4;">Has demonstrated global scientific mastery of energy flow and biological hierarchy.</p>
-                        <div id="cert-grid" style="display:flex;gap:20px;justify-content:center;flex-wrap:wrap;width:100%;margin-top:40px;"></div>
-                    </div>
-                `;
-                const grid = this.certTemplate.querySelector('#cert-grid');
-                Object.keys(reg.habitats).forEach(hid => {
-                    const h = reg.habitats[hid], mastered = rState.completed.includes(hid);
-                    grid.insertAdjacentHTML('beforeend', `<div style="position:relative;width:120px;">
-                        ${mastered ? `<div style="position:absolute;top:-10px;right:-10px;width:35px;height:55px;transform:rotate(15deg);">${getRibbonSVG(35,55,14)}</div>` : ''}
-                        <div style="width:100px;height:100px;border-radius:50%;border:5px solid #3d2b1f;overflow:hidden;background:#eee;"><img src="${h.img}" style="width:100%;height:100%;object-fit:cover;${mastered ? '' : 'filter:grayscale(1);opacity:0.3;'}"></div>
-                    </div>`);
-                });
-                html2canvas(this.certTemplate, { scale: 2, useCORS: true }).then(canvas => {
-                    const link = document.createElement('a'); link.download = `Certificate_${name.replace(/\s+/g,'_')}_${regKey}.png`; link.href = canvas.toDataURL(); link.click();
+                    <div style="flex: 1; border: 10px solid var(--journal-border); padding: 40px; display: flex; flex-direction: column; align-items: center; width: 100%;">
+                        <h1 style="font-family: 'Patrick Hand', cursive; font-size: 64px; margin-bottom: 0;">${region.title}</h1>
+                        <p style="font-family: 'Special Elite', cursive; font-size: 20px; text-transform: uppercase;">Master Naturalist Certificate</p>
+                        <div style="margin: 40px 0; border-bottom: 2px dashed #000; min-width: 400px; font-size: 48px; font-family: 'Caveat', cursive; color: ${region.ribbonColor};">${name}</div>
+                        <p style="font-family: 'Patrick Hand', cursive; font-size: 24px; max-width: 600px;">Has demonstrated mastery of energy flow and ecosystem hierarchy across the diverse habitats of ${this.state.activeRegion.toUpperCase()}.</p>
+                        <div style="display: flex; gap: 20px; margin-top: 40px;">
+                            ${Object.keys(region.habitats).map(k => `
+                                <div style="display:flex; flex-direction:column; align-items:center;">
+                                    <div style="width:100px; height:100px; border-radius:50%; border:4px solid #000; overflow:hidden; position:relative;">
+                                        ${mastered.includes(k) ? `<div style="position:absolute; top:-5px; right:-5px;">${getRibbonSVG(30, 45, 14, region.ribbonColor)}</div>` : ''}
+                                        <img src="${region.habitats[k].img}" style="width:100%; height:100%; object-fit:cover; ${mastered.includes(k) ? '' : 'filter:grayscale(1); opacity:0.3;'}">
+                                    </div>
+                                    <span style="font-family:'Special Elite', cursive; font-size:10px; margin-top:10px;">${region.habitats[k].name}</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>`;
+                html2canvas(this.certTemplate, { scale: 2, width: 1100, height: 850, useCORS: true }).then(canvas => {
+                    const link = document.createElement('a'); link.download = `${name}_${this.state.activeRegion}_Mastery.png`;
+                    link.href = canvas.toDataURL(); link.click();
                 });
             }
         };
