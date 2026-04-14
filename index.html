@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Food Web Explorers</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- html2canvas for certificate generation -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&family=Patrick+Hand&family=Special+Elite&display=swap" rel="stylesheet">
     <style>
@@ -54,6 +55,7 @@
         .screen { display: none; height: 100%; flex-direction: column; overflow: hidden; position: relative; }
         .screen.active { display: flex; }
 
+        /* Global Map Screen */
         .world-map-container {
             background-color: var(--map-sea);
             background-image: url("https://www.transparenttextures.com/patterns/old-map.png");
@@ -61,14 +63,12 @@
             border: 2px solid #8c7e6a; border-radius: 4px;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
         }
-        
         .map-grid {
             position: absolute; inset: 0;
             background-size: 100px 100px;
             background-image: linear-gradient(to right, rgba(140, 126, 106, 0.1) 1px, transparent 1px),
                               linear-gradient(to bottom, rgba(140, 126, 106, 0.1) 1px, transparent 1px);
         }
-
         .expedition-stamp {
             position: absolute; cursor: pointer; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             display: flex; flex-direction: column; align-items: center; gap: 8px; z-index: 20;
@@ -77,7 +77,7 @@
         .stamp-visual {
             width: 140px; height: 140px; border-radius: 50%; border: 4px double #3d2b1f;
             padding: 10px; background: rgba(255,255,255,0.2);
-            display: flex; items-center; justify-content: center; position: relative;
+            display: flex; align-items: center; justify-content: center; position: relative;
             box-shadow: 4px 4px 0 rgba(0,0,0,0.1);
         }
         .stamp-visual img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; filter: grayscale(0.4) sepia(0.3); }
@@ -86,22 +86,22 @@
             font-size: 1rem; text-transform: uppercase; box-shadow: 3px 3px 0 rgba(0,0,0,0.2);
         }
 
+        /* Regional & Hub Styles */
         .patch-container { display: flex; flex-direction: column; align-items: center; gap: 0.75rem; position: relative; }
         .patch-slot {
-            width: 120px; height: 120px; border-radius: 50%; position: relative; cursor: pointer;
+            width: 125px; height: 125px; border-radius: 50%; position: relative; cursor: pointer;
             transition: all 0.3s ease; background-color: #eee; border: 8px solid #3d2b1f;
             box-shadow: 0 6px 12px rgba(0,0,0,0.3), inset 0 0 15px rgba(0,0,0,0.2);
             overflow: hidden;
         }
         .patch-slot:hover { transform: scale(1.1); border-color: #fff; box-shadow: 0 0 30px 10px var(--highlight-glow); }
         .patch-image { width: 100%; height: 100%; object-fit: cover; filter: saturate(1.4) contrast(1.1); display: block; }
-        
         .patch-label {
-            font-family: 'Special Elite', cursive; font-size: 0.85rem; text-transform: uppercase;
+            font-family: 'Special Elite', cursive; font-size: 0.9rem; text-transform: uppercase;
             letter-spacing: 0.05em; background: #fff; border: 1px solid #3d2b1f;
             box-shadow: 2px 2px 0 rgba(0,0,0,0.1); transform: rotate(-1deg); font-weight: bold;
-            width: 140px; text-align: center; display: flex; align-items: center; 
-            justify-content: center; line-height: 1.1; padding: 6px;
+            width: 145px; min-height: 58px; text-align: center; display: flex; align-items: center; 
+            justify-content: center; line-height: 1.1; padding: 4px;
         }
 
         .btn-ink {
@@ -117,6 +117,7 @@
             box-shadow: 0 0 15px rgba(255, 215, 0, 0.4); transform: scale(1.05);
         }
 
+        /* Workspace Logic */
         .trophic-shelf {
             border-bottom: 2px dashed rgba(0,0,0,0.1); flex: 1; min-height: 80px; position: relative;
             background-image: linear-gradient(to right, transparent 10%, rgba(0,0,0,0.01) 10%);
@@ -136,6 +137,8 @@
             position: relative; z-index: 20; padding: 0.6rem;
         }
         .sidebar-item[draggable="true"] { cursor: grab; }
+        .sidebar-item.correct { border-color: var(--success-green) !important; background: #eaffea !important; }
+        .sidebar-item.incorrect { border-color: var(--error-red) !important; background: #ffeaea !important; }
 
         .mode-toggle-container {
             background: rgba(0,0,0,0.05); border: 2px solid #3d2b1f; border-radius: 10px;
@@ -149,7 +152,7 @@
         .mode-label { flex: 1; text-align: center; padding: 8px 0; font-family: 'Special Elite', cursive; font-size: 11px; z-index: 2; font-weight: bold; }
         .mode-label.active { color: white; }
 
-        #connection-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 40; }
+        #connection-layer { position: absolute; inset: 0; pointer-events: none; z-index: 40; }
         .connection-arrow { fill: none; stroke: var(--pencil-blue); stroke-width: 3; stroke-linecap: round; marker-end: url(#arrowhead); opacity: 0.6; }
         #temp-link { fill: none; stroke: var(--pencil-blue); stroke-width: 2; stroke-dasharray: 5,5; pointer-events: none; }
 
@@ -159,16 +162,20 @@
         }
         .overlay.active { display: flex; }
         .modal-paper {
-            background: #fff; max-width: 500px; width: 100%; padding: 2.5rem;
+            background: #fff; max-width: 700px; width: 100%; padding: 2.5rem;
             border: 2px solid #3d2b1f; position: relative; box-shadow: 10px 10px 0 rgba(0,0,0,0.2);
             background-image: url("https://www.transparenttextures.com/patterns/paper-fibers.png");
         }
 
-        #modal-feedback .modal-paper { max-width: 460px; padding: 1.25rem 1.5rem; }
-
-        .workspace-habitat-badge { width: 60px; height: 60px; border-radius: 50%; border: 4px solid #3d2b1f; position: relative; }
         .version-tag { font-family: 'Special Elite', cursive; opacity: 0.4; font-size: 12px; font-weight: bold; }
-        .compass-rose { position: absolute; bottom: 40px; right: 40px; width: 150px; height: 150px; opacity: 0.3; pointer-events: none; }
+        .workspace-habitat-badge { width: 60px; height: 60px; border-radius: 50%; border: 4px solid #3d2b1f; position: relative; }
+        .workspace-ribbon { position: absolute; top: -10px; right: -10px; width: 30px; height: 45px; z-index: 10; transform: rotate(15deg); display: none; }
+        .is-mastered .workspace-ribbon { display: block; }
+        
+        #cert-template {
+            position: fixed; top: -3000px; left: -3000px; width: 1100px; height: 850px;
+            background: #fdfaf3; border: 30px double #3d2b1f; padding: 60px; display: flex; flex-direction: column; align-items: center; text-align: center;
+        }
     </style>
 </head>
 <body class="p-2 md:p-4 flex justify-center items-center min-h-screen">
@@ -198,50 +205,51 @@
                 </div>
             </div>
             <div id="workspace-tools" class="hidden flex gap-3">
+                <button id="btn-food-web-101" class="btn-ink">Food Web 101</button>
+                <button id="btn-field-guide" class="btn-ink">Field Guide</button>
                 <button id="btn-check" class="btn-ink bg-stone-800 text-white shadow-md">Check Journal</button>
             </div>
         </header>
 
-        <!-- World Map Screen -->
+        <!-- World Map Navigation -->
         <div id="screen-world" class="screen active">
             <div class="world-map-container">
                 <div class="map-grid"></div>
-                <h2 class="text-6xl font-bold typewriter mb-2 px-12 py-3 bg-stone-800 text-white transform -rotate-1 z-10">Food Web Explorers</h2>
-                <p class="typewriter opacity-60 mb-12 uppercase tracking-widest z-10">Select a region to begin expeditions</p>
+                <h2 class="text-6xl font-bold typewriter mb-2 px-12 py-3 bg-stone-800 text-white transform -rotate-1 relative z-10">Food Web Explorers</h2>
+                <p class="typewriter opacity-60 mb-12 uppercase tracking-widest relative z-10">Select a region to begin expeditions</p>
                 
-                <div class="expedition-stamp" style="top: 30%; left: 15%;" onclick="app.selectRegion('colorado')">
+                <div class="expedition-stamp" style="top: 32%; left: 18%;" onclick="app.selectRegion('colorado')">
                     <div class="stamp-visual"><img src="https://images.unsplash.com/photo-1499244015948-ac7a63e28aa2?auto=format&fit=crop&w=300"></div>
                     <span class="stamp-label">Colorado Rockies</span>
                 </div>
 
-                <div class="expedition-stamp" style="top: 55%; left: 52%;" onclick="app.selectRegion('nigeria')">
+                <div class="expedition-stamp" style="top: 55%; left: 51%;" onclick="app.selectRegion('nigeria')">
                     <div class="stamp-visual"><img src="https://images.unsplash.com/photo-1542366810-4316719859f5?auto=format&fit=crop&w=300"></div>
                     <span class="stamp-label">Nigeria Ecosystems</span>
                 </div>
-
-                <div class="compass-rose">
-                    <svg viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="1.5">
-                        <circle cx="50" cy="50" r="45" stroke-dasharray="2 4"/><path d="M50 5 L55 45 L95 50 L55 55 L50 95 L45 55 L5 50 L45 45 Z" fill="#3d2b1f"/><text x="48" y="15" fill="#3d2b1f" font-family="serif" font-size="10">N</text>
-                    </svg>
-                </div>
             </div>
-            <div class="version-tag mt-4 text-center">BUILD v2.1.2</div>
+            <div class="version-tag mt-4 text-center">BUILD v2.2.0</div>
         </div>
 
-        <!-- Regional Landing -->
+        <!-- Regional Landing Hub -->
         <div id="screen-cover" class="screen">
             <div class="flex flex-col items-center py-4 flex-grow overflow-y-auto">
                 <h2 id="region-title" class="text-4xl font-bold typewriter mb-16 px-12 py-3 bg-stone-800 text-white transform rotate-1 uppercase tracking-widest">Region Habitats</h2>
                 <div class="grid grid-cols-2 md:grid-cols-5 gap-12 w-full max-w-5xl" id="patch-grid"></div>
-                <div class="mt-auto pt-10 flex flex-col items-center w-full">
-                    <div id="progress-summary" class="typewriter text-lg mb-4 font-bold">Earned 0 of 5 badges</div>
-                    <button id="btn-export-journal" class="btn-ink text-xs opacity-70">Save Global Data</button>
+                <div class="mt-auto pt-10 flex flex-col items-center w-full gap-4">
+                    <div id="progress-summary" class="typewriter text-lg font-bold">Earned 0 of 5 badges</div>
+                    <div class="flex gap-4">
+                        <button id="btn-download" class="btn-ink bg-blue-900 text-white hidden">Mastery Certificate</button>
+                        <button id="btn-export-journal" class="btn-ink text-xs opacity-70">Save Global Journal</button>
+                        <label for="input-import-journal" class="btn-ink text-xs opacity-70 cursor-pointer">Load Journal</label>
+                        <input type="file" id="input-import-journal" class="hidden">
+                    </div>
                 </div>
             </div>
-            <div class="version-tag absolute bottom-4 left-1/2 -translate-x-1/2">v2.1.2</div>
+            <div class="version-tag absolute bottom-4 left-1/2 -translate-x-1/2">v2.2.0</div>
         </div>
 
-        <!-- Workspace -->
+        <!-- Interactive Workspace -->
         <div id="screen-workspace" class="screen">
             <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 relative flex-grow overflow-hidden">
                 <svg id="connection-layer"><path id="temp-link" d=""></path></svg>
@@ -252,7 +260,7 @@
                     <div class="p-4 space-y-3 flex-shrink-0">
                         <div class="mode-toggle-container" id="mode-switch">
                             <div id="mode-slider" class="mode-toggle-slider"></div>
-                            <div id="label-arrange" class="mode-label active">Arrange</div>
+                            <div id="label-arrange" class="mode-label active">Arrange Species</div>
                             <div id="label-links" class="mode-label inactive">Draw Links</div>
                         </div>
                         <button id="btn-clear-links" class="btn-ink w-full text-[10px]">Reset Energy Links</button>
@@ -260,71 +268,69 @@
                 </aside>
                 <main class="lg:col-span-3 flex flex-col h-full overflow-hidden">
                     <div class="flex items-center gap-4 mb-3 flex-shrink-0">
-                        <div id="workspace-badge-container" class="workspace-habitat-badge"><div id="workspace-badge-img-host" class="w-full h-full rounded-full overflow-hidden"></div></div>
+                        <div id="workspace-badge-container" class="workspace-habitat-badge"><div class="workspace-ribbon"></div><div id="workspace-badge-img-host" class="w-full h-full rounded-full overflow-hidden"></div></div>
                         <h2 id="current-habitat-name" class="text-5xl handwritten text-stone-800 uppercase">Habitat</h2>
                     </div>
                     <div id="shelves-container" class="relative z-20 flex-grow flex flex-col overflow-hidden">
-                        <div class="trophic-shelf" data-level="4"><span class="shelf-label">Tertiary</span><div class="drop-zone"></div></div>
-                        <div class="trophic-shelf" data-level="3"><span class="shelf-label">Secondary</span><div class="drop-zone"></div></div>
-                        <div class="trophic-shelf" data-level="2"><span class="shelf-label">Primary</span><div class="drop-zone"></div></div>
+                        <div class="trophic-shelf" data-level="4"><span class="shelf-label">Tertiary Consumers</span><div class="drop-zone"></div></div>
+                        <div class="trophic-shelf" data-level="3"><span class="shelf-label">Secondary Consumers</span><div class="drop-zone"></div></div>
+                        <div class="trophic-shelf" data-level="2"><span class="shelf-label">Primary Consumers</span><div class="drop-zone"></div></div>
                         <div class="trophic-shelf" data-level="1"><span class="shelf-label">Producers</span><div class="drop-zone"></div></div>
                     </div>
                 </main>
             </div>
-            <div class="version-tag absolute bottom-4 left-1/2 -translate-x-1/2">v2.1.2</div>
+            <div class="version-tag absolute bottom-4 left-1/2 -translate-x-1/2">v2.2.0</div>
         </div>
 
-        <!-- Feedback Modal -->
-        <div id="modal-feedback" class="overlay">
-            <div class="modal-paper text-center">
-                <h3 id="feedback-title" class="handwritten text-5xl mb-4">Review</h3>
-                <div id="feedback-text" class="text-xl italic"></div>
-                <button class="btn-ink mt-8 w-full closeModal">Return to Journal</button>
-            </div>
-        </div>
+        <!-- Modals -->
+        <div id="modal-feedback" class="overlay"><div class="modal-paper text-center"><h3 id="feedback-title" class="handwritten text-5xl mb-4">...</h3><div id="feedback-text" class="text-xl italic"></div><button class="btn-ink mt-8 w-full closeModal">Return to Journal</button></div></div>
+        <div id="modal-field-guide" class="overlay"><div class="modal-paper"><h3 class="typewriter text-2xl border-b-2 border-stone-800 mb-4">Field Research Notes</h3><div id="field-guide-content" class="space-y-4 max-h-[50vh] overflow-y-auto"></div><button class="btn-ink mt-8 w-full closeModal">Close Notes</button></div></div>
+        <div id="modal-food-web-101" class="overlay"><div class="modal-paper"><h3 class="typewriter text-3xl border-b-2 border-stone-800 mb-4 text-center">Food Web 101</h3><div class="space-y-4 text-lg italic leading-relaxed"><p>Arrows represent energy moving from food to consumer. The arrow points from the <strong>prey</strong> to the <strong>predator</strong>.</p><div class="bg-stone-50 p-4 border-l-4 border-stone-300"><p class="font-bold">Levels:</p><p>Producers: Energy from Sun. Primary: Eat plants. Secondary: Eat herbivores. Tertiary: Apex hunters.</p></div></div><button class="btn-ink mt-8 w-full closeModal">Got it</button></div></div>
     </div>
 
+    <div id="cert-template"></div>
+
     <script>
-        const getRibbonSVG = (w, h, sz) => `<svg width="${w}" height="${h}" viewBox="0 0 50 70" style="position:absolute; top:-10px; right:-10px; transform:rotate(15deg); z-index:20;"><path d="M 3 3 L 47 3 L 47 67 L 25 53 L 3 67 Z" fill="#2c5282" stroke="#ffd700" stroke-width="3"/><text x="25" y="38" fill="#ffd700" font-size="${sz}" text-anchor="middle">★</text></svg>`;
+        const getRibbonSVG = (w, h, sz) => `<svg width="${w}" height="${h}" viewBox="0 0 50 70" style="filter: drop-shadow(2px 2px 3px rgba(0,0,0,0.3));"><path d="M 3 3 L 47 3 L 47 67 L 25 53 L 3 67 Z" fill="#2c5282" stroke="#ffd700" stroke-width="3"/><text x="25" y="38" fill="#ffd700" font-size="${sz}" text-anchor="middle" style="font-family: Arial, sans-serif; font-weight: bold;">★</text></svg>`;
 
         const regions = {
             colorado: {
                 title: "Colorado Rockies Expeditions",
                 habitats: {
                     grassland: { name: "Eastern Shortgrass", img: "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=400", organisms: [
-                        { id: 'c1', name: 'Blue Grama Grass', level: 1, icon: '🌾', note: "The base of the prairie web.", predators: ['c2'] },
-                        { id: 'c2', name: 'Prairie Dog', level: 2, icon: '🐿️', note: "Burrowing herbivore and keystone species.", predators: ['c3', 'c4'] },
-                        { id: 'c3', name: 'Black-footed Ferret', level: 3, icon: '🐾', note: "Specialist hunter of prairie dogs.", predators: ['c5'] },
-                        { id: 'c4', name: 'Coyote', level: 3, icon: '🐺', note: "Opportunistic secondary consumer.", predators: ['c5'] },
-                        { id: 'c5', name: 'Golden Eagle', level: 4, icon: '🦅', note: "Top avian predator of the plains.", predators: [] }
+                        { id: 'c1', name: 'Blue Grama Grass', level: 1, icon: '🌾', notes: "The base of the prairie web.", predators: ['c2'] },
+                        { id: 'c2', name: 'Prairie Dog', level: 2, icon: '🐿️', notes: "Burrowing herbivore and keystone species.", predators: ['c3', 'c4'] },
+                        { id: 'c3', name: 'Black-footed Ferret', level: 3, icon: '🐾', notes: "Specialist hunter of prairie dogs.", predators: ['c5'] },
+                        { id: 'c4', name: 'Coyote', level: 3, icon: '🐺', notes: "Opportunistic secondary consumer.", predators: ['c5'] },
+                        { id: 'c5', name: 'Golden Eagle', level: 4, icon: '🦅', notes: "Top avian predator of the plains.", predators: [] }
                     ]},
                     tundra: { name: "Alpine Tundra", img: "https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=400", organisms: [
-                        { id: 'c6', name: 'Lichen', level: 1, icon: '🍄', note: "Rugged producer growing on rocks.", predators: ['c7'] },
-                        { id: 'c7', name: 'Pika', level: 2, icon: '🐹', note: "Alpine herbivore that dries hay piles.", predators: ['c9'] },
-                        { id: 'c8', name: 'Yellow-bellied Marmot', level: 2, icon: '🐻', note: "High altitude hibernating herbivore.", predators: ['c10'] },
-                        { id: 'c9', name: 'Ermine', level: 3, icon: '🦦', note: "Small secondary consumer with white winter coat.", predators: ['c10'] },
-                        { id: 'c10', name: 'Mountain Lion', level: 4, icon: '🦁', note: "The top terrestrial predator.", predators: [] }
+                        { id: 'c6', name: 'Lichen', level: 1, icon: '🍄', notes: "Rugged producer growing on rocks.", predators: ['c7', 'c8'] },
+                        { id: 'c7', name: 'Pika', level: 2, icon: '🐹', notes: "Alpine herbivore that dries hay piles.", predators: ['c9'] },
+                        { id: 'c8', name: 'Yellow-bellied Marmot', level: 2, icon: '🐻', notes: "High altitude hibernating herbivore.", predators: ['c10'] },
+                        { id: 'c9', name: 'Ermine', level: 3, icon: '🦦', notes: "Small secondary consumer with white winter coat.", predators: ['c10'] },
+                        { id: 'c10', name: 'Mountain Lion', level: 4, icon: '🦁', notes: "The top terrestrial predator.", predators: [] }
                     ]},
                     riparian: { name: "Riparian Wetland", img: "https://images.unsplash.com/photo-1470770841072-f978cf4d019e?auto=format&fit=crop&w=400", organisms: [
-                        { id: 'c11', name: 'Cottonwood', level: 1, icon: '🌳', note: "Water-dependent primary producer.", predators: ['c12'] },
-                        { id: 'c12', name: 'Aquatic Insects', level: 2, icon: '🐝', note: "Insects that feed on decaying leaves.", predators: ['c13'] },
-                        { id: 'c13', name: 'Leopard Frog', level: 3, icon: '🐸', note: "Insect-eating secondary consumer.", predators: ['c15'] },
-                        { id: 'c14', name: 'Garter Snake', level: 3, icon: '🐍', note: "Small predator of the stream bank.", predators: ['c15'] },
-                        { id: 'c15', name: 'Great Blue Heron', level: 4, icon: '🐦', note: "Tall tertiary predator of the wetlands.", predators: [] }
+                        { id: 'c11', name: 'Cottonwood', level: 1, icon: '🌳', notes: "Water-dependent primary producer.", predators: ['c12'] },
+                        { id: 'c12', name: 'Aquatic Insects', level: 2, icon: '🐝', notes: "Insects that feed on decaying leaves.", predators: ['c13'] },
+                        { id: 'c13', name: 'Leopard Frog', level: 3, icon: '🐸', notes: "Insect-eating secondary consumer.", predators: ['c15'] },
+                        { id: 'c14', name: 'Garter Snake', level: 3, icon: '🐍', notes: "Small predator of the stream bank.", predators: ['c15'] },
+                        { id: 'c15', name: 'Great Blue Heron', level: 4, icon: '🐦', notes: "Tall tertiary predator of the wetlands.", predators: [] }
                     ]},
                     ponderosa: { name: "Montane Ponderosa", img: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=400", organisms: [
-                        { id: 'c16', name: 'Ponderosa Pine', level: 1, icon: '🌲', note: "Drought-resistant primary producer.", predators: ['c17', 'c18'] },
-                        { id: 'c17', name: 'Abert\'s Squirrel', level: 2, icon: '🦫', note: "Depends on pine bark and seeds.", predators: ['c19', 'c20'] },
-                        { id: 'c18', name: 'Steller\'s Jay', level: 2, icon: '🐦‍⬛', note: "Omnivorous bird of the high forest.", predators: ['c19', 'c20'] },
-                        { id: 'c19', name: 'Goshawk', level: 3, icon: '🪶', note: "Fierce forest hunter of smaller birds.", predators: ['c20'] },
-                        { id: 'c20', name: 'Bobcat', level: 4, icon: '🐱', note: "Stealthy tertiary predator of the mountains.", predators: [] }
+                        { id: 'c16', name: 'Ponderosa Pine', level: 1, icon: '🌲', notes: "Drought-resistant primary producer.", predators: ['c17', 'c18'] },
+                        { id: 'c17', name: 'Abert\'s Squirrel', level: 2, icon: '🦫', notes: "Depends on pine bark and seeds.", predators: ['c19', 'c20'] },
+                        { id: 'c18', name: 'Steller\'s Jay', level: 2, icon: '🐦‍⬛', notes: "Omnivorous bird of the high forest.", predators: ['c19', 'c20'] },
+                        { id: 'c19', name: 'Goshawk', level: 3, icon: '🪶', notes: "Fierce forest hunter of smaller birds.", predators: ['c20'] },
+                        { id: 'c20', name: 'Bobcat', level: 4, icon: '🐱', notes: "Stealthy tertiary predator of the mountains.", predators: [] }
                     ]},
                     shrubland: { name: "Steppe Shrubland", img: "https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?auto=format&fit=crop&w=400", organisms: [
-                        { id: 'c21', name: 'Sagebrush', level: 1, icon: '🌵', note: "Fragrant producer of the arid steppe.", predators: ['c22', 'c23'] },
-                        { id: 'c22', name: 'Jackrabbit', level: 2, icon: '🐇', note: "Fast-moving primary consumer.", predators: ['c24', 'c25'] },
-                        { id: 'c23', name: 'Sage Thrasher', level: 2, icon: '🦢', note: "Bird that nests in thick sagebrush.", predators: ['c24', 'c25'] },
-                        { id: 'c24', name: 'Badger', level: 3, icon: '🦡', note: "Powerful digging secondary consumer.", predators: ['c25'] },
-                        { id: 'c25', name: 'Red-tailed Hawk', level: 4, icon: '🪁', note: "Soaring tertiary predator.", predators: [] }
+                        { id: 'c21', name: 'Sagebrush', level: 1, icon: '🌵', notes: "Fragrant producer of the arid steppe.", predators: ['c22', 'c23'] },
+                        { id: 'c22', name: 'Jackrabbit', level: 2, icon: '🐇', notes: "Fast-moving primary consumer.", predators: ['c24', 'c25'] },
+                        { id: 'c23', name: 'Sage Thrasher', level: 2, icon: '🦢', notes: "Bird that nests in thick sagebrush.", predators: ['c24', 'c25'] },
+                        { id: 'c24', name: 'Badger', level: 3, icon: '🦡', notes: "Powerful digging secondary consumer.", predators: ['c25'] },
+                        { id: 'c25', name: 'Red-tailed Hawk', level: 4, icon: '🪁', notes: "Soaring tertiary predator.", predators: [] }
                     ]}
                 }
             },
@@ -332,54 +338,44 @@
                 title: "Nigerian Ecosystems",
                 habitats: {
                     mangrove: { name: "Mangrove Swamp", img: "https://images.unsplash.com/photo-1542366810-4316719859f5?auto=format&fit=crop&w=400", organisms: [
-                        { id: 'n1', name: 'Red Mangrove', level: 1, icon: '🎋', note: "Salt-tolerant shoreline stabilizer.", predators: ['n3'] },
-                        { id: 'n2', name: 'Water Hyacinth', level: 1, icon: '🌸', note: "Floating producer in brackish waters.", predators: ['n4'] },
-                        { id: 'n3', name: 'Fiddler Crab', level: 2, icon: '🦀', note: "Sifts organic matter from the mud.", predators: ['n5'] },
-                        { id: 'n4', name: 'Tilapia', level: 2, icon: '🐟', note: "Abundant fish in mangrove roots.", predators: ['n5', 'n6'] },
-                        { id: 'n5', name: 'Monitor Lizard', level: 3, icon: '🦎', note: "Stealthy predator of the wetlands.", predators: ['n7'] },
-                        { id: 'n6', name: 'Kingfisher', level: 3, icon: '🦜', note: "Jewel-toned fish specialist.", predators: ['n8'] },
-                        { id: 'n7', name: 'Nile Crocodile', level: 4, icon: '🐊', note: "The ancient river apex.", predators: [] },
-                        { id: 'n8', name: 'Fish Eagle', level: 4, icon: '🦉', note: "Master of the mangrove skies.", predators: [] }
+                        { id: 'n1', name: 'Red Mangrove', level: 1, icon: '🎋', notes: "Salt-tolerant shoreline stabilizer.", predators: ['n3'] },
+                        { id: 'n2', name: 'Water Hyacinth', level: 1, icon: '🌸', notes: "Floating producer in brackish waters.", predators: ['n4'] },
+                        { id: 'n3', name: 'Tilapia', level: 2, icon: '🐟', notes: "River-dwelling herbivorous fish.", predators: ['n5', 'n6'] },
+                        { id: 'n4', name: 'Monitor Lizard', level: 3, icon: '🦎', notes: "Stealthy predator of the wetlands.", predators: ['n5'] },
+                        { id: 'n5', name: 'Nile Crocodile', level: 4, icon: '🐊', notes: "The ancient river apex predator.", predators: [] },
+                        { id: 'n6', name: 'Fish Eagle', level: 4, icon: '🦉', notes: "Master of the mangrove skies.", predators: [] }
                     ]},
                     rainforest: { name: "Rainforest Canopy", img: "https://images.unsplash.com/photo-1581450209675-900f074d081b?auto=format&fit=crop&w=400", organisms: [
-                        { id: 'n9', name: 'Iroko Tree', level: 1, icon: '🪵', note: "Giant of the Nigerian forest.", predators: ['n11'] },
-                        { id: 'n10', name: 'Oil Palm', level: 1, icon: '🌴', note: "Essential energy-rich palm.", predators: ['n12'] },
-                        { id: 'n11', name: 'Chimpanzee', level: 2, icon: '🐵', note: "Intelligent forest omnivore.", predators: ['n13'] },
-                        { id: 'n12', name: 'Fruit Bat', level: 2, icon: '🦇', note: "Nocturnal seed disperser.", predators: ['n14'] },
-                        { id: 'n13', name: 'Leopard', level: 3, icon: '🐆', note: "Dappled shadow hunter.", predators: ['n15'] },
-                        { id: 'n14', name: 'Forest Cobra', level: 3, icon: '🦂', note: "Venomous canopy inhabitant.", predators: ['n15'] },
-                        { id: 'n15', name: 'African Rock Python', level: 4, icon: '🐉', note: "Massive constrictor predator.", predators: [] },
-                        { id: 'n16', name: 'Martial Eagle', level: 4, icon: '🦚', note: "The forest's highest raptor.", predators: [] }
+                        { id: 'n7', name: 'Iroko Tree', level: 1, icon: '🪵', notes: "Giant of the Nigerian forest.", predators: ['n9'] },
+                        { id: 'n8', name: 'Fruit Bat', level: 2, icon: '🦇', notes: "Nocturnal seed disperser.", predators: ['n10', 'n11'] },
+                        { id: 'n9', name: 'Leopard', level: 3, icon: '🐆', notes: "Dappled shadow hunter.", predators: ['n12'] },
+                        { id: 'n10', name: 'Forest Cobra', level: 3, icon: '🦂', notes: "Venomous canopy inhabitant.", predators: ['n12'] },
+                        { id: 'n11', name: 'African Rock Python', level: 4, icon: '🐉', notes: "Massive constrictor predator.", predators: [] },
+                        { id: 'n12', name: 'Martial Eagle', level: 4, icon: '🦚', notes: "The forest's highest raptor.", predators: [] }
                     ]},
                     savanna: { name: "Guinea Savanna", img: "https://images.unsplash.com/photo-1516026672322-bc52d61a55d5?auto=format&fit=crop&w=400", organisms: [
-                        { id: 'n17', name: 'Elephant Grass', level: 1, icon: '🎍', note: "Fast-growing savanna cover.", predators: ['n19'] },
-                        { id: 'n18', name: 'Baobab', level: 1, icon: '☘️', note: "Water-storing tree of life.", predators: ['n20'] },
-                        { id: 'n19', name: 'Warthog', level: 2, icon: '🐗', note: "Savanna grazer and rooter.", predators: ['n21'] },
-                        { id: 'n20', name: 'Elephant', level: 2, icon: '🐘', note: "Ecosystem engineer.", predators: ['n23'] },
-                        { id: 'n21', name: 'Hyena', level: 3, icon: '🦴', note: "Powerful hunter-scavenger.", predators: ['n23'] },
-                        { id: 'n22', name: 'Wild Dog', level: 3, icon: '🐕', note: "Highly social pack hunter.", predators: ['n23'] },
-                        { id: 'n23', name: 'Lion', level: 4, icon: '🐯', note: "King of the grasslands.", predators: [] },
-                        { id: 'n24', name: 'Vulture', level: 4, icon: '🦩', note: "Apex scavenger of the plains.", predators: [] }
+                        { id: 'n13', name: 'Baobab', level: 1, icon: '☘️', notes: "Water-storing tree of life.", predators: ['n15'] },
+                        { id: 'n14', name: 'Warthog', level: 2, icon: '🐗', notes: "Savanna grazer and rooter.", predators: ['n16'] },
+                        { id: 'n15', name: 'Hyena', level: 3, icon: '🦴', notes: "Powerful hunter-scavenger.", predators: ['n17'] },
+                        { id: 'n16', name: 'Wild Dog', level: 3, icon: '🐕', notes: "Highly social pack hunter.", predators: ['n18'] },
+                        { id: 'n17', name: 'Lion', level: 4, icon: '🐯', notes: "King of the grasslands.", predators: [] },
+                        { id: 'n18', name: 'Vulture', level: 4, icon: '🦩', notes: "Apex scavenger of the plains.", predators: [] }
                     ]},
                     river: { name: "Freshwater River", img: "https://images.unsplash.com/photo-1511497584788-876760111969?auto=format&fit=crop&w=400", organisms: [
-                        { id: 'n25', name: 'Water Lily', level: 1, icon: '🪷', note: "Aquatic primary producer.", predators: ['n27'] },
-                        { id: 'n26', name: 'Papyrus Reed', level: 1, icon: '🪴', note: "Wetland producer providing habitat.", predators: ['n28'] },
-                        { id: 'n27', name: 'Freshwater Shrimp', level: 2, icon: '🦐', note: "Small scavenger consumer.", predators: ['n29'] },
-                        { id: 'n28', name: 'Tilapia-R', level: 2, icon: '🐠', note: "River-dwelling herbivorous fish.", predators: ['n30'] },
-                        { id: 'n29', name: 'Catfish', level: 3, icon: '🐡', note: "Bottom-feeding secondary consumer.", predators: ['n31'] },
-                        { id: 'n30', name: 'Clawless Otter', level: 3, icon: '🐩', note: "Fish-eating mammal of the river.", predators: ['n31'] },
-                        { id: 'n31', name: 'Croc-R', level: 4, icon: '🐢', note: "Freshwater apex predator.", predators: [] },
-                        { id: 'n32', name: 'Eagle-R', level: 4, icon: '🦆', note: "River-scoping apex predator.", predators: [] }
+                        { id: 'n19', name: 'Water Lily', level: 1, icon: '🪷', notes: "Aquatic primary producer.", predators: ['n21'] },
+                        { id: 'n20', name: 'Freshwater Shrimp', level: 2, icon: '🦐', notes: "Small scavenger consumer.", predators: ['n22'] },
+                        { id: 'n21', name: 'Catfish', level: 3, icon: '🐡', notes: "Bottom-feeding secondary consumer.", predators: ['n23'] },
+                        { id: 'n22', name: 'Clawless Otter', level: 3, icon: '🐩', notes: "Fish-eating river mammal.", predators: ['n24'] },
+                        { id: 'n23', name: 'Croc-R', level: 4, icon: '🐢', notes: "Freshwater river apex predator.", predators: [] },
+                        { id: 'n24', name: 'Eagle-R', level: 4, icon: '🦆', notes: "River-scoping apex predator.", predators: [] }
                     ]},
                     sahel: { name: "Sahel Scrubland", img: "https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?auto=format&fit=crop&w=400", organisms: [
-                        { id: 'n33', name: 'Acacia', level: 1, icon: '🌿', note: "Hardy scrubland shrub.", predators: ['n35'] },
-                        { id: 'n34', name: 'Doum Palm', level: 1, icon: '🥥', note: "Desert-fringe fruit producer.", predators: ['n36'] },
-                        { id: 'n35', name: 'Dorcas Gazelle', level: 2, icon: '🦌', note: "Drought-adapted primary consumer.", predators: ['n37'] },
-                        { id: 'n36', name: 'Desert Locust', level: 2, icon: '🦗', note: "Mass-migrating herbivore.", predators: ['n38'] },
-                        { id: 'n37', name: 'Fennec Fox', level: 3, icon: '🦊', note: "Small desert secondary consumer.", predators: ['n39'] },
-                        { id: 'n38', name: 'Goshawk-S', level: 3, icon: '🕊️', note: "Pale scrubland raptor.", predators: ['n40'] },
-                        { id: 'n39', name: 'Python-S', level: 4, icon: '🐌', note: "Semi-arid constrictor predator.", predators: [] },
-                        { id: 'n40', name: 'Caracal', level: 4, icon: '🐜', note: "The agile jumping apex cat.", predators: [] }
+                        { id: 'n25', name: 'Acacia', level: 1, icon: '🌿', notes: "Hardy scrubland shrub.", predators: ['n27'] },
+                        { id: 'n26', name: 'Dorcas Gazelle', level: 2, icon: '🦌', notes: "Drought-adapted primary consumer.", predators: ['n29'] },
+                        { id: 'n27', name: 'Desert Locust', level: 2, icon: '🦗', notes: "Mass-migrating herbivore.", predators: ['n28'] },
+                        { id: 'n28', name: 'Fennec Fox', level: 3, icon: '🦊', notes: "Small desert secondary consumer.", predators: ['n30'] },
+                        { id: 'n29', name: 'Python-S', level: 4, icon: '🐌', notes: "Semi-arid constrictor predator.", predators: [] },
+                        { id: 'n30', name: 'Caracal', level: 4, icon: '🐜', notes: "Agile jumping apex cat.", predators: [] }
                     ]}
                 }
             }
@@ -404,15 +400,21 @@
                 this.btnWorld = document.getElementById('btn-to-world'); this.btnCover = document.getElementById('btn-to-cover');
                 this.btnCheck = document.getElementById('btn-check'); this.pool = document.getElementById('organism-pool');
                 this.tempPath = document.getElementById('temp-link');
+                this.badgeContainer = document.getElementById('workspace-badge-container');
             },
 
             bindEvents() {
                 this.btnWorld.onclick = () => this.goToScreen('world');
                 this.btnCover.onclick = () => this.goToScreen('cover');
+                document.getElementById('btn-field-guide').onclick = () => this.showFieldGuide();
+                document.getElementById('btn-food-web-101').onclick = () => document.getElementById('modal-food-web-101').classList.add('active');
                 document.getElementById('mode-switch').onclick = () => this.setTool(this.state.tool === 'arrange' ? 'links' : 'arrange');
                 document.getElementById('btn-check').onclick = () => this.checkJournal();
                 document.querySelectorAll('.closeModal').forEach(b => b.onclick = (e) => e.target.closest('.overlay').classList.remove('active'));
                 document.getElementById('btn-clear-links').onclick = () => { if(this.state.activeHabitat) { this.state.regionsState[this.state.currentRegion].hState[this.state.activeHabitat].connections = []; this.drawArrows(); } };
+                document.getElementById('btn-export-journal').onclick = () => this.exportJournal();
+                document.getElementById('input-import-journal').onchange = (e) => this.importJournal(e);
+                document.getElementById('btn-download').onclick = () => this.downloadCertificate();
             },
 
             goToScreen(id) {
@@ -431,9 +433,11 @@
                 const grid = document.getElementById('patch-grid'); grid.innerHTML = '';
                 Object.keys(reg.habitats).forEach(hid => {
                     const h = reg.habitats[hid], mastered = rState.completed.includes(hid);
-                    grid.insertAdjacentHTML('beforeend', `<div class="patch-container">${mastered ? getRibbonSVG(40,60,18) : ''}<div class="patch-slot" onclick="app.startHabitat('${hid}')"><img src="${h.img}" class="patch-image"></div><span class="patch-label">${h.name}</span></div>`);
+                    grid.insertAdjacentHTML('beforeend', `<div class="patch-container">${mastered ? getRibbonSVG(40,60,18) : ''}<div class="patch-slot" onclick="app.startHabitat('${hid}')"><img src="${h.img}" class="patch-image"></div><span class="patch-label">${h.name.split(' ').join('<br>')}</span></div>`);
                 });
-                document.getElementById('progress-summary').textContent = `Earned ${rState.completed.length} of ${Object.keys(reg.habitats).length} badges`;
+                const count = rState.completed.length;
+                document.getElementById('progress-summary').textContent = `Earned ${count} of ${Object.keys(reg.habitats).length} badges`;
+                document.getElementById('btn-download').classList.toggle('hidden', count === 0);
             },
 
             startHabitat(id) {
@@ -441,7 +445,7 @@
                 if (!rState.hState[id]) rState.hState[id] = { placements: {}, connections: [] };
                 document.getElementById('current-habitat-name').textContent = regions[this.state.currentRegion].habitats[id].name;
                 document.getElementById('workspace-badge-img-host').innerHTML = `<img src="${regions[this.state.currentRegion].habitats[id].img}" class="w-full h-full object-cover">`;
-                this.setTool('arrange'); this.loadSpecies(); this.goToScreen('workspace'); this.drawArrows();
+                this.setTool('arrange'); this.loadSpecies(); this.goToScreen('workspace'); this.syncWorkspaceRibbon(); this.drawArrows();
             },
 
             loadSpecies() {
@@ -463,7 +467,7 @@
                     shelf.ondrop = (e) => {
                         const id = e.dataTransfer.getData('text'), el = document.querySelector(`[data-id="${id}"]`);
                         if (!el) return;
-                        shelf.querySelector('.drop-zone').appendChild(el); hState.placements[id] = shelf.dataset.level; this.drawArrows();
+                        shelf.querySelector('.drop-zone').appendChild(el); hState.placements[id] = shelf.dataset.level; this.drawArrows(); this.btnCheck.classList.add('needs-check'); this.syncMasteryRevocation();
                     };
                 });
             },
@@ -473,7 +477,6 @@
                 document.getElementById('mode-slider').classList.toggle('links-active', t === 'links');
                 document.getElementById('label-arrange').classList.toggle('active', t === 'arrange');
                 document.getElementById('label-links').classList.toggle('active', t === 'links');
-                // v2.1.2: Sync draggable state with tool selection
                 document.querySelectorAll('.sidebar-item').forEach(el => el.draggable = (t === 'arrange'));
             },
 
@@ -489,7 +492,7 @@
 
             createLink(s, t) {
                 const hState = this.state.regionsState[this.state.currentRegion].hState[this.state.activeHabitat];
-                if (!hState.connections.some(c => c.s === s && c.t === t)) { hState.connections.push({ s, t }); this.drawArrows(); }
+                if (!hState.connections.some(c => c.s === s && c.t === t)) { hState.connections.push({ s, t }); this.drawArrows(); this.btnCheck.classList.add('needs-check'); this.syncMasteryRevocation(); }
             },
 
             drawArrows() {
@@ -504,27 +507,115 @@
                     const g = document.createElementNS("http://www.w3.org/2000/svg", "g"); g.setAttribute("class", "connection-group");
                     const path = document.createElementNS("http://www.w3.org/2000/svg", "path"); path.setAttribute("d", `M ${x1} ${y1} Q ${(x1+x2)/2} ${(y1+y2)/2 - 20} ${x2} ${y2}`); path.setAttribute("class", "connection-arrow");
                     const del = document.createElementNS("http://www.w3.org/2000/svg", "g"); del.setAttribute("transform", `translate(${(x1+x2)/2}, ${(y1+y2)/2 - 10})`); del.style.cursor = "pointer";
-                    del.onclick = () => { hState.connections.splice(idx, 1); this.drawArrows(); };
+                    del.onclick = () => { hState.connections.splice(idx, 1); this.drawArrows(); this.btnCheck.classList.add('needs-check'); this.syncMasteryRevocation(); };
                     del.innerHTML = `<circle r="8" fill="#a33b3b"/><text fill="white" text-anchor="middle" dy="5" font-size="12">×</text>`;
                     g.appendChild(path); g.appendChild(del); svg.appendChild(g);
                 });
             },
 
+            syncWorkspaceRibbon() {
+                const mastered = this.state.regionsState[this.state.currentRegion].completed.includes(this.state.activeHabitat);
+                this.badgeContainer.classList.toggle('is-mastered', mastered);
+                const slot = this.badgeContainer.querySelector('.workspace-ribbon');
+                if (mastered) slot.innerHTML = getRibbonSVG(32, 48, 18);
+            },
+
+            syncMasteryRevocation() {
+                const region = this.state.currentRegion, habitat = this.state.activeHabitat;
+                const index = this.state.regionsState[region].completed.indexOf(habitat);
+                if (index !== -1 && !this.verifyIntegrity()) {
+                    this.state.regionsState[region].completed.splice(index, 1);
+                    this.syncWorkspaceRibbon();
+                }
+            },
+
+            verifyIntegrity() {
+                const hData = regions[this.state.currentRegion].habitats[this.state.activeHabitat];
+                const hState = this.state.regionsState[this.state.currentRegion].hState[this.state.activeHabitat];
+                for (let o of hData.organisms) { if (hState.placements[o.id] != o.level) return false; }
+                for (let source of hData.organisms) {
+                    for (let pid of source.predators) { if (!hState.connections.some(c => c.s === source.id && c.t === pid)) return false; }
+                }
+                for (let conn of hState.connections) {
+                    const src = hData.organisms.find(o => o.id === conn.s);
+                    if (!src.predators.includes(conn.t)) return false;
+                }
+                return true;
+            },
+
+            showFieldGuide() {
+                const hData = regions[this.state.currentRegion].habitats[this.state.activeHabitat];
+                document.getElementById('field-guide-content').innerHTML = hData.organisms.map(o => `
+                    <div class="border-b border-stone-200 pb-3"><div class="flex items-center gap-2"><span class="text-3xl">${o.icon}</span><strong>${o.name}</strong></div><p class="italic text-stone-600">${o.notes}</p></div>
+                `).join('');
+                document.getElementById('modal-field-guide').classList.add('active');
+            },
+
             checkJournal() {
                 const hData = regions[this.state.currentRegion].habitats[this.state.activeHabitat], hState = this.state.regionsState[this.state.currentRegion].hState[this.state.activeHabitat];
-                let correct = 0; hData.organisms.forEach(o => { if (hState.placements[o.id] == o.level) correct++; });
-                const modal = document.getElementById('modal-feedback');
-                if (correct === hData.organisms.length) {
-                    document.getElementById('feedback-title').textContent = "Mastery Achieved!";
-                    const multiName = hData.name.split(' ').join('<br>');
-                    document.getElementById('feedback-text').innerHTML = `<div style="display:flex;gap:20px;align-items:flex-start;"><div style="transform:scale(0.5);transform-origin:top left;width:145px;height:140px;flex-shrink:0;margin-bottom:-60px;"><div class="patch-container" style="position:relative;"><div class="ribbon">${getRibbonSVG(50,70,24)}</div><div class="patch-slot" style="cursor:default;"><img src="${hData.img}" class="patch-image"></div><span class="patch-label">${multiName}</span></div></div><p style="flex:1;text-align:left;padding-top:10px;">Perfectly mapped! The ${hData.name} ecosystem logic is recorded.</p></div>`;
-                    if (!this.state.regionsState[this.state.currentRegion].completed.includes(this.state.activeHabitat)) this.state.regionsState[this.state.currentRegion].completed.push(this.state.activeHabitat);
-                } else {
-                    document.getElementById('feedback-title').textContent = "Notes"; document.getElementById('feedback-text').textContent = `Correct: ${correct}/${hData.organisms.length}. Check level placements and links.`;
+                let hints = [];
+                hData.organisms.forEach(o => {
+                    const shelf = hState.placements[o.id];
+                    if (!shelf) hints.push(`Observation: The **${o.name}** has not yet been integrated into the ecosystem.`);
+                    else if (shelf != o.level) hints.push(`Ecological Note: The **${o.name}** is currently placed at a trophic level that doesn't match its role.`);
+                });
+                if (hints.length === 0) {
+                    hState.connections.forEach(c => {
+                        const src = hData.organisms.find(o => o.id === c.s), tar = hData.organisms.find(o => o.id === c.t);
+                        if (tar.predators.includes(src.id)) hints.push(`Flow Analysis: The energy link between **${src.name}** and **${tar.name}** conflicts with the direction of energy movement.`);
+                        else if (!src.predators.includes(tar.id)) hints.push(`Data Inconsistency: A biological relationship between **${src.name}** and **${tar.name}** is unsupported by our research.`);
+                    });
+                    hData.organisms.forEach(s => s.predators.forEach(p => { if (!hState.connections.some(c => c.s === s.id && c.t === p)) hints.push(`Incomplete Web: The energy transfer from the **${s.name}** is not fully documented.`); }));
                 }
-                modal.classList.add('active');
+
+                const title = document.getElementById('feedback-title'), text = document.getElementById('feedback-text');
+                if (hints.length > 0) {
+                    title.textContent = "Observation Notes"; text.innerHTML = [...new Set(hints)].slice(0, 3).join("<br><br>");
+                } else {
+                    title.textContent = "Mastery Achieved!";
+                    text.innerHTML = `<div style="display:flex;gap:20px;align-items:flex-start;margin:10px 0;"><div style="width:85px;flex-shrink:0;position:relative;"><div style="position:absolute;top:-10px;right:-10px;z-index:20;transform:rotate(15deg);">${getRibbonSVG(32,48,18)}</div><div style="width:85px;height:85px;border:6px solid #3d2b1f;border-radius:50%;overflow:hidden;background:#eee;box-shadow:0 4px 8px rgba(0,0,0,0.2);"><img src="${hData.img}" style="width:100%;height:100%;object-fit:cover;filter:saturate(1.4) contrast(1.1);display:block;"></div><div style="margin-top:6px;background:#fff;border:1px solid #3d2b1f;padding:4px 2px;font-family:'Special Elite',cursive;font-size:8px;font-weight:bold;text-align:center;text-transform:uppercase;line-height:1.1;">${hData.name.split(' ').join('<br>')}</div></div><p style="flex:1;text-align:left;padding-top:10px;">Perfectly mapped! Your decoded trophic structure for the ${hData.name} has been recorded in the Master Journal.</p></div>`;
+                    if (!this.state.regionsState[this.state.currentRegion].completed.includes(this.state.activeHabitat)) { this.state.regionsState[this.state.currentRegion].completed.push(this.state.activeHabitat); this.syncWorkspaceRibbon(); }
+                }
+                this.btnCheck.classList.remove('needs-check');
+                document.getElementById('modal-feedback').classList.add('active');
+            },
+
+            exportJournal() {
+                const blob = new Blob([JSON.stringify({ v: "2.2.0", user: document.getElementById('user-name').innerText, data: this.state.regionsState }, null, 2)], { type: 'application/json' });
+                const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `${document.getElementById('user-name').innerText.trim()}-Global-FoodWeb.json`; a.click();
+            },
+
+            importJournal(e) {
+                const reader = new FileReader(); reader.onload = (ev) => { const imp = JSON.parse(ev.target.result); this.state.regionsState = imp.data; document.getElementById('user-name').innerText = imp.user; this.renderRegionHub(); };
+                reader.readAsText(e.target.files[0]);
+            },
+
+            downloadCertificate() {
+                const name = document.getElementById('user-name').innerText.trim() || 'Naturalist';
+                const regKey = this.state.currentRegion, reg = regions[regKey], rState = this.state.regionsState[regKey];
+                this.certTemplate.innerHTML = `
+                    <div style="flex:1;border:10px solid #3d2b1f;padding:40px;display:flex;flex-direction:column;align-items:center;width:100%;color:#3d2b1f;">
+                        <h1 style="font-family:'Patrick Hand',cursive;font-size:64px;margin-bottom:0;">Food Web Explorers</h1>
+                        <p style="font-family:'Special Elite',cursive;font-size:20px;letter-spacing:5px;text-transform:uppercase;margin-bottom:40px;">${reg.title} Certificate</p>
+                        <div style="margin:40px 0;border-bottom:2px dashed #3d2b1f;min-width:400px;"><span style="font-family:'Caveat',cursive;font-size:48px;color:var(--ribbon-blue);">${name}</span></div>
+                        <p style="font-family:'Patrick Hand',cursive;font-size:24px;max-width:600px;line-height:1.4;">Has demonstrated global scientific mastery of energy flow and biological hierarchy.</p>
+                        <div id="cert-grid" style="display:flex;gap:20px;justify-content:center;flex-wrap:wrap;width:100%;margin-top:40px;"></div>
+                    </div>
+                `;
+                const grid = this.certTemplate.querySelector('#cert-grid');
+                Object.keys(reg.habitats).forEach(hid => {
+                    const h = reg.habitats[hid], mastered = rState.completed.includes(hid);
+                    grid.insertAdjacentHTML('beforeend', `<div style="position:relative;width:120px;">
+                        ${mastered ? `<div style="position:absolute;top:-10px;right:-10px;width:35px;height:55px;transform:rotate(15deg);">${getRibbonSVG(35,55,14)}</div>` : ''}
+                        <div style="width:100px;height:100px;border-radius:50%;border:5px solid #3d2b1f;overflow:hidden;background:#eee;"><img src="${h.img}" style="width:100%;height:100%;object-fit:cover;${mastered ? '' : 'filter:grayscale(1);opacity:0.3;'}"></div>
+                    </div>`);
+                });
+                html2canvas(this.certTemplate, { scale: 2, useCORS: true }).then(canvas => {
+                    const link = document.createElement('a'); link.download = `Certificate_${name.replace(/\s+/g,'_')}_${regKey}.png`; link.href = canvas.toDataURL(); link.click();
+                });
             }
         };
+
         window.onload = () => app.init();
     </script>
 </body>
