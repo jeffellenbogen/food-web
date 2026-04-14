@@ -283,7 +283,7 @@
                     </div>
                 </div>
             </div>
-            <div class="version-tag">Build v2.1.0 GLOBAL EXPEDITION</div>
+            <div class="version-tag">Build v2.1.1 GLOBAL EXPEDITION</div>
         </div>
 
         <!-- SCREEN: REGIONAL COVER -->
@@ -301,7 +301,7 @@
                     <p id="download-hint" class="text-sm typewriter opacity-50 mt-4 text-center">Master all habitats in this region to download your regional certificate.</p>
                 </div>
             </div>
-            <div class="version-tag">Build v2.1.0 GLOBAL EXPEDITION</div>
+            <div class="version-tag">Build v2.1.1 GLOBAL EXPEDITION</div>
         </div>
 
         <!-- SCREEN: WORKSPACE -->
@@ -339,7 +339,7 @@
                     </div>
                 </main>
             </div>
-            <div class="version-tag">Build v2.1.0 GLOBAL EXPEDITION</div>
+            <div class="version-tag">Build v2.1.1 GLOBAL EXPEDITION</div>
         </div>
 
         <div id="modal-field-guide" class="overlay">
@@ -530,7 +530,9 @@
 
             selectRegion(regionId) {
                 this.state.activeRegion = regionId;
-                document.body.className = `theme-${regionId}`;
+                // BUG FIX: Use classList to preserve static layout classes
+                document.body.classList.remove('theme-colorado', 'theme-nigeria');
+                document.body.classList.add(`theme-${regionId}`);
                 this.updateGlobalTitle();
                 document.getElementById('label-apex').textContent = regionalData[regionId].apexLabel;
                 this.goToScreen('cover');
@@ -540,7 +542,8 @@
                 this.state.currentScreen = screenId;
                 if (screenId === 'landing') {
                     this.state.activeRegion = null;
-                    document.body.className = '';
+                    // BUG FIX: Use classList to preserve static layout classes
+                    document.body.classList.remove('theme-colorado', 'theme-nigeria');
                     this.updateGlobalTitle();
                 }
                 this.btnBackNav.classList.toggle('hidden', screenId === 'landing');
@@ -799,7 +802,7 @@
             exportJournal() {
                 const name = this.userNameField.innerText.trim();
                 const exportData = {
-                    version: "2.1.0",
+                    version: "2.1.1",
                     userName: name,
                     globalProgress: this.state.globalProgress
                 };
