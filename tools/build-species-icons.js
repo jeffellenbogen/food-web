@@ -24,16 +24,22 @@ function extractInner(raw) {
 }
 
 function findIconSvg(slug) {
+  // "author/name" pins a specific author's icon; bare "name" searches all authors.
+  if (slug.includes('/')) {
+    const file = path.join(ICONS_REPO, slug + '.svg');
+    if (!fs.existsSync(file)) return null;
+    return { svg: extractInner(fs.readFileSync(file, 'utf8')), author: path.basename(path.dirname(file)) };
+  }
   let matches = [];
   try {
     matches = cp.execSync(
       'find ' + JSON.stringify(ICONS_REPO) + ' -type f -name ' + JSON.stringify(slug + '.svg'),
       { encoding: 'utf8' }
-    ).trim().split('\n').filter(Boolean);
+    ).trim().split('\n').filter(Boolean).sort();
   } catch (e) { /* find returns non-zero only on error; empty result is fine */ }
   if (!matches.length) return null;
   const file = matches[0];
-  if (matches.length > 1) console.warn('  [warn] multiple files for slug "' + slug + '", using: ' + file);
+  if (matches.length > 1) console.warn('  [warn] multiple files for slug "' + slug + '": pin one as "author/' + slug + '" in the map; using ' + file);
   return { svg: extractInner(fs.readFileSync(file, 'utf8')), author: path.basename(path.dirname(file)) };
 }
 

@@ -50,7 +50,7 @@ assert.ok(fallback.includes('aria-label="Ghost"'), 'fallback should still label 
 
 // 3. Every organism's icon key exists in the registry, and no emoji remain.
 const iconKeys = [...html.matchAll(/icon:\s*'([^']+)'/g)].map(m => m[1]);
-assert.ok(iconKeys.length >= 70, 'expected ~75 organism icon refs, got ' + iconKeys.length);
+assert.strictEqual(iconKeys.length, 75, 'expected exactly 75 organism icon refs, got ' + iconKeys.length);
 for (const key of iconKeys) {
     assert.ok(/^[a-z0-9-]+$/.test(key), 'icon key should be a slug, got: ' + key);
     assert.ok(SPECIES_ICONS[key], 'no registry entry for organism icon: ' + key);
