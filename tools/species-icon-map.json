@@ -1,7 +1,7 @@
 {
   "blue-grama-grass":     { "gameIcon": "high-grass",      "color": "#7a8b3a" },
   "prairie-dog":          { "gameIcon": "squirrel",        "color": "#9c7a4d" },
-  "black-footed-ferret":  { "gameIcon": "ermine",          "color": "#8a6635" },
+  "black-footed-ferret":  { "gameIcon": "rat",             "color": "#8a6635" },
   "coyote":               { "gameIcon": "wolf-head",       "color": "#8a7d68" },
   "golden-eagle":         { "gameIcon": "eagle-emblem",    "color": "#6b4f2a" },
   "lichen":               { "gameIcon": "algae",           "color": "#8a9a7b" },
@@ -55,7 +55,7 @@
   "heather":              { "gameIcon": "flowers",         "color": "#8a5a8b" },
   "red-grouse":           { "gameIcon": "chicken",         "color": "#a35c2a" },
   "mountain-hare":        { "gameIcon": "rabbit-head",     "color": "#5a6473" },
-  "stoat":                { "gameIcon": "wolverine-claws", "color": "#8a5a2a" },
+  "stoat":                { "gameIcon": "rat",             "color": "#8a5a2a" },
   "red-fox":              { "gameIcon": "fox-head",        "color": "#c2622a" },
   "meadow-grasses":       { "gameIcon": "wheat",           "color": "#7a8b3a" },
   "rabbit":               { "gameIcon": "rabbit",          "color": "#8a6635" },
@@ -71,5 +71,5 @@
   "water-vole":           { "gameIcon": "beaver",          "color": "#7d5a3a" },
   "mayfly-nymph":         { "gameIcon": "dragonfly",       "color": "#3a6b6b" },
   "brown-trout":          { "gameIcon": "flying-trout",    "color": "#8a6b45" },
-  "eurasian-otter":       { "gameIcon": "ermine",          "color": "#4a3526" }
+  "eurasian-otter":       { "gameIcon": "rat",             "color": "#4a3526" }
 }
