@@ -62,4 +62,28 @@ for (const [k, v] of Object.entries(SPECIES_ICONS)) {
     assert.ok(/^#[0-9a-fA-F]{6}$/.test(v.color), 'bad color for ' + k);
 }
 
+// 4. Look-alike groups must be visually distinct (different svg OR different color).
+function distinct(keys) {
+    const seen = new Set();
+    for (const k of keys) {
+        const e = SPECIES_ICONS[k];
+        assert.ok(e, 'missing ' + k);
+        const sig = e.svg + '|' + e.color;
+        assert.ok(!seen.has(sig), 'identical icon+color in group for: ' + k);
+        seen.add(sig);
+    }
+}
+distinct(['black-footed-ferret', 'ermine', 'stoat', 'pine-marten']);   // mustelids
+distinct(['pika', 'prairie-dog', 'marmot', 'field-vole', 'water-vole']); // small rodents
+distinct(['golden-eagle', 'crowned-eagle', 'goshawk', 'red-tailed-hawk', 'common-buzzard']); // raptors
+distinct(['garter-snake', 'rock-python', 'gaboon-viper', 'adder']);    // snakes
+
+// 5. No two species anywhere share both svg and color.
+const sigs = new Map();
+for (const [k, v] of Object.entries(SPECIES_ICONS)) {
+    const sig = v.svg + '|' + v.color;
+    assert.ok(!sigs.has(sig), 'identical icon+color: ' + sigs.get(sig) + ' vs ' + k);
+    sigs.set(sig, k);
+}
+
 console.log('species-icons helper: OK');
