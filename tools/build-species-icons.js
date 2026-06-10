@@ -18,7 +18,7 @@ function extractInner(raw) {
     .replace(/^[\s\S]*?<svg[^>]*>/, '')
     .replace(/<\/svg>[\s\S]*$/, '');
   const noBg = inner
-    .replace(/<path[^>]*d=("|')M0 0h512v512H0z\1[^>]*\/?>/g, '')
+    .replace(/<path[^>]*d=("|')M0[\s,]+0[\s,]*h512[\s,]*v512[\s,]*H0[\s,]*z\1[^>]*(?:\/>|><\/path>|>)/g, '')
     .replace(/<rect[^>]*\/?>/g, '');
   return noBg.replace(/\s+fill=("|')[^"']*\1/g, '').trim();
 }
@@ -33,6 +33,7 @@ function findIconSvg(slug) {
   } catch (e) { /* find returns non-zero only on error; empty result is fine */ }
   if (!matches.length) return null;
   const file = matches[0];
+  if (matches.length > 1) console.warn('  [warn] multiple files for slug "' + slug + '", using: ' + file);
   return { svg: extractInner(fs.readFileSync(file, 'utf8')), author: path.basename(path.dirname(file)) };
 }
 
@@ -61,6 +62,7 @@ function build() {
   const eLine = html.indexOf(END);
   if (sLine < 0 || eLine < 0) throw new Error('SPECIES_ICONS markers not found in index.html');
   const sEnd = html.indexOf('\n', sLine) + 1;            // start of line after START marker
+  if (sEnd === 0) throw new Error('No newline found after SPECIES_ICONS:START marker');
   const updated = html.slice(0, sEnd) + literal + '\n' + html.slice(eLine);
   fs.writeFileSync(HTML_PATH, updated);
   console.log('Wrote ' + Object.keys(registry).length + ' icons.');
