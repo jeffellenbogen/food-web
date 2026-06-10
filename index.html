@@ -1088,7 +1088,7 @@ const SPECIES_ICONS = {
                     el.className = 'sidebar-item flex items-center gap-3';
                     el.draggable = (this.state.tool === 'arrange');
                     el.dataset.id = org.id;
-                    el.innerHTML = `<span class="text-3xl">${org.icon}</span><span class="font-bold handwritten text-2xl">${org.name}</span>`;
+                    el.innerHTML = `${renderSpeciesIcon(org.icon, org.name)}<span class="font-bold handwritten text-2xl">${org.name}</span>`;
                     el.ondragstart = (e) => e.dataTransfer.setData('text/plain', org.id);
                     el.onmousedown = () => { if (this.state.tool === 'links' && el.closest('.trophic-shelf')) { this.state.isDraggingLink = true; this.state.linkingSource = org.id; } };
                     el.onmouseup = () => { if (this.state.isDraggingLink && this.state.linkingSource && this.state.linkingSource !== org.id) this.createLink(this.state.linkingSource, org.id); };
@@ -1272,7 +1272,7 @@ const SPECIES_ICONS = {
                 const data = regionalData[this.state.activeRegion].habitats[this.state.activeHabitat];
                 document.getElementById('field-guide-content').innerHTML = data.organisms.map(o => `
                     <div class="border-b pb-4">
-                        <span class="text-3xl">${o.icon}</span> <strong class="handwritten text-3xl">${o.name}</strong>
+                        ${renderSpeciesIcon(o.icon, o.name)} <strong class="handwritten text-3xl">${o.name}</strong>
                         <p class="italic text-stone-600">${o.notes}</p>
                     </div>`).join('');
                 this.modals.guide.classList.add('active');
