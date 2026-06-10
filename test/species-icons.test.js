@@ -47,4 +47,18 @@ assert.strictEqual(typeof fallback, 'string');
 assert.ok(fallback.includes('❓'), 'fallback should show the ❓ placeholder');
 assert.ok(fallback.includes('aria-label="Ghost"'), 'fallback should still label the species');
 
+// 3. Every organism's icon key exists in the registry, and no emoji remain.
+const iconKeys = [...html.matchAll(/icon:\s*'([^']+)'/g)].map(m => m[1]);
+assert.ok(iconKeys.length >= 70, 'expected ~75 organism icon refs, got ' + iconKeys.length);
+for (const key of iconKeys) {
+    assert.ok(/^[a-z0-9-]+$/.test(key), 'icon key should be a slug, got: ' + key);
+    assert.ok(SPECIES_ICONS[key], 'no registry entry for organism icon: ' + key);
+}
+// every registry entry is well-formed
+for (const [k, v] of Object.entries(SPECIES_ICONS)) {
+    if (k === '__stub__') continue;
+    assert.ok(v.svg && v.svg.length > 0, 'empty svg for ' + k);
+    assert.ok(/^#[0-9a-fA-F]{6}$/.test(v.color), 'bad color for ' + k);
+}
+
 console.log('species-icons helper: OK');
