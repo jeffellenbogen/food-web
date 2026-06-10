@@ -27,6 +27,7 @@
         /* Theming classes applied via JS */
         body.theme-colorado { --ribbon-main: #2c5282; --app-bg: #1a1a1a; --journal-border: #3d2b1f; }
         body.theme-nigeria { --ribbon-main: #008751; --app-bg: #0a1f0a; --journal-border: #1a331a; }
+        body.theme-uk { --ribbon-main: #C8102E; --app-bg: #1f0a0d; --journal-border: #33161a; }
 
         body {
             background-color: var(--app-bg);
@@ -252,8 +253,8 @@
         <div id="screen-landing" class="screen active">
             <div class="flex flex-col items-center py-4 flex-grow overflow-y-auto">
                 <h2 class="text-4xl font-bold typewriter mb-12 px-12 py-3 bg-stone-800 text-white rounded-sm transform -rotate-1">Select Your Expedition</h2>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-12 w-full max-w-4xl px-8">
-                    
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-12 w-full max-w-6xl px-8">
+
                     <div class="destination-card group" onclick="app.selectRegion('colorado')">
                         <div id="badge-count-colorado" class="global-badge"></div>
                         <img src="https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=600&q=80" alt="Colorado">
@@ -272,10 +273,19 @@
                         </div>
                     </div>
 
+                    <div class="destination-card group" onclick="app.selectRegion('uk')">
+                        <div id="badge-count-uk" class="global-badge"></div>
+                        <img src="https://images.unsplash.com/photo-1486299267070-83823f5448dd?auto=format&fit=crop&w=600&q=80" alt="United Kingdom">
+                        <div class="p-6 text-center">
+                            <h3 class="typewriter text-2xl font-bold mb-2">Western Europe</h3>
+                            <p class="handwritten text-3xl text-red-800">United Kingdom Wilds</p>
+                        </div>
+                    </div>
+
                 </div>
                 
                 <div class="mt-auto pt-10 flex flex-col items-center w-full">
-                    <p class="typewriter opacity-60 text-sm mb-4">Master 10 total habitats to become a Global Naturalist.</p>
+                    <p class="typewriter opacity-60 text-sm mb-4">Master 15 total habitats to become a Global Naturalist.</p>
                     <div class="flex gap-4">
                         <label for="input-import-journal" class="btn-ink text-xs uppercase opacity-70 cursor-pointer text-center">Load Journal or Certificate</label>
                         <input type="file" id="input-import-journal" class="hidden" accept=".json,.png,image/png">
@@ -283,7 +293,7 @@
                     </div>
                 </div>
             </div>
-            <div class="version-tag">Build v2.1.1 GLOBAL EXPEDITION</div>
+            <div class="version-tag">Build v2.2.0 GLOBAL EXPEDITION</div>
         </div>
 
         <!-- SCREEN: REGIONAL COVER -->
@@ -301,7 +311,7 @@
                     <p id="download-hint" class="text-sm typewriter opacity-50 mt-4 text-center">Master all habitats in this region to download your regional certificate.</p>
                 </div>
             </div>
-            <div class="version-tag">Build v2.1.1 GLOBAL EXPEDITION</div>
+            <div class="version-tag">Build v2.2.0 GLOBAL EXPEDITION</div>
         </div>
 
         <!-- SCREEN: WORKSPACE -->
@@ -339,7 +349,7 @@
                     </div>
                 </main>
             </div>
-            <div class="version-tag">Build v2.1.1 GLOBAL EXPEDITION</div>
+            <div class="version-tag">Build v2.2.0 GLOBAL EXPEDITION</div>
         </div>
 
         <div id="modal-field-guide" class="overlay">
@@ -495,6 +505,19 @@
                     highlands: { name: "Gashaka Gumti", img: "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=400&q=80", organisms: [{ id: 'nh1', name: 'Highland Ferns', level: 1, icon: '🌿', notes: "Adapted to the cooler montane region.", predators: ['nh2', 'nh3'] }, { id: 'nh2', name: 'Chimpanzee', level: 2, icon: '🐒', notes: "Intelligent primary consumers.", predators: ['nh5'] }, { id: 'nh3', name: 'Yellow-backed Duiker', level: 2, icon: '🦌', notes: "Shy highland antelope.", predators: ['nh4', 'nh5'] }, { id: 'nh4', name: 'Golden Cat', level: 3, icon: '🐱', notes: "Secretive predator of highlands.", predators: ['nh5'] }, { id: 'nh5', name: 'Crowned Eagle', level: 4, icon: '🦅', notes: "Powerful apex raptor.", predators: [] }] },
                     sahel: { name: "Lake Chad Sahel", img: "https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?auto=format&fit=crop&w=400&q=80", organisms: [{ id: 'ns1', name: 'Baobab Tree', level: 1, icon: '🌳', notes: "The 'Tree of Life'.", predators: ['ns2'] }, { id: 'ns2', name: 'Dorcas Gazelle', level: 2, icon: '🦌', notes: "Grazing on desert grasses.", predators: ['ns4', 'ns5'] }, { id: 'ns3', name: 'Sahel Locust', level: 2, icon: '🦗', notes: "Converts shrubs to energy.", predators: ['ns4'] }, { id: 'ns4', name: 'Monitor Lizard', level: 3, icon: '🦎', notes: "Hunts locusts across the scrub.", predators: ['ns5'] }, { id: 'ns5', name: 'Striped Hyena', level: 4, icon: '🐾', notes: "Versatile apex scavenger.", predators: [] }] }
                 }
+            },
+            uk: {
+                id: 'uk',
+                title: "British Food Web Journal",
+                apexLabel: "Apex Predators",
+                ribbonColor: "#C8102E",
+                habitats: {
+                    pinewood: { name: "Caledonian Pinewood", img: "https://images.unsplash.com/photo-1473448912268-2022ce9509d8?auto=format&fit=crop&w=400&q=80", organisms: [{ id: 'ukp1', name: 'Scots Pine', level: 1, icon: '🌲', notes: "Ancient producer of the Highland forest.", predators: ['ukp2', 'ukp3'] }, { id: 'ukp2', name: 'Red Squirrel', level: 2, icon: '🐿️', notes: "Native primary consumer caching pine seeds.", predators: ['ukp4', 'ukp5'] }, { id: 'ukp3', name: 'Capercaillie', level: 2, icon: '🐦', notes: "Huge woodland grouse feeding on pine needles.", predators: ['ukp4', 'ukp5'] }, { id: 'ukp4', name: 'Pine Marten', level: 3, icon: '🐾', notes: "Agile secondary consumer of the canopy.", predators: ['ukp5'] }, { id: 'ukp5', name: 'Golden Eagle', level: 4, icon: '🦅', notes: "Apex predator soaring over the glens.", predators: [] }] },
+                    moorland: { name: "Heather Moorland", img: "https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=400&q=80", organisms: [{ id: 'ukm1', name: 'Heather', level: 1, icon: '🌿', notes: "Purple-flowering producer carpeting the moors.", predators: ['ukm2', 'ukm3'] }, { id: 'ukm2', name: 'Red Grouse', level: 2, icon: '🐦', notes: "Primary consumer found only in Britain and Ireland.", predators: ['ukm4', 'ukm5'] }, { id: 'ukm3', name: 'Mountain Hare', level: 2, icon: '🐇', notes: "Turns white in winter to evade hunters.", predators: ['ukm4', 'ukm5'] }, { id: 'ukm4', name: 'Stoat', level: 3, icon: '🦦', notes: "Fearless secondary consumer of the uplands.", predators: ['ukm5'] }, { id: 'ukm5', name: 'Red Fox', level: 4, icon: '🦊', notes: "Adaptable apex predator of the moor.", predators: [] }] },
+                    downland: { name: "Chalk Downland", img: "https://images.unsplash.com/photo-1472214103451-9374bd1c798e?auto=format&fit=crop&w=400&q=80", organisms: [{ id: 'ukd1', name: 'Meadow Grasses', level: 1, icon: '🌾', notes: "Wildflower-rich producers of the southern downs.", predators: ['ukd2', 'ukd3'] }, { id: 'ukd2', name: 'Rabbit', level: 2, icon: '🐇', notes: "Grazing keeps the downland turf short.", predators: ['ukd5'] }, { id: 'ukd3', name: 'Field Vole', level: 2, icon: '🐹', notes: "Tiny primary consumer hidden in the grass.", predators: ['ukd4', 'ukd5'] }, { id: 'ukd4', name: 'Adder', level: 3, icon: '🐍', notes: "Britain's only venomous snake, hunting voles.", predators: ['ukd5'] }, { id: 'ukd5', name: 'Common Buzzard', level: 4, icon: '🦅', notes: "Apex raptor circling the open downs.", predators: [] }] },
+                    seashore: { name: "Rocky Seashore", img: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=400&q=80", organisms: [{ id: 'uks1', name: 'Kelp', level: 1, icon: '🌿', notes: "Seaweed producer anchoring the tidal zone.", predators: ['uks2', 'uks3'] }, { id: 'uks2', name: 'Common Limpet', level: 2, icon: '🐚', notes: "Grazes algae from the rocks at high tide.", predators: ['uks4', 'uks5'] }, { id: 'uks3', name: 'Periwinkle', level: 2, icon: '🐌', notes: "Sea snail rasping seaweed from rock pools.", predators: ['uks4', 'uks5'] }, { id: 'uks4', name: 'Shore Crab', level: 3, icon: '🦀', notes: "Scuttling secondary consumer of the shallows.", predators: ['uks5'] }, { id: 'uks5', name: 'Herring Gull', level: 4, icon: '🐦', notes: "Bold apex scavenger of the coastline.", predators: [] }] },
+                    river: { name: "Lowland River", img: "https://images.unsplash.com/photo-1426604966848-d7adac402bff?auto=format&fit=crop&w=400&q=80", organisms: [{ id: 'ukr1', name: 'Common Reed', level: 1, icon: '🌾', notes: "Producer lining the slow riverbanks.", predators: ['ukr2', 'ukr3'] }, { id: 'ukr2', name: 'Water Vole', level: 2, icon: '🐹', notes: "Britain's beloved 'Ratty', nibbling reeds.", predators: ['ukr5'] }, { id: 'ukr3', name: 'Mayfly Nymph', level: 2, icon: '🦟', notes: "Grazes river plants before hatching to fly.", predators: ['ukr4'] }, { id: 'ukr4', name: 'Brown Trout', level: 3, icon: '🐟', notes: "Secondary consumer rising for mayflies.", predators: ['ukr5'] }, { id: 'ukr5', name: 'Eurasian Otter', level: 4, icon: '🦦', notes: "Playful apex predator of the waterway.", predators: [] }] }
+                }
             }
         };
 
@@ -508,7 +531,8 @@
                 isDraggingLink: false,
                 globalProgress: {
                     colorado: { completed: [], habitatsState: {} },
-                    nigeria: { completed: [], habitatsState: {} }
+                    nigeria: { completed: [], habitatsState: {} },
+                    uk: { completed: [], habitatsState: {} }
                 }
             },
 
@@ -609,7 +633,7 @@
             selectRegion(regionId) {
                 this.state.activeRegion = regionId;
                 // BUG FIX: Use classList to preserve static layout classes
-                document.body.classList.remove('theme-colorado', 'theme-nigeria');
+                document.body.classList.remove('theme-colorado', 'theme-nigeria', 'theme-uk');
                 document.body.classList.add(`theme-${regionId}`);
                 this.updateGlobalTitle();
                 document.getElementById('label-apex').textContent = regionalData[regionId].apexLabel;
@@ -621,7 +645,7 @@
                 if (screenId === 'landing') {
                     this.state.activeRegion = null;
                     // BUG FIX: Use classList to preserve static layout classes
-                    document.body.classList.remove('theme-colorado', 'theme-nigeria');
+                    document.body.classList.remove('theme-colorado', 'theme-nigeria', 'theme-uk');
                     this.updateGlobalTitle();
                 }
                 this.btnBackNav.classList.toggle('hidden', screenId === 'landing');
@@ -634,7 +658,7 @@
             },
 
             updateLandingBadges() {
-                ['colorado', 'nigeria'].forEach(r => {
+                ['colorado', 'nigeria', 'uk'].forEach(r => {
                     const count = this.state.globalProgress[r].completed.length;
                     const el = document.getElementById(`badge-count-${r}`);
                     const color = regionalData[r].ribbonColor;
@@ -880,7 +904,7 @@
             exportJournal() {
                 const name = this.userNameField.innerText.trim();
                 const exportData = {
-                    version: "2.1.1",
+                    version: "2.2.0",
                     userName: name,
                     globalProgress: this.state.globalProgress
                 };
@@ -920,6 +944,10 @@
 
             applyImportedProgress(data) {
                 this.state.globalProgress = data.globalProgress;
+                // Journals saved before a region existed won't have an entry for it.
+                Object.keys(regionalData).filter(k => k !== 'landing').forEach(r => {
+                    if (!this.state.globalProgress[r]) this.state.globalProgress[r] = { completed: [], habitatsState: {} };
+                });
                 this.userNameField.innerText = data.userName || "Your Name";
                 this.updateLandingBadges();
                 this.goToScreen('landing');
@@ -954,7 +982,7 @@
                     // Embed the current game progress in the PNG so the certificate can be
                     // re-uploaded via "Load Journal Data" to resume where the explorer left off.
                     const payload = jsonToB64({
-                        version: "2.1.1",
+                        version: "2.2.0",
                         userName: name,
                         globalProgress: this.state.globalProgress
                     });
