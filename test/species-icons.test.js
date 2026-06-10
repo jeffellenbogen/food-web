@@ -37,6 +37,7 @@ assert.ok(out.includes('<svg'), 'output should contain <svg');
 assert.ok(out.includes('#123456'), 'output should apply the color');
 assert.ok(out.includes('aria-label="Test Critter"'), 'output should label the species');
 assert.ok(out.includes('viewBox="0 0 512 512"'), 'output should use the 512 viewBox');
+assert.ok(out.includes('width="40"') && out.includes('height="40"'), 'output should carry explicit pixel dimensions');
 assert.ok(out.includes('w-10 h-10'), 'default sizeClass applied');
 assert.ok(renderSpeciesIcon('__test__', 'Test Critter', 'w-6 h-6').includes('w-6 h-6'), 'explicit sizeClass applied');
 delete SPECIES_ICONS.__test__;
