@@ -12,7 +12,10 @@ const START = '// === SPECIES_ICONS:START';
 const sIdx = html.indexOf(START);
 assert.ok(sIdx > -1, 'SPECIES_ICONS:START marker not found');
 const constStart = html.indexOf('const SPECIES_ICONS', sIdx);
-const constEnd = html.indexOf('};', constStart) + 2;
+const END = '// === SPECIES_ICONS:END';
+const eIdx = html.indexOf(END, sIdx);
+assert.ok(eIdx > -1, 'SPECIES_ICONS:END marker not found');
+const constEnd = html.lastIndexOf('};', eIdx) + 2;
 assert.ok(constStart > -1 && constEnd > constStart, 'SPECIES_ICONS literal not found');
 const registrySrc = html.slice(constStart, constEnd);
 
@@ -34,9 +37,14 @@ assert.ok(out.includes('<svg'), 'output should contain <svg');
 assert.ok(out.includes('#123456'), 'output should apply the color');
 assert.ok(out.includes('aria-label="Test Critter"'), 'output should label the species');
 assert.ok(out.includes('viewBox="0 0 512 512"'), 'output should use the 512 viewBox');
+assert.ok(out.includes('w-10 h-10'), 'default sizeClass applied');
+assert.ok(renderSpeciesIcon('__test__', 'Test Critter', 'w-6 h-6').includes('w-6 h-6'), 'explicit sizeClass applied');
 delete SPECIES_ICONS.__test__;
 
-// 2. Unknown key falls back gracefully (no throw, returns a string)
-assert.strictEqual(typeof renderSpeciesIcon('does-not-exist', 'Ghost'), 'string');
+// 2. Unknown key falls back gracefully (❓ span, still labeled)
+const fallback = renderSpeciesIcon('does-not-exist', 'Ghost');
+assert.strictEqual(typeof fallback, 'string');
+assert.ok(fallback.includes('❓'), 'fallback should show the ❓ placeholder');
+assert.ok(fallback.includes('aria-label="Ghost"'), 'fallback should still label the species');
 
 console.log('species-icons helper: OK');
