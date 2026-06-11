@@ -57,7 +57,6 @@ for (const key of iconKeys) {
 }
 // every registry entry is well-formed: non-empty svg, no color field expected
 for (const [k, v] of Object.entries(SPECIES_ICONS)) {
-    if (k === '__stub__') continue;
     assert.ok(v.svg && v.svg.length > 0, 'empty svg for ' + k);
     assert.ok(!('color' in v), 'unexpected color field on ' + k);
 }
