@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Global Food Web Expedition</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Species icons from game-icons.net (CC BY 3.0). Authors: caro-asercion, cathelineau, delapouite, lorc. -->
+    <!-- Species icons are original artwork created for this project. -->
     <!-- html2canvas for certificate generation -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&family=Patrick+Hand&family=Special+Elite&display=swap" rel="stylesheet">
@@ -1129,10 +1129,7 @@ const SPECIES_ICONS = {
                     <div class="border-b pb-4">
                         ${renderSpeciesIcon(o.icon, o.name)} <strong class="handwritten text-3xl">${o.name}</strong>
                         <p class="italic text-stone-600">${o.notes}</p>
-                    </div>`).join('')
-                    + `<p class="text-xs text-stone-500 mt-4">Species icons from
-                       <a href="https://game-icons.net" target="_blank" rel="noopener" class="underline">game-icons.net</a>
-                       (<a href="https://creativecommons.org/licenses/by/3.0/" target="_blank" rel="noopener" class="underline">CC BY 3.0</a>).</p>`;
+                    </div>`).join('');
                 this.modals.guide.classList.add('active');
             },
 
