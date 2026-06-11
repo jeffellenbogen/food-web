@@ -37,8 +37,8 @@ assert.ok(!/<svg[^>]*\sfill=/.test(out), 'svg element should not carry a fill at
 assert.ok(out.includes('fill="#123456"'), 'icon markup should contain embedded fills');
 assert.ok(out.includes('aria-label="Test Critter"'), 'output should label the species');
 assert.ok(out.includes('viewBox="0 0 100 100"'), 'output should use the 100 viewBox');
-assert.ok(out.includes('width="40"') && out.includes('height="40"'), 'output should carry explicit pixel dimensions');
-assert.ok(out.includes('w-10 h-10'), 'default sizeClass applied');
+assert.ok(out.includes('width="54"') && out.includes('height="54"'), 'output should carry explicit pixel dimensions');
+assert.ok(out.includes('w-[54px] h-[54px]'), 'default sizeClass applied');
 assert.ok(renderSpeciesIcon('__test__', 'Test Critter', 'w-6 h-6').includes('w-6 h-6'), 'explicit sizeClass applied');
 delete SPECIES_ICONS.__test__;
 

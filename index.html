@@ -402,12 +402,12 @@
         `;
 
         function renderSpeciesIcon(key, name, sizeClass) {
-                const cls = sizeClass || 'w-10 h-10';
+                const cls = sizeClass || 'w-[54px] h-[54px]';
                 const icon = SPECIES_ICONS[key];
                 if (!icon) {
                     return '<span class="text-3xl" role="img" aria-label="' + name + '">❓</span>';
                 }
-                return '<svg viewBox="0 0 100 100" width="40" height="40" class="' + cls + ' inline-block align-middle" '
+                return '<svg viewBox="0 0 100 100" width="54" height="54" class="' + cls + ' inline-block align-middle" '
                     + 'role="img" aria-label="' + name + '">'
                     + icon.svg + '</svg>';
             }
