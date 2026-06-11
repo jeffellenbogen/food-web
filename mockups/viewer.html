@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+  body { font-family: -apple-system, sans-serif; background: #fff; padding: 20px; }
+  h2 { font-size: 15px; margin: 6px 0; }
+  .grid { display: flex; flex-wrap: wrap; gap: 12px; }
+  .cell { width: 138px; text-align: center; border: 1px solid #eee; border-radius: 8px; padding: 9px; }
+  .label { font-size: 10.5px; color: #444; margin-top: 5px; font-weight: 600; }
+  .small-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 14px; padding: 10px; border: 1px solid #eee; border-radius: 8px; }
+  .small-row > span:first-child { font-size: 10px; color: #888; }
+</style>
+</head>
+<body>
+<h2 id="title">Style A custom icons</h2>
+<div class="grid" id="grid"></div>
+<div class="small-row" id="small"><span>app size (40px):</span></div>
+<script src="../tools/species-icons-art.js"></script>
+<script>
+const params = new URLSearchParams(location.search);
+const only = params.get('only'); // comma-separated slugs to filter
+const entries = Object.entries(ICONS).filter(([s]) => !only || only.split(',').includes(s));
+document.getElementById('title').textContent = `Style A custom icons — ${entries.length} shown`;
+const grid = document.getElementById('grid');
+const small = document.getElementById('small');
+for (const [slug, markup] of entries) {
+  const cell = document.createElement('div');
+  cell.className = 'cell';
+  cell.innerHTML = `<svg viewBox="0 0 100 100" width="104" height="104">${markup}</svg><div class="label">${slug}</div>`;
+  grid.appendChild(cell);
+  const s = document.createElement('span');
+  s.innerHTML = `<svg viewBox="0 0 100 100" width="40" height="40">${markup}</svg>`;
+  small.appendChild(s);
+}
+</script>
+</body>
+</html>

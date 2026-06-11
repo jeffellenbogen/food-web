@@ -22,7 +22,6 @@ const registrySrc = html.slice(constStart, constEnd);
 // --- Extract renderSpeciesIcon() ---
 const fnStart = html.indexOf('function renderSpeciesIcon');
 assert.ok(fnStart > -1, 'renderSpeciesIcon not found');
-// closing brace of the function: find the first '\n            }' at the helper indent
 const fnEnd = html.indexOf('\n            }', fnStart) + '\n            }'.length;
 const fnSrc = html.slice(fnStart, fnEnd);
 
@@ -30,13 +29,14 @@ const { SPECIES_ICONS, renderSpeciesIcon } = new Function(
   registrySrc + '\n' + fnSrc + '\nreturn { SPECIES_ICONS, renderSpeciesIcon };'
 )();
 
-// 1. Helper returns a well-formed, colored, labeled <svg>
-SPECIES_ICONS.__test__ = { svg: '<path d="M0 0h1v1z"/>', color: '#123456', credit: 'tester' };
+// 1. Helper returns a well-formed, labeled <svg> with the correct viewBox and no outer fill attr.
+SPECIES_ICONS.__test__ = { svg: '<path d="M0 0h1v1z" fill="#123456"/>' };
 const out = renderSpeciesIcon('__test__', 'Test Critter');
 assert.ok(out.includes('<svg'), 'output should contain <svg');
-assert.ok(out.includes('#123456'), 'output should apply the color');
+assert.ok(!/<svg[^>]*\sfill=/.test(out), 'svg element should not carry a fill attribute');
+assert.ok(out.includes('fill="#123456"'), 'icon markup should contain embedded fills');
 assert.ok(out.includes('aria-label="Test Critter"'), 'output should label the species');
-assert.ok(out.includes('viewBox="0 0 512 512"'), 'output should use the 512 viewBox');
+assert.ok(out.includes('viewBox="0 0 100 100"'), 'output should use the 100 viewBox');
 assert.ok(out.includes('width="40"') && out.includes('height="40"'), 'output should carry explicit pixel dimensions');
 assert.ok(out.includes('w-10 h-10'), 'default sizeClass applied');
 assert.ok(renderSpeciesIcon('__test__', 'Test Critter', 'w-6 h-6').includes('w-6 h-6'), 'explicit sizeClass applied');
@@ -55,21 +55,20 @@ for (const key of iconKeys) {
     assert.ok(/^[a-z0-9-]+$/.test(key), 'icon key should be a slug, got: ' + key);
     assert.ok(SPECIES_ICONS[key], 'no registry entry for organism icon: ' + key);
 }
-// every registry entry is well-formed
+// every registry entry is well-formed: non-empty svg, no color field expected
 for (const [k, v] of Object.entries(SPECIES_ICONS)) {
-    if (k === '__stub__') continue;
     assert.ok(v.svg && v.svg.length > 0, 'empty svg for ' + k);
-    assert.ok(/^#[0-9a-fA-F]{6}$/.test(v.color), 'bad color for ' + k);
+    assert.ok(!('color' in v), 'unexpected color field on ' + k);
 }
 
-// 4. Look-alike groups must be visually distinct (different svg OR different color).
+// 4. Look-alike groups must be visually distinct (different svg markup).
 function distinct(keys) {
     const seen = new Set();
     for (const k of keys) {
         const e = SPECIES_ICONS[k];
         assert.ok(e, 'missing ' + k);
-        const sig = e.svg + '|' + e.color;
-        assert.ok(!seen.has(sig), 'identical icon+color in group for: ' + k);
+        const sig = e.svg;
+        assert.ok(!seen.has(sig), 'identical icon in group for: ' + k);
         seen.add(sig);
     }
 }
@@ -78,12 +77,17 @@ distinct(['pika', 'prairie-dog', 'marmot', 'field-vole', 'water-vole']); // smal
 distinct(['golden-eagle', 'crowned-eagle', 'goshawk', 'red-tailed-hawk', 'common-buzzard']); // raptors
 distinct(['garter-snake', 'rock-python', 'gaboon-viper', 'adder']);    // snakes
 
-// 5. No two species anywhere share both svg and color.
+// 5. No two species anywhere share the same svg markup.
 const sigs = new Map();
 for (const [k, v] of Object.entries(SPECIES_ICONS)) {
-    const sig = v.svg + '|' + v.color;
-    assert.ok(!sigs.has(sig), 'identical icon+color: ' + sigs.get(sig) + ' vs ' + k);
+    const sig = v.svg;
+    assert.ok(!sigs.has(sig), 'identical svg: ' + sigs.get(sig) + ' vs ' + k);
     sigs.set(sig, k);
+}
+
+// 6. No pure white (#fff / #ffffff) fills anywhere — icons sit on white cards.
+for (const [k, v] of Object.entries(SPECIES_ICONS)) {
+    assert.ok(!/fill="#fff(?:fff)?"/i.test(v.svg), 'pure white fill found in icon: ' + k);
 }
 
 console.log('species-icons helper: OK');
