@@ -213,6 +213,37 @@
         .destination-card img { width: 100%; height: 200px; object-fit: cover; border-bottom: 2px solid var(--journal-border); }
 
         .global-badge { position: absolute; top: -15px; right: -15px; z-index: 20; transform: rotate(10deg); }
+
+        /* --- Field Guide: compact rows + hover/tap popover (#19, #20) --- */
+        .fg-row { display: flex; align-items: center; gap: 10px; padding: 8px 6px; border-bottom: 1px dashed rgba(0,0,0,0.18); }
+        .fg-row:last-child { border-bottom: none; }
+        .fg-row.has-guide { cursor: pointer; border-radius: 6px; transition: background 0.15s; }
+        .fg-row.has-guide:hover, .fg-row.has-guide:focus-visible, .fg-row.fg-active { background: rgba(44,82,130,0.09); outline: none; }
+        .fg-row .fg-ico { flex: none; width: 34px; text-align: center; }
+        .fg-row .fg-ico svg { width: 30px !important; height: 30px !important; transform: scale(1.25); }
+        .fg-row .fg-name { flex: none; }
+        .fg-teaser { flex: 1; min-width: 0; font-size: 0.82rem; font-style: italic; color: #6b6256; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .fg-cue { flex: none; font-size: 0.58rem; font-weight: bold; color: #2c5282; border: 1px solid #2c5282; border-radius: 10px; padding: 1px 8px; text-transform: uppercase; letter-spacing: 0.04em; }
+        .fg-sources { margin-top: 14px; padding-top: 10px; border-top: 2px solid rgba(0,0,0,0.15); font-size: 0.7rem; line-height: 1.5; color: #6b6256; font-family: 'Special Elite', cursive; }
+        .fg-sources a { color: #2c5282; text-decoration: underline; }
+        #fg-popover { position: absolute; z-index: 60; width: 250px; max-width: 72%; background: #fffdf5; border: 2px solid var(--journal-border); box-shadow: 4px 4px 0 rgba(0,0,0,0.2); padding: 12px 14px; border-radius: 3px; display: none; }
+        #fg-popover.show { display: block; }
+        #fg-popover .pop-name { font-weight: bold; font-size: 1rem; border-bottom: 1px solid #ddd; padding-bottom: 4px; margin-bottom: 4px; }
+        #fg-popover dt { font-size: 0.58rem; text-transform: uppercase; letter-spacing: 0.04em; color: #8a7f63; font-weight: bold; margin-top: 8px; }
+        #fg-popover dd { font-size: 0.85rem; margin: 1px 0 0 0; line-height: 1.35; }
+        #fg-popover .pop-more { display: inline-block; margin-top: 10px; font-size: 0.8rem; font-weight: bold; color: #2c5282; text-decoration: underline; }
+
+        /* --- Region-complete postmark stamp (#18) --- */
+        .region-stamp { pointer-events: none; display: block; width: 100%; height: auto; }
+        #cover-region-stamp { position: absolute; top: 42%; left: 50%; width: 330px; max-width: 70%; transform: translate(-50%,-50%) rotate(-8deg); z-index: 30; pointer-events: none; }
+        .global-badge.is-complete { top: 50%; left: 50%; right: auto; width: 150px; transform: translate(-50%,-50%) rotate(-8deg); z-index: 25; }
+        @keyframes stamp-press {
+            0%   { opacity: 0; transform: translate(-50%,-50%) rotate(-8deg) scale(2.3); }
+            55%  { opacity: 1; transform: translate(-50%,-50%) rotate(-8deg) scale(0.9); }
+            74%  { transform: translate(-50%,-50%) rotate(-8deg) scale(1.07); }
+            100% { opacity: 1; transform: translate(-50%,-50%) rotate(-8deg) scale(1); }
+        }
+        #cover-region-stamp.stamp-press { animation: stamp-press 0.5s cubic-bezier(0.2,0.7,0.3,1) both; }
     </style>
 </head>
 <body class="p-2 md:p-4 flex justify-center items-center min-h-screen text-lg">
@@ -294,15 +325,18 @@
                     </div>
                 </div>
             </div>
-            <div class="version-tag">Build v3.0.2 GLOBAL EXPEDITION</div>
+            <div class="version-tag">Build v3.1.0 GLOBAL EXPEDITION</div>
         </div>
 
         <!-- SCREEN: REGIONAL COVER -->
         <div id="screen-cover" class="screen">
             <div class="flex flex-col items-center py-4 flex-grow overflow-y-auto">
                 <h2 id="regional-merit-title" class="text-4xl font-bold typewriter mb-16 px-12 py-3 bg-stone-800 text-white rounded-sm transform rotate-1">Expedition Merit Badges</h2>
-                <div class="grid grid-cols-2 md:grid-cols-5 gap-12 w-full max-w-5xl" id="patch-grid"></div>
-                
+                <div id="patch-stage" class="relative w-full flex justify-center">
+                    <div class="grid grid-cols-2 md:grid-cols-5 gap-12 w-full max-w-5xl" id="patch-grid"></div>
+                    <div id="cover-region-stamp" style="display:none;"></div>
+                </div>
+
                 <div id="management-zone" class="mt-auto pt-10 flex flex-col items-center w-full">
                     <div id="progress-summary" class="typewriter text-lg mb-4 font-bold">Earned 0 of 5 badges</div>
                     <div class="flex gap-4 items-center">
@@ -311,7 +345,7 @@
                     <p id="download-hint" class="text-sm typewriter opacity-50 mt-4 text-center">Your certificate records every badge earned so far. Re-upload it anytime to continue your expedition.</p>
                 </div>
             </div>
-            <div class="version-tag">Build v3.0.2 GLOBAL EXPEDITION</div>
+            <div class="version-tag">Build v3.1.0 GLOBAL EXPEDITION</div>
         </div>
 
         <!-- SCREEN: WORKSPACE -->
@@ -349,14 +383,16 @@
                     </div>
                 </main>
             </div>
-            <div class="version-tag">Build v3.0.2 GLOBAL EXPEDITION</div>
+            <div class="version-tag">Build v3.1.0 GLOBAL EXPEDITION</div>
         </div>
 
         <div id="modal-field-guide" class="overlay">
             <div class="modal-paper">
                 <h3 class="typewriter text-2xl border-b-2 border-stone-800 mb-4 pb-2">Field Research Notes</h3>
-                <div id="field-guide-content" class="space-y-4 max-h-[55vh] overflow-y-auto pr-6"></div>
-                <button class="btn-ink mt-8 w-full closeModal uppercase">Back to Notebook</button>
+                <div id="field-guide-content" class="max-h-[55vh] overflow-y-auto pr-4"></div>
+                <div id="field-guide-sources" class="fg-sources"></div>
+                <button class="btn-ink mt-4 w-full closeModal uppercase">Back to Notebook</button>
+                <div id="fg-popover"></div>
             </div>
         </div>
 
@@ -400,6 +436,68 @@
                 <text x="25" y="38" fill="#ffd700" font-size="${starSize}" text-anchor="middle" style="font-family: Arial, sans-serif; font-weight: bold;">★</text>
             </svg>
         `;
+
+        // Passport-postmark "EXPEDITION COMPLETE" stamp, shown when a whole region is mastered (#18).
+        // uid makes the curved-text path ids unique so multiple stamps can render on one page.
+        const getStampSVG = (label, color, uid, opts = {}) => {
+            const c = color || 'var(--ribbon-main)';
+            const op = opts.opacity == null ? 0.9 : opts.opacity;
+            return `
+            <svg class="region-stamp" viewBox="0 0 220 220" role="img" aria-label="Expedition complete: ${label}" style="opacity:${op}; overflow:visible;">
+                <defs>
+                    <path id="stamp-top-${uid}" d="M 32 110 A 78 78 0 0 1 188 110"/>
+                    <path id="stamp-bot-${uid}" d="M 40 110 A 70 70 0 0 0 180 110"/>
+                </defs>
+                <g fill="none" stroke="${c}">
+                    <circle cx="110" cy="110" r="100" stroke-width="3"/>
+                    <circle cx="110" cy="110" r="89" stroke-width="1.5"/>
+                    <circle cx="110" cy="110" r="44" stroke-width="1.5"/>
+                    <g fill="${c}" stroke="none" style="font-family: 'Special Elite', 'Courier New', monospace; font-weight: 700;">
+                        <text font-size="13.5" letter-spacing="2.5"><textPath href="#stamp-top-${uid}" startOffset="50%" text-anchor="middle">★ EXPEDITION COMPLETE ★</textPath></text>
+                        <text font-size="11.5" letter-spacing="2"><textPath href="#stamp-bot-${uid}" startOffset="50%" text-anchor="middle">${label}</textPath></text>
+                        <text x="110" y="126" text-anchor="middle" font-size="48">★</text>
+                        <text x="110" y="150" text-anchor="middle" font-size="9" letter-spacing="1">EST. 2026</text>
+                    </g>
+                </g>
+            </svg>`;
+        };
+
+        // Field Guide science blurbs keyed by organism id (#19). Generalized for grades 3-6:
+        // diet/predators are described by category only (never naming an in-habitat species).
+        // Populated for Colorado (pilot); species without an entry fall back to the short teaser.
+        const SPECIES_GUIDE = {
+            f1: { habitat: "The ponderosa pine grows high up in Colorado's mountains, usually between 7,000 and 11,500 feet above sea level.", energy: "It makes its own food by using sunlight, water, and air in a process called photosynthesis, which gives it energy to grow.", isProducer: true, eatenBy: "Birds and small mammals eat the seeds from its cones.", source: { name: "Wikipedia", url: "https://en.wikipedia.org/wiki/Ponderosa_pine" } },
+            f2: { habitat: "Abert's squirrels live high up in cool montane forests of Colorado and the Southwest, where tall evergreen trees grow close together with branches that touch.", energy: "seeds and nuts, cones, buds, fungi, and inner bark of trees", isProducer: false, eatenBy: "Birds of prey and wild cats hunt them.", source: { name: "Wikipedia", url: "https://en.wikipedia.org/wiki/Abert%27s_squirrel" } },
+            f3: { habitat: "The Steller's Jay lives in evergreen forests. These forests are high up in mountains.", energy: "It eats acorns, seeds, nuts, berries, and insects like beetles and wasps.", isProducer: false, eatenBy: "Hawks, owls, and other birds of prey hunt Steller's Jays.", source: { name: "Wikipedia", url: "https://en.wikipedia.org/wiki/Steller%27s_jay" } },
+            f4: { habitat: "The goshawk lives in forests and mountain woodlands across North America, including the coniferous forests of Colorado's high mountain areas.", energy: "Goshawks hunt birds and small mammals, using their sharp talons and quick flying skills to catch prey from perches in the trees.", isProducer: false, eatenBy: "Few animals hunt the goshawk, though larger predators like wild cats sometimes catch one.", source: { name: "Wikipedia", url: "https://simple.wikipedia.org/wiki/Northern_goshawk" } },
+            f5: { habitat: "Bobcats live in forests, mountains, and brushlands where they sleep in hollow trees or caves.", energy: "Small mammals, rodents, birds, and occasionally larger prey animals.", isProducer: false, eatenBy: "Rarely hunted; an apex predator with few natural enemies.", source: { name: "National Geographic Kids", url: "https://kids.nationalgeographic.com/animals/mammals/facts/bobcat" } },
+            g1: { habitat: "Blue Grama Grass grows in the short grass prairies of Colorado and other western plains where it is sunny and dry.", energy: "This grass makes its own food from sunlight using photosynthesis, which means it turns sunlight into the energy it needs to grow.", isProducer: true, eatenBy: "Grasshoppers, caterpillars, rabbits, deer, antelope, bison, and other grazing animals.", source: { name: "Wikipedia", url: "https://en.wikipedia.org/wiki/Blue_grama" } },
+            g2: { habitat: "Prairie dogs live in grasslands and prairies of western North America, digging tunnel networks underground.", energy: "Prairie dogs eat grasses, seeds, leaves, and flowers that they find on the prairie.", isProducer: false, eatenBy: "Prairie dogs are hunted by snakes, birds of prey, and carnivorous mammals.", source: { name: "National Geographic Kids", url: "https://kids.nationalgeographic.com/animals/mammals/facts/prairie-dog" } },
+            g3: { habitat: "Black-footed ferrets live in shortgrass prairies and grasslands in the western United States, including Colorado, where they depend on underground burrow systems.", energy: "Small mammals and rodents that live underground in burrows.", isProducer: false, eatenBy: "Birds of prey like owls and hawks, and other carnivores when they venture above ground.", source: { name: "Wikipedia", url: "https://simple.wikipedia.org/wiki/Black-footed_Ferret" } },
+            g4: { habitat: "Coyotes live in prairies, deserts, and grasslands. They can survive almost anywhere they find food and shelter.", energy: "small mammals, insects, and fruits", isProducer: false, eatenBy: "Large birds of prey hunt coyotes, especially young or weaker ones.", source: { name: "National Geographic Kids", url: "https://kids.nationalgeographic.com/animals/mammals/facts/coyote" } },
+            g5: { habitat: "Golden eagles live in open areas and mountains where they hunt from high in the sky.", energy: "Small mammals like hares and rabbits.", isProducer: false, eatenBy: "Almost nothing hunts them because they are at the top of the food chain.", source: { name: "Wikipedia", url: "https://simple.wikipedia.org/wiki/Golden_Eagle" } },
+            r1: { habitat: "Cottonwood trees grow in wet places like along rivers and floodplains in riparian wetlands across Colorado and the western United States.", energy: "Cottonwood trees use sunlight, water, and air to make their own food through photosynthesis.", isProducer: true, eatenBy: "Woodpeckers, insects, squirrels, birds, and other small mammals eat parts of cottonwood trees including their bark, leaves, and seeds.", source: { name: "Wikipedia", url: "https://en.wikipedia.org/wiki/Populus" } },
+            r2: { habitat: "Aquatic insects live in riparian wetlands and freshwater habitats like ponds, streams, and marshes where water and land meet.", energy: "Most aquatic insects eat algae, plants, small creatures, and organic matter in the water, making them important consumers in the aquatic food web.", isProducer: false, eatenBy: "Many fish, birds, spiders, and other water animals hunt aquatic insects as a key food source.", source: { name: "Wikipedia", url: "https://en.wikipedia.org/wiki/Aquatic_insect" } },
+            r3: { habitat: "Leopard frogs live in wetlands near ponds, marshes, and streams where they stay damp and close to water.", energy: "insects and small bugs that they catch with their long, sticky tongues", isProducer: false, eatenBy: "snakes, birds, and other animals that eat small creatures from wetlands", source: { name: "Wikipedia", url: "https://en.wikipedia.org/wiki/Leopard_frog" } },
+            r4: { habitat: "Garter snakes live in moist places like streams, wetlands, and meadows. They hide under rocks and plants to stay safe.", energy: "Garter snakes eat insects, earthworms, small fish, and small rodents.", isProducer: false, eatenBy: "Birds of prey and larger snakes hunt garter snakes.", source: { name: "Wikipedia", url: "https://en.wikipedia.org/wiki/Garter_snake" } },
+            r5: { habitat: "Great blue herons live in shallow wetlands like ponds, marshes, and rivers where they stand in water to hunt.", energy: "Fish and frogs that they catch with their sharp, spear-like bills.", isProducer: false, eatenBy: "Birds of prey like eagles and hawks hunt young herons, though adults are rarely caught.", source: { name: "Wikipedia", url: "https://en.wikipedia.org/wiki/Great_Blue_Heron" } },
+            s1: { habitat: "Sagebrush grows in the dry, hilly steppe shrublands of Colorado and the western United States.", energy: "This shrub makes its own food from sunlight through photosynthesis, using its leaves to turn sunlight into energy.", isProducer: true, eatenBy: "Small mammals like rabbits and other plant-eaters nibble its leaves, and some birds eat its seeds.", source: { name: "Wikipedia", url: "https://en.wikipedia.org/wiki/Sagebrush" } },
+            s2: { habitat: "Black-tailed jackrabbits live in open grasslands and shrubby areas across the western United States, including Colorado's steppe and plains.", energy: "Jackrabbits are herbivores that eat grasses, clover, and leafy plants they find in their shrubby habitat.", isProducer: false, eatenBy: "Hunted by meat-eating mammals and by birds that hunt from the sky.", source: { name: "National Geographic Kids", url: "https://kids.nationalgeographic.com/animals/mammals/facts/jackrabbit" } },
+            s3: { habitat: "The Sage Thrasher lives in open shrublands of the western United States, where it hunts on the ground and sings from the tops of low bushes.", energy: "insects like grasshoppers and beetles that it finds by scratching in the dirt, and also berries and seeds.", isProducer: false, eatenBy: "birds of prey like falcons and eagles hunt this small songbird, and some snakes and mammals also eat its eggs and chicks.", source: { name: "Wikipedia", url: "https://en.wikipedia.org/wiki/Sage_Thrasher" } },
+            s4: { habitat: "Badgers dig homes underground in shrublands and grasslands, coming out only at night to hunt.", energy: "Badgers eat small furry animals, insects, earthworms, and sometimes birds and eggs.", isProducer: false, eatenBy: "Adult badgers are rarely caught, but birds of prey may hunt young ones.", source: { name: "Wikipedia", url: "https://simple.wikipedia.org/wiki/Badger" } },
+            s5: { habitat: "Red-tailed hawks live in open spaces and grasslands where they can soar high and spot their prey from the sky.", energy: "small mammals like mice and shrews, along with other small animals they spot from above", isProducer: false, eatenBy: "Adult red-tailed hawks have few predators.", source: { name: "National Geographic Kids", url: "https://kids.nationalgeographic.com/animals/birds/facts/red-tailed-hawk" } },
+            t1: { habitat: "Lichen grows on rocks, soil, and cliffs in the cold, windy Alpine Tundra where not many other plants can survive.", energy: "Lichen makes its own food using sunlight and photosynthesis, with help from a special fungus partner that holds water and gives it structure.", isProducer: true, eatenBy: "Small mountain mammals and other plant-eaters rely on lichen, especially in winter.", source: { name: "Wikipedia", url: "https://simple.wikipedia.org/wiki/Lichen" } },
+            t2: { habitat: "Pikas live on rocky mountain slopes in cold, high places like the alpine tundra.", energy: "Pikas eat grasses, sedges, and moss.", isProducer: false, eatenBy: "Big cats and small meat-eating mammals hunt pikas, and birds of prey catch them from above.", source: { name: "Wikipedia", url: "https://simple.wikipedia.org/wiki/Pika" } },
+            t3: { habitat: "Marmots live in cold, high mountain meadows and open areas above the tree line, like the alpine tundra in Colorado's mountains.", energy: "Marmots are herbivores that eat grass, plants, fruits, and seeds they find in mountain meadows.", isProducer: false, eatenBy: "Birds of prey like eagles hunt marmots from the sky, and large mammals also hunt them on the ground.", source: { name: "Wikipedia", url: "https://simple.wikipedia.org/wiki/Marmot" } },
+            t4: { habitat: "The ermine lives in the Alpine Tundra of Colorado, where it hunts among rocks and sparse plants above the tree line.", energy: "Small rodents, rabbits, and hares.", isProducer: false, eatenBy: "Birds of prey like owls and hawks — and big cats — hunt ermines.", source: { name: "Wikipedia", url: "https://simple.wikipedia.org/wiki/Stoat" } },
+            t5: { habitat: "Mountain lions live in forests, mountains, and rocky areas of western North America.", energy: "Small mammals and deer", isProducer: false, eatenBy: "Mountain lions are apex predators and have few natural enemies.", source: { name: "National Geographic Kids", url: "https://kids.nationalgeographic.com/animals/mammals/facts/mountain-lion" } },
+        };
+
+        // The handful of trusted sources credited at the bottom of every Field Guide (#19).
+        const FIELD_GUIDE_SOURCES = [
+            { name: 'National Geographic Kids', url: 'https://kids.nationalgeographic.com/' },
+            { name: 'Wikipedia', url: 'https://www.wikipedia.org/' },
+        ];
 
         function renderSpeciesIcon(key, name, sizeClass) {
                 const cls = sizeClass || 'w-10 h-10';
@@ -720,6 +818,7 @@ const SPECIES_ICONS = {
                 title: "Colorado Food Web Journal",
                 apexLabel: "Tertiary Consumers",
                 ribbonColor: "#2c5282",
+                stampLabel: "COLORADO ROCKIES",
                 habitats: {
                     grassland: { name: "Eastern Shortgrass", img: "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=400&q=80", organisms: [{ id: 'g1', name: 'Blue Grama Grass', level: 1, icon: 'blue-grama-grass', notes: "The hardy producer at the base of the prairie web.", predators: ['g2'] }, { id: 'g2', name: 'Prairie Dog', level: 2, icon: 'prairie-dog', notes: "A primary consumer that provides a critical food source.", predators: ['g3', 'g4', 'g5'] }, { id: 'g3', name: 'Black-footed Ferret', level: 3, icon: 'black-footed-ferret', notes: "A specialist secondary consumer.", predators: ['g5'] }, { id: 'g4', name: 'Coyote', level: 3, icon: 'coyote', notes: "An opportunistic secondary consumer.", predators: ['g5'] }, { id: 'g5', name: 'Golden Eagle', level: 4, icon: 'golden-eagle', notes: "The apex predator of the grasslands.", predators: [] }] },
                     tundra: { name: "Alpine Tundra", img: "https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=400&q=80", organisms: [{ id: 't1', name: 'Lichen', level: 1, icon: 'lichen', notes: "A rugged producer providing essential winter calories.", predators: ['t2', 't3'] }, { id: 't2', name: 'Pika', level: 2, icon: 'pika', notes: "A primary consumer that dries 'hay' piles.", predators: ['t4', 't5'] }, { id: 't3', name: 'Marmot', level: 2, icon: 'marmot', notes: "Large rodents that graze on alpine flowers.", predators: ['t5'] }, { id: 't4', name: 'Ermine', level: 3, icon: 'ermine', notes: "A fierce secondary consumer.", predators: ['t5'] }, { id: 't5', name: 'Mountain Lion', level: 4, icon: 'mountain-lion', notes: "The top predator of the Rockies.", predators: [] }] },
@@ -733,6 +832,7 @@ const SPECIES_ICONS = {
                 title: "Nigerian Food Web Journal",
                 apexLabel: "Apex Predators",
                 ribbonColor: "#008751",
+                stampLabel: "NIGERIAN HOTSPOTS",
                 habitats: {
                     savanna: { name: "Yankari Savanna", img: "https://images.unsplash.com/photo-1516026672322-bc52d61a55d5?auto=format&fit=crop&w=400&q=80", organisms: [{ id: 'ny1', name: 'Elephant Grass', level: 1, icon: 'elephant-grass', notes: "Tall perennial grass providing base energy.", predators: ['ny2', 'ny3'] }, { id: 'ny2', name: 'Bush Elephant', level: 2, icon: 'bush-elephant', notes: "A massive primary consumer.", predators: ['ny5'] }, { id: 'ny3', name: 'Patas Monkey', level: 2, icon: 'patas-monkey', notes: "A ground-dwelling herbivore.", predators: ['ny4', 'ny5'] }, { id: 'ny4', name: 'Rock Python', level: 3, icon: 'rock-python', notes: "Powerful secondary consumer.", predators: ['ny5'] }, { id: 'ny5', name: 'West African Lion', level: 4, icon: 'west-african-lion', notes: "Apex predator of the savanna.", predators: [] }] },
                     mangrove: { name: "Niger Delta Mangroves", img: "https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=400&q=80", organisms: [{ id: 'nm1', name: 'Red Mangrove', level: 1, icon: 'red-mangrove', notes: "Root systems sheltering the delta.", predators: ['nm2'] }, { id: 'nm2', name: 'African Manatee', level: 2, icon: 'african-manatee', notes: "Gentle aquatic primary consumer.", predators: ['nm5'] }, { id: 'nm3', name: 'Mudskipper', level: 2, icon: 'mudskipper', notes: "Amphibious fish feeding on algae.", predators: ['nm4', 'nm5'] }, { id: 'nm4', name: 'Dwarf Crocodile', level: 3, icon: 'dwarf-crocodile', notes: "Fierce secondary consumer.", predators: ['nm5'] }, { id: 'nm5', name: 'Great Blue Heron', level: 4, icon: 'great-blue-heron', notes: "Top tertiary consumer of the swamp.", predators: [] }] },
@@ -746,6 +846,7 @@ const SPECIES_ICONS = {
                 title: "British Food Web Journal",
                 apexLabel: "Apex Predators",
                 ribbonColor: "#C8102E",
+                stampLabel: "UNITED KINGDOM",
                 habitats: {
                     pinewood: { name: "Caledonian Pinewood", img: "https://images.unsplash.com/photo-1473448912268-2022ce9509d8?auto=format&fit=crop&w=400&q=80", organisms: [{ id: 'ukp1', name: 'Scots Pine', level: 1, icon: 'scots-pine', notes: "Ancient producer of the Highland forest.", predators: ['ukp2', 'ukp3'] }, { id: 'ukp2', name: 'Red Squirrel', level: 2, icon: 'red-squirrel', notes: "Native primary consumer caching pine seeds.", predators: ['ukp4', 'ukp5'] }, { id: 'ukp3', name: 'Capercaillie', level: 2, icon: 'capercaillie', notes: "Huge woodland grouse feeding on pine needles.", predators: ['ukp4', 'ukp5'] }, { id: 'ukp4', name: 'Pine Marten', level: 3, icon: 'pine-marten', notes: "Agile secondary consumer of the canopy.", predators: ['ukp5'] }, { id: 'ukp5', name: 'Golden Eagle', level: 4, icon: 'golden-eagle', notes: "Apex predator soaring over the glens.", predators: [] }] },
                     moorland: { name: "Heather Moorland", img: "https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=400&q=80", organisms: [{ id: 'ukm1', name: 'Heather', level: 1, icon: 'heather', notes: "Purple-flowering producer carpeting the moors.", predators: ['ukm2', 'ukm3'] }, { id: 'ukm2', name: 'Red Grouse', level: 2, icon: 'red-grouse', notes: "Primary consumer found only in Britain and Ireland.", predators: ['ukm4', 'ukm5'] }, { id: 'ukm3', name: 'Mountain Hare', level: 2, icon: 'mountain-hare', notes: "Turns white in winter to evade hunters.", predators: ['ukm4', 'ukm5'] }, { id: 'ukm4', name: 'Stoat', level: 3, icon: 'stoat', notes: "Fearless secondary consumer of the uplands.", predators: ['ukm5'] }, { id: 'ukm5', name: 'Red Fox', level: 4, icon: 'red-fox', notes: "Adaptable apex predator of the moor.", predators: [] }] },
@@ -892,11 +993,20 @@ const SPECIES_ICONS = {
 
             updateLandingBadges() {
                 ['colorado', 'nigeria', 'uk'].forEach(r => {
+                    const region = regionalData[r];
                     const count = this.state.globalProgress[r].completed.length;
+                    const total = Object.keys(region.habitats).length;
                     const el = document.getElementById(`badge-count-${r}`);
-                    const color = regionalData[r].ribbonColor;
-                    el.innerHTML = count > 0 ? getRibbonSVG(40, 60, 20, color) : '';
-                    if (count > 0) el.insertAdjacentHTML('beforeend', `<span class="absolute bottom-0 left-1/2 -translate-x-1/2 text-white font-bold text-xs">${count}</span>`);
+                    const complete = count >= total;
+                    el.classList.toggle('is-complete', complete);
+                    if (complete) {
+                        el.innerHTML = getStampSVG(region.stampLabel, region.ribbonColor, 'land-' + r, { opacity: 0.92 });
+                    } else if (count > 0) {
+                        el.innerHTML = getRibbonSVG(40, 60, 20, region.ribbonColor);
+                        el.insertAdjacentHTML('beforeend', `<span class="absolute bottom-0 left-1/2 -translate-x-1/2 text-white font-bold text-xs">${count}</span>`);
+                    } else {
+                        el.innerHTML = '';
+                    }
                 });
             },
 
@@ -918,7 +1028,24 @@ const SPECIES_ICONS = {
                 });
 
                 const count = this.state.globalProgress[this.state.activeRegion].completed.length;
-                document.getElementById('progress-summary').textContent = `Earned ${count} of 5 badges`;
+                const total = Object.keys(region.habitats).length;
+                document.getElementById('progress-summary').textContent = `Earned ${count} of ${total} badges`;
+
+                // Region-complete postmark: stamp the whole page, animating once if just earned.
+                const stamp = document.getElementById('cover-region-stamp');
+                if (count >= total) {
+                    stamp.innerHTML = getStampSVG(region.stampLabel, region.ribbonColor, 'cover');
+                    stamp.style.display = 'block';
+                    stamp.classList.remove('stamp-press');
+                    if (this._pendingRegionStamp === this.state.activeRegion) {
+                        void stamp.offsetWidth; // restart the keyframes
+                        stamp.classList.add('stamp-press');
+                        this._pendingRegionStamp = null;
+                    }
+                } else {
+                    stamp.style.display = 'none';
+                    stamp.innerHTML = '';
+                }
             },
 
             startHabitat(habitatId) {
@@ -1115,9 +1242,19 @@ const SPECIES_ICONS = {
 
                 if (errs.length === 0) {
                     const prog = this.state.globalProgress[this.state.activeRegion];
+                    const total = Object.keys(regionalData[this.state.activeRegion].habitats).length;
+                    const wasComplete = prog.completed.length >= total;
                     if (!prog.completed.includes(this.state.activeHabitat)) prog.completed.push(this.state.activeHabitat);
-                    document.getElementById('feedback-title').textContent = "Mastery Achieved!";
-                    document.getElementById('feedback-text').textContent = "Expedition findings verified and archived.";
+                    const nowComplete = prog.completed.length >= total;
+                    if (nowComplete && !wasComplete) {
+                        // Final badge of the region — arm the postmark to animate on the cover page.
+                        this._pendingRegionStamp = this.state.activeRegion;
+                        document.getElementById('feedback-title').textContent = "Region Complete!";
+                        document.getElementById('feedback-text').textContent = `All ${total} habitats mastered — your ${regionalData[this.state.activeRegion].stampLabel} expedition is stamped complete!`;
+                    } else {
+                        document.getElementById('feedback-title').textContent = "Mastery Achieved!";
+                        document.getElementById('feedback-text').textContent = "Expedition findings verified and archived.";
+                    }
                     this.renderWorkspaceRibbon();
                 } else {
                     document.getElementById('feedback-title').textContent = "Field Review";
@@ -1164,12 +1301,78 @@ const SPECIES_ICONS = {
 
             showFieldGuide() {
                 const data = regionalData[this.state.activeRegion].habitats[this.state.activeHabitat];
-                document.getElementById('field-guide-content').innerHTML = data.organisms.map(o => `
-                    <div class="border-b pb-4">
-                        ${renderSpeciesIcon(o.icon, o.name)} <strong class="handwritten text-3xl">${o.name}</strong>
-                        <p class="italic text-stone-600">${o.notes}</p>
-                    </div>`).join('');
+                // Reset any popover left over from a previous open so it doesn't flash on reopen.
+                const fgPop = document.getElementById('fg-popover');
+                fgPop.classList.remove('show'); fgPop.innerHTML = ''; this._fgActiveRow = null;
+                document.getElementById('field-guide-content').innerHTML = data.organisms.map(o => {
+                    const hasGuide = !!SPECIES_GUIDE[o.id];
+                    return `
+                    <div class="fg-row${hasGuide ? ' has-guide' : ''}" data-id="${o.id}"${hasGuide ? ` tabindex="0" role="button" aria-label="Field notes for ${o.name}"` : ''}>
+                        <span class="fg-ico">${renderSpeciesIcon(o.icon, o.name)}</span>
+                        <span class="fg-name handwritten text-2xl">${o.name}</span>
+                        <span class="fg-teaser">${o.notes || ''}</span>
+                        ${hasGuide ? '<span class="fg-cue">Field notes</span>' : ''}
+                    </div>`;
+                }).join('');
+                document.getElementById('field-guide-sources').innerHTML =
+                    'Sources (open in a new tab): ' +
+                    FIELD_GUIDE_SOURCES.map(s => `<a href="${s.url}" target="_blank" rel="noopener">${s.name}</a>`).join(' · ') + '.';
+                this.bindFieldGuidePopover();
                 this.modals.guide.classList.add('active');
+            },
+
+            // Hover (desktop) / focus / tap (touch) reveals a floating card with the species'
+            // generalized science + a "Learn more" source link. The card lives on .modal-paper
+            // (not the scrolling list) so it never clips, and stays open while hovered so the link
+            // is clickable.
+            bindFieldGuidePopover() {
+                const pop = document.getElementById('fg-popover');
+                const content = document.getElementById('field-guide-content');
+                const paper = pop.parentElement;
+                let hideTimer = null;
+                const clearHide = () => { if (hideTimer) { clearTimeout(hideTimer); hideTimer = null; } };
+                const hide = () => {
+                    pop.classList.remove('show');
+                    content.querySelectorAll('.fg-row.fg-active').forEach(r => r.classList.remove('fg-active'));
+                    this._fgActiveRow = null;
+                };
+                const scheduleHide = () => { clearHide(); hideTimer = setTimeout(hide, 150); };
+                const show = (row) => {
+                    const g = SPECIES_GUIDE[row.dataset.id];
+                    if (!g) return;
+                    const name = row.querySelector('.fg-name').textContent;
+                    pop.innerHTML =
+                        `<div class="pop-name">${name}</div>` +
+                        `<dl><dt>Where it lives</dt><dd>${g.habitat}</dd>` +
+                        `<dt>${g.isProducer ? 'How it gets energy' : 'What it eats'}</dt><dd>${g.energy}</dd>` +
+                        `<dt>What eats it</dt><dd>${g.eatenBy}</dd></dl>` +
+                        `<a class="pop-more" href="${g.source.url}" target="_blank" rel="noopener">Learn more — ${g.source.name} ↗</a>`;
+                    pop.classList.add('show');
+                    const paperRect = paper.getBoundingClientRect();
+                    const rowRect = row.getBoundingClientRect();
+                    const top = Math.max(8, Math.min(rowRect.top - paperRect.top + rowRect.height / 2 - pop.offsetHeight / 2, paper.clientHeight - pop.offsetHeight - 8));
+                    pop.style.top = top + 'px';
+                    pop.style.left = (paper.clientWidth - pop.offsetWidth - 24) + 'px';
+                    content.querySelectorAll('.fg-row.fg-active').forEach(r => r.classList.remove('fg-active'));
+                    row.classList.add('fg-active');
+                    this._fgActiveRow = row;
+                };
+                content.querySelectorAll('.fg-row.has-guide').forEach(row => {
+                    row.onmouseenter = () => { clearHide(); show(row); };
+                    row.onmouseleave = scheduleHide;
+                    row.onfocus = () => { clearHide(); show(row); };
+                    row.onblur = scheduleHide;
+                    // Show (never toggle-hide) on click/tap: a tap fires focus→click, and a
+                    // toggle here would immediately re-close what focus just opened. Dismissal
+                    // happens via blur / mouseleave / Escape / tapping another row.
+                    row.onclick = () => { clearHide(); show(row); };
+                    row.onkeydown = (e) => {
+                        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); show(row); }
+                        else if (e.key === 'Escape') hide();
+                    };
+                });
+                pop.onmouseenter = clearHide;
+                pop.onmouseleave = scheduleHide;
             },
 
             importJournal(e) {
@@ -1221,36 +1424,58 @@ const SPECIES_ICONS = {
                 const totalHabitats = regions.reduce((n, r) => n + Object.keys(regionalData[r].habitats).length, 0);
                 const totalEarned = regions.reduce((n, r) => n + this.state.globalProgress[r].completed.length, 0);
                 const subtitle = totalEarned === totalHabitats ? "Master Naturalist Certificate" : "Expedition Progress Certificate";
-                const regionRows = regions.map(r => {
+
+                // Parchment-colored perforation notches around a stamp's edge (pure SVG shapes —
+                // html2canvas 1.4.1 ignores CSS masks, but rasterizes plain circles fine).
+                const perforations = (w, h) => {
+                    const r = 5.5, pitch = 16, c = '#fdfaf3';
+                    let s = '';
+                    for (let x = pitch / 2; x < w; x += pitch) s += `<circle cx="${x.toFixed(1)}" cy="0" r="${r}" fill="${c}"/><circle cx="${x.toFixed(1)}" cy="${h}" r="${r}" fill="${c}"/>`;
+                    for (let y = pitch / 2; y < h; y += pitch) s += `<circle cx="0" cy="${y.toFixed(1)}" r="${r}" fill="${c}"/><circle cx="${w}" cy="${y.toFixed(1)}" r="${r}" fill="${c}"/>`;
+                    return `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" style="position:absolute; top:0; left:0; overflow:visible; pointer-events:none;">${s}</svg>`;
+                };
+
+                // One region rendered as a landscape postage stamp; a finished region gets the postmark
+                // cancelling it from the top-right corner (ink runs onto the certificate paper).
+                const W = 250, PH = 150, PAD = 14, BH = PH + PAD * 2;
+                const regionStamp = (r) => {
                     const region = regionalData[r];
-                    const mastered = this.state.globalProgress[r].completed;
+                    const count = this.state.globalProgress[r].completed.length;
+                    const total = Object.keys(region.habitats).length;
+                    const complete = count >= total;
+                    const img = region.habitats[Object.keys(region.habitats)[0]].img;
+                    const pips = Array.from({ length: total }, (_, i) => i < count ? '★' : '☆').join('');
                     return `
-                        <div style="width: 100%; margin-top: 12px;">
-                            <div style="display: flex; align-items: baseline; justify-content: center; gap: 14px;">
-                                <span style="font-family: 'Patrick Hand', cursive; font-size: 26px; color: ${region.ribbonColor};">${region.title}</span>
-                                <span style="font-family: 'Special Elite', cursive; font-size: 13px;">${mastered.length} of ${Object.keys(region.habitats).length} badges</span>
+                        <div style="position: relative; width: ${W}px; display: flex; flex-direction: column; align-items: center;">
+                            <div style="position: relative; width: ${W}px;">
+                                <div style="background: #fffdf6; padding: ${PAD}px; box-shadow: 1px 2px 3px rgba(0,0,0,0.25);">
+                                    <div style="position: relative; height: ${PH}px; overflow: hidden; outline: 1px solid rgba(0,0,0,0.25);">
+                                        <img src="${img}" crossorigin="anonymous" style="width: 100%; height: ${PH}px; object-fit: cover; display: block; ${complete ? '' : 'filter: grayscale(1);'}">
+                                        ${complete ? '' : '<div style="position: absolute; inset: 0; background: rgba(247,243,232,0.55);"></div>'}
+                                        <span style="position: absolute; top: 6px; right: 8px; font-family: 'Special Elite', monospace; font-weight: 700; font-size: 13px; color: #fff; text-shadow: 0 1px 2px #000;">${count}/${total}</span>
+                                        <span style="position: absolute; bottom: 6px; left: 0; right: 0; text-align: center; font-family: 'Special Elite', monospace; font-size: 10px; letter-spacing: 1px; color: #fff; text-shadow: 0 1px 2px #000;">${region.stampLabel}</span>
+                                    </div>
+                                </div>
+                                ${perforations(W, BH)}
+                                ${complete ? `<div style="position: absolute; top: -22%; right: -16%; width: 64%;">${getStampSVG(region.stampLabel, region.ribbonColor, 'cert-' + r)}</div>` : ''}
                             </div>
-                            <div style="display: flex; gap: 22px; justify-content: center; margin-top: 6px;">
-                                ${Object.keys(region.habitats).map(k => `
-                                    <div style="display: flex; flex-direction: column; align-items: center; width: 110px;">
-                                        <div style="width: 70px; height: 70px; border-radius: 50%; border: 4px solid var(--journal-border); overflow: hidden; position: relative;">
-                                            ${mastered.includes(k) ? `<div style="position: absolute; top: -4px; right: -4px;">${getRibbonSVG(24, 36, 12, region.ribbonColor)}</div>` : ''}
-                                            <img src="${region.habitats[k].img}" crossorigin="anonymous" style="width: 100%; height: 100%; object-fit: cover; ${mastered.includes(k) ? '' : 'filter: grayscale(1); opacity: 0.35;'}">
-                                        </div>
-                                        <span style="font-family: 'Special Elite', cursive; font-size: 10px; margin-top: 4px; text-align: center; line-height: 1.2;">${region.habitats[k].name}</span>
-                                    </div>`).join('')}
-                            </div>
+                            <div style="font-family: 'Patrick Hand', cursive; font-weight: 700; font-size: 18px; color: ${region.ribbonColor}; margin-top: 14px; text-transform: capitalize;">${region.stampLabel.toLowerCase()}</div>
+                            <div style="font-family: 'Special Elite', monospace; font-size: 15px; letter-spacing: 2px; color: ${complete ? region.ribbonColor : '#b9ad8c'};">${pips}</div>
+                            <div style="font-family: 'Special Elite', monospace; font-size: 10px; opacity: 0.7; margin-top: 2px; color: ${complete ? region.ribbonColor : 'inherit'}; font-weight: ${complete ? 700 : 400};">${complete ? '★ REGION COMPLETE ★' : count + ' of ' + total + ' habitats'}</div>
                         </div>`;
-                }).join('');
+                };
+
                 this.certTemplate.innerHTML = `
-                    <div style="flex: 1; border: 10px solid var(--journal-border); padding: 18px 30px; display: flex; flex-direction: column; align-items: center; width: 100%;">
-                        <h1 style="font-family: 'Patrick Hand', cursive; font-size: 42px; margin: 0;">Global Food Web Expedition</h1>
-                        <p style="font-family: 'Special Elite', cursive; font-size: 15px; letter-spacing: 4px; text-transform: uppercase; margin: 2px 0 8px 0;">${subtitle}</p>
+                    <div style="flex: 1; border: 10px solid var(--journal-border); padding: 26px 30px; display: flex; flex-direction: column; align-items: center; width: 100%; box-sizing: border-box;">
+                        <h1 style="font-family: 'Patrick Hand', cursive; font-size: 44px; margin: 0;">Global Food Web Expedition</h1>
+                        <p style="font-family: 'Special Elite', cursive; font-size: 15px; letter-spacing: 4px; text-transform: uppercase; margin: 2px 0 10px 0;">${subtitle}</p>
                         <div style="border-bottom: 2px dashed #000; min-width: 400px; font-size: 36px; font-family: 'Caveat', cursive; text-align: center;">${name}</div>
-                        <p style="font-family: 'Patrick Hand', cursive; font-size: 19px; margin: 6px 0 0 0;">Has earned ${totalEarned} of ${totalHabitats} merit badges exploring the world's food webs.</p>
-                        ${regionRows}
+                        <p style="font-family: 'Patrick Hand', cursive; font-size: 19px; margin: 8px 0 0 0;">Has earned ${totalEarned} of ${totalHabitats} merit badges exploring the world's food webs.</p>
+                        <div style="display: flex; gap: 56px; justify-content: center; align-items: flex-start; margin: auto 0;">
+                            ${regions.map(regionStamp).join('')}
+                        </div>
                         <div style="margin-top: auto; display: flex; gap: 30px; font-family: 'Special Elite', cursive; font-size: 11px; opacity: 0.6; padding-top: 8px;">
-                            <span>BUILD v3.0.2</span>
+                            <span>BUILD v3.1.0</span>
                             <span>SAVED: ${new Date().toLocaleDateString()}</span>
                         </div>
                     </div>`;
@@ -1258,7 +1483,7 @@ const SPECIES_ICONS = {
                     // Embed the current game progress in the PNG so the certificate can be
                     // re-uploaded via "Load Journal or Certificate" to resume where the explorer left off.
                     const payload = jsonToB64({
-                        version: "3.0.2",
+                        version: "3.1.0",
                         userName: name,
                         globalProgress: this.state.globalProgress
                     });
