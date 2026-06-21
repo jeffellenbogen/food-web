@@ -109,7 +109,7 @@
         }
 
         .drop-zone {
-            height: 100%; width: 100%; display: flex; flex-wrap: wrap; gap: 0.75rem; padding: 1.5rem 2rem 0.5rem 2rem; align-items: center;
+            height: 100%; width: 100%; display: flex; flex-wrap: wrap; gap: 0.75rem; padding: 1.5rem 2rem 0.5rem 2rem; align-items: center; justify-content: center;
         }
 
         .sidebar-item {
@@ -294,7 +294,7 @@
                     </div>
                 </div>
             </div>
-            <div class="version-tag">Build v3.0.1 GLOBAL EXPEDITION</div>
+            <div class="version-tag">Build v3.0.2 GLOBAL EXPEDITION</div>
         </div>
 
         <!-- SCREEN: REGIONAL COVER -->
@@ -311,7 +311,7 @@
                     <p id="download-hint" class="text-sm typewriter opacity-50 mt-4 text-center">Your certificate records every badge earned so far. Re-upload it anytime to continue your expedition.</p>
                 </div>
             </div>
-            <div class="version-tag">Build v3.0.1 GLOBAL EXPEDITION</div>
+            <div class="version-tag">Build v3.0.2 GLOBAL EXPEDITION</div>
         </div>
 
         <!-- SCREEN: WORKSPACE -->
@@ -349,7 +349,7 @@
                     </div>
                 </main>
             </div>
-            <div class="version-tag">Build v3.0.1 GLOBAL EXPEDITION</div>
+            <div class="version-tag">Build v3.0.2 GLOBAL EXPEDITION</div>
         </div>
 
         <div id="modal-field-guide" class="overlay">
@@ -834,7 +834,7 @@ const SPECIES_ICONS = {
                         const id = e.dataTransfer.getData('text/plain');
                         const el = document.querySelector(`[data-id="${id}"]`);
                         if (el) {
-                            shelf.querySelector('.drop-zone').appendChild(el);
+                            this.flipReflow(() => shelf.querySelector('.drop-zone').appendChild(el));
                             this.updatePlacement(id, shelf.dataset.level);
                         }
                     };
@@ -845,7 +845,7 @@ const SPECIES_ICONS = {
                     e.preventDefault();
                     const id = e.dataTransfer.getData('text/plain');
                     const el = document.querySelector(`[data-id="${id}"]`);
-                    if (el) { this.pool.appendChild(el); this.updatePlacement(id, null); }
+                    if (el) { this.flipReflow(() => this.pool.appendChild(el)); this.updatePlacement(id, null); }
                 };
 
                 window.onmousemove = (e) => {
@@ -953,6 +953,45 @@ const SPECIES_ICONS = {
                     else this.pool.appendChild(el);
                 });
                 this.drawArrows();
+            },
+
+            // Animate the re-center reflow caused by a DOM mutation (FLIP technique),
+            // keeping the energy-flow arrows synced to the tiles as they glide. The
+            // drop-zones use `justify-content: center`, so adding/removing a tile shifts
+            // its neighbours; this makes that shift slide smoothly instead of snapping.
+            flipReflow(mutate) {
+                const tiles = Array.from(document.querySelectorAll('.drop-zone .sidebar-item'));
+                const first = new Map(tiles.map(t => [t, t.getBoundingClientRect()]));
+
+                mutate();
+
+                const movers = [];
+                document.querySelectorAll('.drop-zone .sidebar-item').forEach(t => {
+                    const f = first.get(t);
+                    if (!f) return; // newly placed tile (from the pool) — appears, doesn't slide
+                    const l = t.getBoundingClientRect();
+                    const dx = f.left - l.left, dy = f.top - l.top;
+                    if (Math.abs(dx) > 0.5 || Math.abs(dy) > 0.5) {
+                        t.style.transition = 'none';
+                        t.style.transform = `translate(${dx}px, ${dy}px)`;
+                        movers.push(t);
+                    }
+                });
+
+                if (!movers.length) { this.drawArrows(); return; }
+
+                // Next frame: release to the tile's existing `transition: all 0.2s` so it
+                // glides to its natural centered position; redraw arrows each frame so they
+                // track the motion instead of jumping ahead.
+                requestAnimationFrame(() => {
+                    movers.forEach(t => { t.style.transition = ''; t.style.transform = ''; });
+                    const t0 = performance.now();
+                    const tick = () => {
+                        this.drawArrows();
+                        if (performance.now() - t0 < 260) requestAnimationFrame(tick);
+                    };
+                    requestAnimationFrame(tick);
+                });
             },
 
             updatePlacement(id, level) {
@@ -1211,7 +1250,7 @@ const SPECIES_ICONS = {
                         <p style="font-family: 'Patrick Hand', cursive; font-size: 19px; margin: 6px 0 0 0;">Has earned ${totalEarned} of ${totalHabitats} merit badges exploring the world's food webs.</p>
                         ${regionRows}
                         <div style="margin-top: auto; display: flex; gap: 30px; font-family: 'Special Elite', cursive; font-size: 11px; opacity: 0.6; padding-top: 8px;">
-                            <span>BUILD v3.0.1</span>
+                            <span>BUILD v3.0.2</span>
                             <span>SAVED: ${new Date().toLocaleDateString()}</span>
                         </div>
                     </div>`;
@@ -1219,7 +1258,7 @@ const SPECIES_ICONS = {
                     // Embed the current game progress in the PNG so the certificate can be
                     // re-uploaded via "Load Journal or Certificate" to resume where the explorer left off.
                     const payload = jsonToB64({
-                        version: "3.0.1",
+                        version: "3.0.2",
                         userName: name,
                         globalProgress: this.state.globalProgress
                     });
