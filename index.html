@@ -229,7 +229,9 @@
         .fg-sources a { color: #2c5282; text-decoration: underline; }
         #fg-popover { position: absolute; z-index: 60; width: 250px; max-width: 72%; background: #fffdf5; border: 2px solid var(--journal-border); box-shadow: 4px 4px 0 rgba(0,0,0,0.2); padding: 12px 14px; border-radius: 3px; display: none; }
         #fg-popover.show { display: block; }
-        #fg-popover .pop-name { font-weight: bold; font-size: 1rem; border-bottom: 1px solid #ddd; padding-bottom: 4px; margin-bottom: 4px; }
+        #fg-popover .pop-ico { float: right; width: 84px; height: 84px; margin: -2px -2px 2px 10px; text-align: center; pointer-events: none; overflow: visible; }
+        #fg-popover .pop-ico svg { width: 80px !important; height: 80px !important; display: inline-block; vertical-align: top; }
+        #fg-popover .pop-name { font-weight: bold; font-size: 1rem; border-bottom: 1px solid #ddd; padding-bottom: 4px; margin-bottom: 4px; overflow: hidden; }
         #fg-popover dt { font-size: 0.58rem; text-transform: uppercase; letter-spacing: 0.04em; color: #8a7f63; font-weight: bold; margin-top: 8px; }
         #fg-popover dd { font-size: 0.85rem; margin: 1px 0 0 0; line-height: 1.35; }
         #fg-popover .pop-more { display: inline-block; margin-top: 10px; font-size: 0.8rem; font-weight: bold; color: #2c5282; text-decoration: underline; }
@@ -1412,7 +1414,10 @@ const SPECIES_ICONS = {
                     const g = SPECIES_GUIDE[row.dataset.id];
                     if (!g) return;
                     const name = row.querySelector('.fg-name').textContent;
+                    const iconEl = row.querySelector('.fg-ico');
+                    const iconSvg = iconEl ? iconEl.innerHTML : '';
                     pop.innerHTML =
+                        `<span class="pop-ico">${iconSvg}</span>` +
                         `<div class="pop-name">${name}</div>` +
                         `<dl><dt>Where it lives</dt><dd>${g.habitat}</dd>` +
                         `<dt>${g.isProducer ? 'How it gets energy' : 'What it eats'}</dt><dd>${g.energy}</dd>` +
