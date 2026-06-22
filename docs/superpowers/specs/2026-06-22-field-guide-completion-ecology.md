@@ -102,14 +102,21 @@ Evolved over three passes to land curious users on **solid, species-specific** i
   **Aquatic Insects** (a category) → "insect".
 - `FIELD_GUIDE_SOURCES` credits both Britannica Kids and Britannica; each popover labels its own source.
 
-## 5. Known follow-ups
-- **Phase 2:** author Nigeria + UK field-guide blurbs (~50 species), including the new species
-  (Grey Heron, Giant Pouched Rat, Algae) and the manatee "no predator" hint; resolve their links with
-  the same Kids-first / main-Britannica-fallback strategy.
+## 5. Phase 2 — Nigeria + UK field guide (DONE)
+All 52 Nigeria + UK species now have blurbs (same workflow: research-drafted, adversarially verified
+for the no-spoiler guardrail and answer-key alignment, then an independent re-scan that fixed 8
+co-habitant-name leaks + 5 mis-aligned "eaten by" lines). `SPECIES_GUIDE` now covers all **78** organisms.
+The manatee's "no natural predators" hint is included. **Links:** Phase 2 uses species-specific **main
+Britannica** articles for all 52 (all verified HTTP 200) — Britannica Kids lacks dedicated pages for most
+of these species, and the goal was species-specific. So Colorado is a Kids/main mix (10 Kids) while
+Nigeria + UK are all main Britannica; can move charismatic ones (leopard, lion, chimpanzee, etc.) to
+Britannica Kids later if a kid-reading-level page is preferred.
+
+## 6. Known follow-ups
 - **Minor, out of scope:** CO Riparian has Leopard Frog and Garter Snake both at Level 3 (same-shelf
   predation) — pre-existing, the game handles it.
 
-## 6. Key files / symbols
+## 7. Key files / symbols
 - `index.html`: `SPECIES_GUIDE`, `FIELD_GUIDE_SOURCES`, `UNUSED_SPECIES`, `getStampSVG`,
   `bindFieldGuidePopover`, `showFieldGuide`, `renderPatches`, `checkJournal`, `downloadCertificate`,
   `regionalData`.
