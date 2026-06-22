@@ -213,6 +213,40 @@
         .destination-card img { width: 100%; height: 200px; object-fit: cover; border-bottom: 2px solid var(--journal-border); }
 
         .global-badge { position: absolute; top: -15px; right: -15px; z-index: 20; transform: rotate(10deg); }
+
+        /* --- Field Guide: compact rows + hover/tap popover (#19, #20) --- */
+        .fg-row { display: flex; align-items: center; gap: 10px; padding: 8px 6px; border-bottom: 1px dashed rgba(0,0,0,0.18); }
+        .fg-row:last-child { border-bottom: none; }
+        .fg-row.has-guide { cursor: pointer; border-radius: 6px; transition: background 0.15s; }
+        .fg-row.has-guide:hover, .fg-row.has-guide:focus-visible, .fg-row.fg-active { background: rgba(44,82,130,0.09); outline: none; }
+        .fg-row .fg-ico { flex: none; width: 34px; text-align: center; }
+        .fg-row .fg-ico svg { width: 30px !important; height: 30px !important; transform: scale(1.25); }
+        .fg-row .fg-name { flex: none; }
+        .fg-teaser { flex: 1; min-width: 0; font-size: 0.82rem; font-style: italic; color: #6b6256; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .fg-cue { flex: none; font-size: 0.58rem; font-weight: bold; color: #2c5282; border: 1px solid #2c5282; border-radius: 10px; padding: 1px 8px; text-transform: uppercase; letter-spacing: 0.04em; transition: background 0.15s, color 0.15s; }
+        .fg-row.has-guide:hover .fg-cue, .fg-row.fg-active .fg-cue { background: #2c5282; color: #fff; }
+        .fg-sources { margin-top: 14px; padding-top: 10px; border-top: 2px solid rgba(0,0,0,0.15); font-size: 0.7rem; line-height: 1.5; color: #6b6256; font-family: 'Special Elite', cursive; }
+        .fg-sources a { color: #2c5282; text-decoration: underline; }
+        #fg-popover { position: absolute; z-index: 60; width: 250px; max-width: 72%; background: #fffdf5; border: 2px solid var(--journal-border); box-shadow: 4px 4px 0 rgba(0,0,0,0.2); padding: 12px 14px; border-radius: 3px; display: none; }
+        #fg-popover.show { display: block; }
+        #fg-popover .pop-ico { float: right; width: 84px; height: 84px; margin: -2px -2px 2px 10px; text-align: center; pointer-events: none; overflow: visible; }
+        #fg-popover .pop-ico svg { width: 80px !important; height: 80px !important; display: inline-block; vertical-align: top; }
+        #fg-popover .pop-name { font-weight: bold; font-size: 1rem; border-bottom: 1px solid #ddd; padding-bottom: 4px; margin-bottom: 4px; overflow: hidden; }
+        #fg-popover dt { font-size: 0.58rem; text-transform: uppercase; letter-spacing: 0.04em; color: #8a7f63; font-weight: bold; margin-top: 8px; }
+        #fg-popover dd { font-size: 0.85rem; margin: 1px 0 0 0; line-height: 1.35; }
+        #fg-popover .pop-more { display: inline-block; margin-top: 10px; font-size: 0.8rem; font-weight: bold; color: #2c5282; text-decoration: underline; }
+
+        /* --- Region-complete postmark stamp (#18) --- */
+        .region-stamp { pointer-events: none; display: block; width: 100%; height: auto; aspect-ratio: 1 / 1; }
+        #cover-region-stamp { position: absolute; top: 50%; left: 50%; width: 260px; max-width: 58%; transform: translate(-50%,-50%) rotate(-8deg); z-index: 30; pointer-events: none; }
+        .global-badge.is-complete { top: 50%; left: 50%; right: auto; width: 150px; transform: translate(-50%,-50%) rotate(-8deg); z-index: 25; }
+        @keyframes stamp-press {
+            0%   { opacity: 0; transform: translate(-50%,-50%) rotate(-8deg) scale(2.3); }
+            55%  { opacity: 1; transform: translate(-50%,-50%) rotate(-8deg) scale(0.9); }
+            74%  { transform: translate(-50%,-50%) rotate(-8deg) scale(1.07); }
+            100% { opacity: 1; transform: translate(-50%,-50%) rotate(-8deg) scale(1); }
+        }
+        #cover-region-stamp.stamp-press { animation: stamp-press 0.5s cubic-bezier(0.2,0.7,0.3,1) both; }
     </style>
 </head>
 <body class="p-2 md:p-4 flex justify-center items-center min-h-screen text-lg">
@@ -294,15 +328,18 @@
                     </div>
                 </div>
             </div>
-            <div class="version-tag">Build v3.0.2 GLOBAL EXPEDITION</div>
+            <div class="version-tag">Build v3.2.0 GLOBAL EXPEDITION</div>
         </div>
 
         <!-- SCREEN: REGIONAL COVER -->
         <div id="screen-cover" class="screen">
             <div class="flex flex-col items-center py-4 flex-grow overflow-y-auto">
                 <h2 id="regional-merit-title" class="text-4xl font-bold typewriter mb-16 px-12 py-3 bg-stone-800 text-white rounded-sm transform rotate-1">Expedition Merit Badges</h2>
-                <div class="grid grid-cols-2 md:grid-cols-5 gap-12 w-full max-w-5xl" id="patch-grid"></div>
-                
+                <div id="patch-stage" class="relative w-full flex justify-center">
+                    <div class="grid grid-cols-2 md:grid-cols-5 gap-12 w-full max-w-5xl" id="patch-grid"></div>
+                    <div id="cover-region-stamp" style="display:none;"></div>
+                </div>
+
                 <div id="management-zone" class="mt-auto pt-10 flex flex-col items-center w-full">
                     <div id="progress-summary" class="typewriter text-lg mb-4 font-bold">Earned 0 of 5 badges</div>
                     <div class="flex gap-4 items-center">
@@ -311,7 +348,7 @@
                     <p id="download-hint" class="text-sm typewriter opacity-50 mt-4 text-center">Your certificate records every badge earned so far. Re-upload it anytime to continue your expedition.</p>
                 </div>
             </div>
-            <div class="version-tag">Build v3.0.2 GLOBAL EXPEDITION</div>
+            <div class="version-tag">Build v3.2.0 GLOBAL EXPEDITION</div>
         </div>
 
         <!-- SCREEN: WORKSPACE -->
@@ -349,14 +386,16 @@
                     </div>
                 </main>
             </div>
-            <div class="version-tag">Build v3.0.2 GLOBAL EXPEDITION</div>
+            <div class="version-tag">Build v3.2.0 GLOBAL EXPEDITION</div>
         </div>
 
         <div id="modal-field-guide" class="overlay">
             <div class="modal-paper">
                 <h3 class="typewriter text-2xl border-b-2 border-stone-800 mb-4 pb-2">Field Research Notes</h3>
-                <div id="field-guide-content" class="space-y-4 max-h-[55vh] overflow-y-auto pr-6"></div>
-                <button class="btn-ink mt-8 w-full closeModal uppercase">Back to Notebook</button>
+                <div id="field-guide-content" class="max-h-[55vh] overflow-y-auto pr-4"></div>
+                <div id="field-guide-sources" class="fg-sources"></div>
+                <button class="btn-ink mt-4 w-full closeModal uppercase">Back to Notebook</button>
+                <div id="fg-popover"></div>
             </div>
         </div>
 
@@ -400,6 +439,129 @@
                 <text x="25" y="38" fill="#ffd700" font-size="${starSize}" text-anchor="middle" style="font-family: Arial, sans-serif; font-weight: bold;">★</text>
             </svg>
         `;
+
+        // Passport-postmark "EXPEDITION COMPLETE" stamp, shown when a whole region is mastered (#18).
+        // uid makes the curved-text path ids unique so multiple stamps can render on one page.
+        const getStampSVG = (label, color, uid, opts = {}) => {
+            const c = color || 'var(--ribbon-main)';
+            const op = opts.opacity == null ? 0.9 : opts.opacity;
+            return `
+            <svg class="region-stamp" viewBox="0 0 220 220" role="img" aria-label="Expedition complete: ${label}" style="opacity:${op}; overflow:visible;">
+                <defs>
+                    <path id="stamp-top-${uid}" d="M 32 110 A 78 78 0 0 1 188 110"/>
+                    <path id="stamp-bot-${uid}" d="M 40 110 A 70 70 0 0 0 180 110"/>
+                </defs>
+                <g fill="none" stroke="${c}">
+                    <circle cx="110" cy="110" r="100" stroke-width="3"/>
+                    <circle cx="110" cy="110" r="89" stroke-width="1.5"/>
+                    <circle cx="110" cy="110" r="44" stroke-width="1.5"/>
+                    <g fill="${c}" stroke="none" style="font-family: 'Special Elite', 'Courier New', monospace; font-weight: 700;">
+                        <text font-size="13.5" letter-spacing="2.5"><textPath href="#stamp-top-${uid}" startOffset="50%" text-anchor="middle">★ EXPEDITION COMPLETE ★</textPath></text>
+                        <text font-size="11.5" letter-spacing="2"><textPath href="#stamp-bot-${uid}" startOffset="50%" text-anchor="middle">${label}</textPath></text>
+                        <text x="110" y="126" text-anchor="middle" font-size="48">★</text>
+                        <text x="110" y="150" text-anchor="middle" font-size="9" letter-spacing="1">EST. 2026</text>
+                    </g>
+                </g>
+            </svg>`;
+        };
+
+        // Field Guide science blurbs keyed by organism id (#19). Generalized for grades 3-6:
+        // diet/predators are described by category only (never naming an in-habitat species).
+        // Populated for Colorado (pilot); species without an entry fall back to the short teaser.
+        const SPECIES_GUIDE = {
+            f1: { habitat: "The ponderosa pine grows high up in Colorado's mountains, usually between 7,000 and 11,500 feet above sea level.", energy: "It makes its own food by using sunlight, water, and air in a process called photosynthesis, which gives it energy to grow.", isProducer: true, eatenBy: "Birds and small mammals eat the seeds from its cones.", source: { name: "Britannica", url: "https://www.britannica.com/plant/ponderosa-pine" } },
+            f2: { habitat: "Abert's squirrels live high up in cool montane forests of Colorado and the Southwest, where tall evergreen trees grow close together with branches that touch.", energy: "seeds and nuts, cones, buds, fungi, and inner bark of trees", isProducer: false, eatenBy: "Birds of prey and wild cats hunt them.", source: { name: "Britannica Kids", url: "https://kids.britannica.com/kids/article/squirrel/353805" } },
+            f3: { habitat: "The Steller's Jay lives in evergreen forests. These forests are high up in mountains.", energy: "It eats acorns, seeds, nuts, berries, and insects like beetles and wasps.", isProducer: false, eatenBy: "Hawks, owls, and other birds of prey hunt Steller's Jays.", source: { name: "Britannica", url: "https://www.britannica.com/animal/Stellers-jay" } },
+            f4: { habitat: "The goshawk lives in forests and mountain woodlands across North America, including the coniferous forests of Colorado's high mountain areas.", energy: "Goshawks hunt birds and small mammals, using their sharp talons and quick flying skills to catch prey from perches in the trees.", isProducer: false, eatenBy: "Few animals hunt the goshawk, though larger predators like wild cats sometimes catch one.", source: { name: "Britannica", url: "https://www.britannica.com/animal/northern-goshawk" } },
+            f5: { habitat: "Bobcats live in forests, mountains, and brushlands where they sleep in hollow trees or caves.", energy: "Small mammals, rodents, birds, and occasionally larger prey animals.", isProducer: false, eatenBy: "Rarely hunted; an apex predator with few natural enemies.", source: { name: "Britannica Kids", url: "https://kids.britannica.com/kids/article/bobcat/598960" } },
+            g1: { habitat: "Blue Grama Grass grows in the short grass prairies of Colorado and other western plains where it is sunny and dry.", energy: "This grass makes its own food from sunlight using photosynthesis, which means it turns sunlight into the energy it needs to grow.", isProducer: true, eatenBy: "Grasshoppers, caterpillars, rabbits, deer, antelope, bison, and other grazing animals.", source: { name: "Britannica", url: "https://www.britannica.com/plant/blue-grama" } },
+            g2: { habitat: "Prairie dogs live in grasslands and prairies of western North America, digging tunnel networks underground.", energy: "Prairie dogs eat grasses, seeds, leaves, and flowers that they find on the prairie.", isProducer: false, eatenBy: "Prairie dogs are hunted by snakes, birds of prey, and carnivorous mammals.", source: { name: "Britannica Kids", url: "https://kids.britannica.com/kids/article/prairie-dog/353666" } },
+            g3: { habitat: "Black-footed ferrets live in shortgrass prairies and grasslands in the western United States, including Colorado, where they depend on underground burrow systems.", energy: "Small mammals and rodents that live underground in burrows.", isProducer: false, eatenBy: "Birds of prey like owls and hawks, and other carnivores when they venture above ground.", source: { name: "Britannica", url: "https://www.britannica.com/animal/black-footed-ferret" } },
+            g4: { habitat: "Coyotes live in prairies, deserts, and grasslands. They can survive almost anywhere they find food and shelter.", energy: "small mammals, insects, and fruits", isProducer: false, eatenBy: "Large birds of prey hunt coyotes, especially young or weaker ones.", source: { name: "Britannica Kids", url: "https://kids.britannica.com/kids/article/coyote/353008" } },
+            g5: { habitat: "Golden eagles live in open areas and mountains where they hunt from high in the sky.", energy: "Small mammals like hares and rabbits.", isProducer: false, eatenBy: "Almost nothing hunts them because they are at the top of the food chain.", source: { name: "Britannica", url: "https://www.britannica.com/animal/golden-eagle" } },
+            r1: { habitat: "Cottonwood trees grow in wet places like along rivers and floodplains in riparian wetlands across Colorado and the western United States.", energy: "Cottonwood trees use sunlight, water, and air to make their own food through photosynthesis.", isProducer: true, eatenBy: "Woodpeckers, insects, squirrels, birds, and other small mammals eat parts of cottonwood trees including their bark, leaves, and seeds.", source: { name: "Britannica Kids", url: "https://kids.britannica.com/kids/article/cottonwood/394728" } },
+            r2: { habitat: "Aquatic insects live in riparian wetlands and freshwater habitats like ponds, streams, and marshes where water and land meet.", energy: "Most aquatic insects eat algae, plants, small creatures, and organic matter in the water, making them important consumers in the aquatic food web.", isProducer: false, eatenBy: "Many fish, birds, spiders, and other water animals hunt aquatic insects as a key food source.", source: { name: "Britannica Kids", url: "https://kids.britannica.com/kids/article/insect/353292" } },
+            r3: { habitat: "Leopard frogs live in wetlands near ponds, marshes, and streams where they stay damp and close to water.", energy: "insects and small bugs that they catch with their long, sticky tongues", isProducer: false, eatenBy: "snakes, birds, and other animals that eat small creatures from wetlands", source: { name: "Britannica", url: "https://www.britannica.com/animal/leopard-frog" } },
+            r4: { habitat: "Garter snakes live in moist places like streams, wetlands, and meadows. They hide under rocks and plants to stay safe.", energy: "Garter snakes eat insects, earthworms, small fish, and small rodents.", isProducer: false, eatenBy: "Birds of prey and larger snakes hunt garter snakes.", source: { name: "Britannica", url: "https://www.britannica.com/animal/garter-snake" } },
+            r5: { habitat: "Great blue herons live in shallow wetlands like ponds, marshes, and rivers where they stand in water to hunt.", energy: "Fish and frogs that they catch with their sharp, spear-like bills.", isProducer: false, eatenBy: "Birds of prey like eagles and hawks hunt young herons, though adults are rarely caught.", source: { name: "Britannica", url: "https://www.britannica.com/animal/great-blue-heron" } },
+            s1: { habitat: "Sagebrush grows in the dry, hilly steppe shrublands of Colorado and the western United States.", energy: "This shrub makes its own food from sunlight through photosynthesis, using its leaves to turn sunlight into energy.", isProducer: true, eatenBy: "Small mammals like rabbits and other plant-eaters nibble its leaves, and some birds eat its seeds.", source: { name: "Britannica", url: "https://www.britannica.com/plant/sagebrush" } },
+            s2: { habitat: "Black-tailed jackrabbits live in open grasslands and shrubby areas across the western United States, including Colorado's steppe and plains.", energy: "Jackrabbits are herbivores that eat grasses, clover, and leafy plants they find in their shrubby habitat.", isProducer: false, eatenBy: "Hunted by meat-eating mammals and by birds that hunt from the sky.", source: { name: "Britannica", url: "https://www.britannica.com/animal/jackrabbit" } },
+            s3: { habitat: "The Sage Thrasher lives in open shrublands of the western United States, where it hunts on the ground and sings from the tops of low bushes.", energy: "insects like beetles and ants that it finds by scratching in the dirt, and also berries and seeds.", isProducer: false, eatenBy: "birds of prey like falcons and eagles hunt this small songbird, and some snakes and mammals also eat its eggs and chicks.", source: { name: "Britannica", url: "https://www.britannica.com/animal/thrasher" } },
+            s4: { habitat: "Badgers dig homes underground in shrublands and grasslands, coming out only at night to hunt.", energy: "Badgers eat small furry animals, insects, earthworms, and sometimes birds and eggs.", isProducer: false, eatenBy: "Adult badgers are rarely caught, but birds of prey may hunt young ones.", source: { name: "Britannica Kids", url: "https://kids.britannica.com/kids/article/badger/352815" } },
+            s5: { habitat: "Red-tailed hawks live in open spaces and grasslands where they can soar high and spot their prey from the sky.", energy: "small mammals like mice and shrews, along with other small animals they spot from above", isProducer: false, eatenBy: "Adult red-tailed hawks have few predators.", source: { name: "Britannica", url: "https://www.britannica.com/animal/red-tailed-hawk" } },
+            s6: { habitat: "Grasshoppers hop and feed among the dry shrubs and grasses of the steppe.", energy: "Leaves, stems, and grasses — a plant-eater (herbivore).", isProducer: false, eatenBy: "Songbirds, lizards, and other small hunters snap them up.", source: { name: "Britannica Kids", url: "https://kids.britannica.com/kids/article/grasshopper/353205" } },
+            t1: { habitat: "Lichen grows on rocks, soil, and cliffs in the cold, windy Alpine Tundra where not many other plants can survive.", energy: "Lichen makes its own food using sunlight and photosynthesis, with help from a special fungus partner that holds water and gives it structure.", isProducer: true, eatenBy: "Small mountain mammals and other plant-eaters rely on lichen, especially in winter.", source: { name: "Britannica Kids", url: "https://kids.britannica.com/kids/article/lichen/353385" } },
+            t2: { habitat: "Pikas live on rocky mountain slopes in cold, high places like the alpine tundra.", energy: "Pikas eat grasses, sedges, and moss.", isProducer: false, eatenBy: "Big cats and small meat-eating mammals hunt pikas, and birds of prey catch them from above.", source: { name: "Britannica", url: "https://www.britannica.com/animal/pika" } },
+            t3: { habitat: "Marmots live in cold, high mountain meadows and open areas above the tree line, like the alpine tundra in Colorado's mountains.", energy: "Marmots are herbivores that eat grass, plants, fruits, and seeds they find in mountain meadows.", isProducer: false, eatenBy: "Birds of prey like eagles hunt marmots from the sky, and large mammals also hunt them on the ground.", source: { name: "Britannica Kids", url: "https://kids.britannica.com/kids/article/marmot/353431" } },
+            t4: { habitat: "The ermine lives in the Alpine Tundra of Colorado, where it hunts among rocks and sparse plants above the tree line.", energy: "Small rodents, rabbits, and hares.", isProducer: false, eatenBy: "Birds of prey like owls and hawks — and big cats — hunt ermines.", source: { name: "Britannica", url: "https://www.britannica.com/animal/ermine-mammal" } },
+            t5: { habitat: "Golden eagles soar over open mountains and high alpine tundra, hunting from the sky.", energy: "Small mountain mammals such as hares, rabbits, and other rodents.", isProducer: false, eatenBy: "Almost nothing hunts the golden eagle — it sits at the very top of the food web.", source: { name: "Britannica", url: "https://www.britannica.com/animal/golden-eagle" } },
+            nh1: { habitat: "Highland ferns grow in the cool, misty montane rainforests of Gashaka Gumti in Nigeria, where it is shaded and very wet.", energy: "Ferns make their own food using sunlight and water through photosynthesis, just like other green plants.", isProducer: true, eatenBy: "Forest antelopes and primates that live in the rainforest eat ferns as part of their diet.", source: { name: "Britannica", url: "https://www.britannica.com/plant/fern" } },
+            nh2: { habitat: "Chimpanzees live in thick forests and woodlands in Central Africa, including highland areas in Nigeria.", energy: "Chimpanzees eat fruits, leaves, insects, and nuts they find in the forest.", isProducer: false, eatenBy: "Large birds of prey hunt young chimpanzees.", source: { name: "Britannica", url: "https://www.britannica.com/animal/chimpanzee" } },
+            nh3: { habitat: "Yellow-backed duikers are small forest antelope that live in the thick, shady forests of Nigeria, where lots of plants and trees grow close together.", energy: "It eats plants like leaves, shoots, and other green vegetation found on the forest floor and low branches.", isProducer: false, eatenBy: "Big cats that hunt in the forest and birds of prey that soar above the trees hunt this small duiker.", source: { name: "Britannica", url: "https://www.britannica.com/animal/yellow-backed-duiker" } },
+            nh4: { habitat: "The Golden Cat lives in dense, misty forests near rivers in the Gashaka Gumti park in Nigeria.", energy: "The Golden Cat hunts small mammals and forest antelopes that live on the forest floor.", isProducer: false, eatenBy: "Large birds of prey that soar above the forest can hunt Golden Cats.", source: { name: "Britannica", url: "https://www.britannica.com/animal/African-golden-cat" } },
+            nh5: { habitat: "The Crowned Eagle lives in tall forests and woodlands in Nigeria.", energy: "It hunts and eats small mammals and forest animals.", isProducer: false, eatenBy: "No animals hunt the Crowned Eagle because it is a top predator.", source: { name: "Britannica", url: "https://www.britannica.com/animal/crowned-eagle" } },
+            nm1: { habitat: "The red mangrove grows in the muddy, salty waters of the Niger Delta in Nigeria, where its special roots stick out of the water.", energy: "Red mangroves make their own food by using sunlight to turn water and air into energy, just like all plants do.", isProducer: true, eatenBy: "Large water-loving mammals.", source: { name: "Britannica", url: "https://www.britannica.com/plant/common-mangrove" } },
+            nm2: { habitat: "The African manatee lives in shallow, calm waters of mangrove swamps and coastal rivers in West Africa, where it grazes on underwater plants all day long.", energy: "leaves and roots and other water vegetation", isProducer: false, eatenBy: "An adult African manatee has no natural predators in the Niger Delta.", source: { name: "Britannica", url: "https://www.britannica.com/animal/West-African-manatee" } },
+            nm3: { habitat: "Mudskippers live in muddy mangrove swamps along the coasts of Africa, where they hop between salty water and wet mud.", energy: "Mudskippers eat small animals they find in the mud and water, like tiny insects, worms, and crustaceans.", isProducer: false, eatenBy: "Mudskippers are hunted by reptiles and wading birds that live in the same mangrove habitats.", source: { name: "Britannica", url: "https://www.britannica.com/animal/mudskipper" } },
+            nm4: { habitat: "Dwarf crocodiles live in shallow rivers, swamps, and mangroves in the warm rainforests of West Africa.", energy: "They eat small water animals like fish, crabs, frogs, and insects that they catch at night.", isProducer: false, eatenBy: "Large wading birds, fish, and reptiles hunt young dwarf crocodiles in the water and along riverbanks.", source: { name: "Britannica", url: "https://www.britannica.com/animal/dwarf-crocodile" } },
+            nm5: { habitat: "Grey herons live in shallow waters and marshy areas of mangrove forests, where they can wade quietly while hunting.", energy: "Grey herons eat fish, small water animals, and creatures that live in mud and water.", isProducer: false, eatenBy: "Grey herons have no natural predators.", source: { name: "Britannica", url: "https://www.britannica.com/animal/gray-heron" } },
+            nr1: { habitat: "The mahogany tree grows tall in the warm, rainy rainforests of Nigeria, where it gets plenty of sunlight and water.", energy: "The mahogany tree makes its own food using sunlight through photosynthesis, turning sunshine into energy to grow.", isProducer: true, eatenBy: "Great apes, birds, and rodents depend on the mahogany tree for food and shelter in the rainforest.", source: { name: "Britannica", url: "https://www.britannica.com/plant/mahogany-tree" } },
+            nr2: { habitat: "The Cross River Gorilla lives in thick, hilly rainforests high up in the mountains between Nigeria and Cameroon.", energy: "It eats leaves, nuts, berries, and other plants it finds in the forest.", isProducer: false, eatenBy: "Big cats sometimes hunt young gorillas.", source: { name: "Britannica", url: "https://www.britannica.com/animal/Gorilla-primate-genus" } },
+            nr3: { habitat: "Grey Parrots live in rainforests and forest edges across central and west Africa, especially in Nigeria.", energy: "Seeds, nuts, and fruits from rainforest trees.", isProducer: false, eatenBy: "Large mammals and birds of prey.", source: { name: "Britannica", url: "https://www.britannica.com/animal/African-gray-parrot" } },
+            nr4: { habitat: "The Gaboon Viper lives on the dark, leafy forest floor of rainforests in West and Central Africa, where it hides perfectly still among fallen leaves.", energy: "small mammals and rodents", isProducer: false, eatenBy: "Large predatory cats hunt the Gaboon viper.", source: { name: "Britannica", url: "https://www.britannica.com/animal/Gaboon-viper" } },
+            nr5: { habitat: "Leopards live in the thick, wet rainforests of West Africa, where they hunt among trees and on the forest floor.", energy: "Leopards eat meat—they hunt for primates, birds, reptiles, and small mammals like rats that live in the rainforest.", isProducer: false, eatenBy: "Nothing in this rainforest hunts leopards—they are too big and strong for any other animal to catch.", source: { name: "Britannica", url: "https://www.britannica.com/animal/leopard" } },
+            nr6: { habitat: "This smart rat lives in the rainforests of West Africa, where it hunts for food at night in the dark.", energy: "It eats lots of different plant foods like fruits, seeds, nuts, and roots, and also munches on insects and snails when it can find them.", isProducer: false, eatenBy: "Snakes and meat-eating mammals like wild cats hunt this rat in the rainforest.", source: { name: "Britannica", url: "https://www.britannica.com/animal/giant-pouched-rat" } },
+            ns1: { habitat: "The baobab tree grows in the dry savanna regions around Lake Chad in Nigeria, where it survives by storing water in its giant trunk.", energy: "The baobab uses sunlight to make its own food through photosynthesis, even from its bark when leaves fall off during dry seasons.", isProducer: true, eatenBy: "Herbivores that live in the savanna habitat feed on the baobab's leaves, seeds, and nutritious fruits.", source: { name: "Britannica", url: "https://www.britannica.com/plant/baobab-tree-Adansonia-digitata" } },
+            ns2: { habitat: "The Dorcas gazelle makes its home in the dry deserts and grasslands of North Africa, where it can survive with very little water.", energy: "Leaves and flowers and seeds from desert plants.", isProducer: false, eatenBy: "Large meat-eating mammals that hunt in deserts and grasslands.", source: { name: "Britannica", url: "https://www.britannica.com/animal/gazelle" } },
+            ns3: { habitat: "The Sahel locust lives in dry, grassy areas and farmlands across the Sahel region of Africa.", energy: "This insect eats green plants—mostly wild grasses and crop plants like millet and sorghum—getting all its food from leaves and stems.", isProducer: false, eatenBy: "Reptiles like lizards hunt this locust for food.", source: { name: "Britannica", url: "https://www.britannica.com/animal/desert-locust" } },
+            ns4: { habitat: "Monitor lizards live in warm, sandy areas near water where they can dig burrows.", energy: "Monitor lizards are meat eaters that hunt insects and other small animals.", isProducer: false, eatenBy: "Large carnivorous mammals hunt monitor lizards.", source: { name: "Britannica", url: "https://www.britannica.com/animal/monitor-lizard" } },
+            ns5: { habitat: "Striped hyenas live in dry grasslands and scrubby woodlands around Lake Chad, where they search for food at night.", energy: "Striped hyenas are meat-eaters that hunt small animals and eat leftover kills from other hunters.", isProducer: false, eatenBy: "Striped hyenas have no predators.", source: { name: "Britannica", url: "https://www.britannica.com/animal/striped-hyena" } },
+            ny1: { habitat: "Elephant grass grows in tall, thick stands along rivers and wet areas in Africa's grasslands where the soil stays moist.", energy: "It makes its own food using sunlight and turns it into energy through photosynthesis, like all green plants.", isProducer: true, eatenBy: "Large grazing mammals and primates eat the grass and help spread its seeds as they move through the savanna.", source: { name: "Britannica", url: "https://www.britannica.com/plant/napier-grass" } },
+            ny2: { habitat: "The bush elephant lives in wide-open grasslands and savannas with scattered trees, where it can find plenty of plants to eat and water to drink.", energy: "Leaves, grasses, bark, and fruit from plants and trees.", isProducer: false, eatenBy: "Big cats and other large meat-eating animals.", source: { name: "Britannica", url: "https://www.britannica.com/animal/African-bush-elephant" } },
+            ny3: { habitat: "Patas monkeys live in open grasslands and savannas with scattered trees across West and East Africa.", energy: "Patas monkeys eat plants like grasses, leaves, seeds, and fruits, plus insects they find on the ground.", isProducer: false, eatenBy: "Patas monkeys are hunted by large meat-eaters like big cats and snakes that live in the savanna.", source: { name: "Britannica", url: "https://www.britannica.com/animal/patas-monkey" } },
+            ny4: { habitat: "Rock pythons live in grasslands and forests near rivers and rocky places.", energy: "small mammals", isProducer: false, eatenBy: "big cats", source: { name: "Britannica", url: "https://www.britannica.com/animal/African-python" } },
+            ny5: { habitat: "The West African lion lives in the hot, grassy savannas of Yankari in Nigeria, where there are open plains and scattered trees.", energy: "West African lions are hunters that eat large animals like grazing mammals found in their savanna home.", isProducer: false, eatenBy: "West African lions have no predators—they are too big and strong to be caught by other animals in Yankari.", source: { name: "Britannica", url: "https://www.britannica.com/animal/lion" } },
+            ukd1: { habitat: "Meadow grasses grow on gentle chalk hills where the soil is thin and dry, in the special grasslands of southern England called chalk downland.", energy: "Meadow grasses make their own food by soaking up sunlight through their green leaves and turning it into energy they need to grow, a process called photosynthesis.", isProducer: true, eatenBy: "Small mammals and other plant-eating animals that eat the grass.", source: { name: "Britannica", url: "https://www.britannica.com/plant/grass" } },
+            ukd2: { habitat: "Rabbits live in open grasslands with short grass and bare ground, where they dig burrows to stay safe.", energy: "Herbivores that eat grasses and tender green plants by grazing in meadows and fields.", isProducer: false, eatenBy: "Raptors and carnivores like foxes.", source: { name: "Britannica", url: "https://www.britannica.com/animal/Old-World-rabbit" } },
+            ukd3: { habitat: "Field voles live in grasslands with long, thick grass.", energy: "Grass stems and leaves.", isProducer: false, eatenBy: "Snakes and birds of prey.", source: { name: "Britannica", url: "https://www.britannica.com/animal/vole" } },
+            ukd4: { habitat: "Adders live in chalky downlands and sunny woodland edges where they can warm up.", energy: "small mammals and lizards", isProducer: false, eatenBy: "birds of prey", source: { name: "Britannica", url: "https://www.britannica.com/animal/adder" } },
+            ukd5: { habitat: "This bird of prey lives in open fields and grasslands with patches of trees, where it can hunt and roost.", energy: "It hunts and eats small mammals and other small animals it can catch from the sky.", isProducer: false, eatenBy: "No animal hunts this bird.", source: { name: "Britannica", url: "https://www.britannica.com/animal/common-buzzard" } },
+            ukm1: { habitat: "Heather grows on open, hilly moorlands in the United Kingdom where it can get plenty of sunlight.", energy: "Heather makes its own food using sunlight through photosynthesis, just like other plants.", isProducer: true, eatenBy: "Birds and small mammals that live on moorlands eat heather for food.", source: { name: "Britannica", url: "https://www.britannica.com/plant/heather" } },
+            ukm2: { habitat: "Red Grouse live on wild, windy moorlands in the UK covered with low plants that have purple flowers.", energy: "leaves and seeds", isProducer: false, eatenBy: "small furry mammals and large furry predators", source: { name: "Britannica", url: "https://www.britannica.com/animal/grouse" } },
+            ukm3: { habitat: "Mountain hares live on open, rocky moorlands high in the mountains.", energy: "plants and tough leaves that grow in wild places", isProducer: false, eatenBy: "small hunting mammals and larger hunting mammals", source: { name: "Britannica", url: "https://www.britannica.com/animal/hare-mammal" } },
+            ukm4: { habitat: "The stoat lives in open moorland and rolling grasslands where it hunts among rocks, bushes, and low plants.", energy: "Small mammals, birds, and other small animals that it catches with quick pounces and sharp teeth.", isProducer: false, eatenBy: "Meat-eating mammals and birds of prey hunt it, from above and on the ground.", source: { name: "Britannica", url: "https://www.britannica.com/animal/ermine-mammal" } },
+            ukm5: { habitat: "Red foxes make their homes in wild, open grasslands with low plants and other natural places across the United Kingdom.", energy: "Red foxes are hunters that eat small mammals, birds, and insects—they are carnivores that adapt their diet to whatever food they can find.", isProducer: false, eatenBy: "Adult red foxes have no natural predators in their habitat.", source: { name: "Britannica", url: "https://www.britannica.com/animal/red-fox-mammal" } },
+            ukp1: { habitat: "Scots pines grow in the cool, hilly highlands of Scotland, where the ancient Caledonian Pinewood forest still stands today.", energy: "This evergreen tree makes its own food using sunlight and can photosynthesize even in cold winters when other plants rest.", isProducer: true, eatenBy: "Small mammals and forest birds nibble its seeds, cones, and buds.", source: { name: "Britannica", url: "https://www.britannica.com/plant/Scots-pine" } },
+            ukp2: { habitat: "Red squirrels live in Scottish pine forests and mixed woodlands where they find shelter in trees and food year-round.", energy: "Tree seeds, especially from pine cones, along with nuts, berries, and fungi.", isProducer: false, eatenBy: "Birds of prey and small woodland carnivores.", source: { name: "Britannica", url: "https://www.britannica.com/animal/red-squirrel" } },
+            ukp3: { habitat: "This large forest grouse lives in old conifer forests with thick trees, open clearings, and low bushes for food and shelter.", energy: "conifer needles, buds, berries, and grasses", isProducer: false, eatenBy: "carnivorous mammals and large birds of prey", source: { name: "Britannica", url: "https://www.britannica.com/animal/capercaillie" } },
+            ukp4: { habitat: "The Pine Marten lives in thick, old forests with lots of trees where it can climb and find cozy places to rest.", energy: "small mammals, birds and eggs, insects, and berries and fruits", isProducer: false, eatenBy: "large birds that hunt from the sky", source: { name: "Britannica", url: "https://www.britannica.com/animal/marten" } },
+            ukp5: { habitat: "A Golden Eagle lives in wild, hilly areas with forests and open land where it can soar through the sky and hunt.", energy: "It eats small mammals like hares and rabbits, and also catches medium-sized birds that live in forests and meadows.", isProducer: false, eatenBy: "No predators hunt the Golden Eagle—it is a top hunter in its habitat, so nothing in this food web hunts it.", source: { name: "Britannica", url: "https://www.britannica.com/animal/golden-eagle" } },
+            ukr1: { habitat: "Common Reed grows in lowland rivers and shallow wetlands where water is calm and cool.", energy: "It makes its own food using sunlight and water, growing tall with green leaves to catch the sun's rays.", isProducer: true, eatenBy: "Small plant-eating mammals nibble its stems and roots.", source: { name: "Britannica", url: "https://www.britannica.com/plant/common-reed" } },
+            ukr2: { habitat: "Water voles make their homes in burrows along the banks of rivers and streams, where plants grow thickly to keep them safe and hidden.", energy: "Water voles are herbivores that eat aquatic plants, grasses, roots, and bark they find near the riverbank.", isProducer: false, eatenBy: "Hunting mammals and water birds hunt water voles for food.", source: { name: "Britannica", url: "https://www.britannica.com/animal/European-water-vole" } },
+            ukr3: { habitat: "Mayfly nymphs live on the rocky bottom of clean, flowing rivers where water is fresh and cool.", energy: "Mayfly nymphs eat tiny bits of decaying leaves and other plant material floating in the water.", isProducer: false, eatenBy: "Fish that hunt in rivers are the main predators of mayfly nymphs.", source: { name: "Britannica", url: "https://www.britannica.com/animal/mayfly" } },
+            ukr4: { habitat: "Brown Trout live in cool, fast-moving rivers and streams where the water stays clean and clear.", energy: "Small insects and other tiny creatures they find in the river water and on the riverbed.", isProducer: false, eatenBy: "Large fish-eating river animals and water birds hunt brown trout.", source: { name: "Britannica", url: "https://www.britannica.com/animal/brown-trout" } },
+            ukr5: { habitat: "Eurasian otters live in rivers, streams, and lakes with clean, flowing water and plenty of plants along the banks.", energy: "These otters are meat-eaters that hunt fish and other small water animals they find underwater.", isProducer: false, eatenBy: "The Eurasian otter is a top predator with no natural predators in its river home.", source: { name: "Britannica", url: "https://www.britannica.com/animal/otter" } },
+            ukr6: { habitat: "Algae grows on rocks and in the water of lowland rivers, where sunlight can reach it.", energy: "Algae makes its own food using sunlight and water through a special process called photosynthesis.", isProducer: true, eatenBy: "Tiny water insects and other small grazers feed on algae.", source: { name: "Britannica", url: "https://www.britannica.com/science/algae" } },
+            uks1: { habitat: "Kelp grows in cold, shallow waters around rocky seashores where sunlight reaches the ocean floor.", energy: "Kelp makes its own food using sunlight and water through photosynthesis, just like plants on land.", isProducer: true, eatenBy: "Small grazing sea creatures", source: { name: "Britannica", url: "https://www.britannica.com/science/kelp" } },
+            uks2: { habitat: "Common limpets cling tightly to rocks along rocky ocean shores.", energy: "This tiny snail scrapes algae and small plants off rocks with its rough tongue and eats them.", isProducer: false, eatenBy: "Seabirds and other small shore predators hunt them when they leave the rocks.", source: { name: "Britannica", url: "https://www.britannica.com/animal/limpet-gastropod" } },
+            uks3: { habitat: "Periwinkles live on rocky shores where rocks and stones meet the ocean waves.", energy: "It grazes on seaweed and tiny algae that grow on rocks using its special rasping tongue.", isProducer: false, eatenBy: "Predators that hunt in the ocean and along the shore eat periwinkles.", source: { name: "Britannica", url: "https://www.britannica.com/animal/periwinkle-marine-snail" } },
+            uks4: { habitat: "Shore crabs live under rocks and in rocky tide pools along the seashore, where they hide in crevices to stay safe.", energy: "seaweed, algae, small shellfish and worms", isProducer: false, eatenBy: "Hunted by seabirds along the shore.", source: { name: "Britannica", url: "https://www.britannica.com/animal/crab" } },
+            uks5: { habitat: "Herring Gulls live on rocky seashores and sandy beaches where they find food in tide pools and shallow water.", energy: "They eat shellfish, small sea creatures, and scraps they find along the shore.", isProducer: false, eatenBy: "Adult Herring Gulls have no natural predators.", source: { name: "Britannica", url: "https://www.britannica.com/animal/herring-gull" } },
+        };
+
+        // The handful of trusted sources credited at the bottom of every Field Guide (#19).
+        const FIELD_GUIDE_SOURCES = [
+            { name: 'Britannica Kids', url: 'https://kids.britannica.com/' },
+            { name: 'Britannica', url: 'https://www.britannica.com/' },
+        ];
+
+        // Retired creatures kept for future habitats — NOT part of any active food web. Their
+        // artwork is preserved in tools/species-icons-art.js under the same slug; we use `iconKey`
+        // (not `icon`) so the icon-build's organism scan ignores these. To reactivate one, drop the
+        // object into a habitat's `organisms`, give it a habitat-scoped id, and rename iconKey -> icon.
+        const UNUSED_SPECIES = [
+            { id: 'mountain-lion', name: 'Mountain Lion', level: 4, iconKey: 'mountain-lion', notes: "Apex cat of the Rockies — retired from Alpine Tundra (cougars avoid treeless alpine and hunt deer in forests lower down).", retiredFrom: 'colorado / Alpine Tundra' },
+        ];
 
         function renderSpeciesIcon(key, name, sizeClass) {
                 const cls = sizeClass || 'w-10 h-10';
@@ -518,9 +680,6 @@ const SPECIES_ICONS = {
   "ermine": {
     "svg": "<path d=\"M20 66 Q22 58 30 54 Q42 46 56 48 Q70 50 76 60 Q78 64 74 65 Q64 58 50 57 Q36 56 26 64 Q22 67 20 66 Z\" fill=\"#e0dbd2\"/><circle cx=\"76\" cy=\"58\" r=\"6.5\" fill=\"#e0dbd2\"/><circle cx=\"72\" cy=\"52.5\" r=\"2.2\" fill=\"#c9c2b6\"/><circle cx=\"79.5\" cy=\"52\" r=\"2.2\" fill=\"#c9c2b6\"/><circle cx=\"78\" cy=\"56.5\" r=\"1.7\" fill=\"#1d1d12\"/><ellipse cx=\"82.5\" cy=\"60\" rx=\"1.9\" ry=\"1.5\" fill=\"#d98a9a\"/><path d=\"M84 62 L90 60 M84 64 L90 64\" stroke=\"#b3aca0\" stroke-width=\"1\" fill=\"none\"/><path d=\"M30 64 L30 70 M42 60 L42 66 M58 60 L58 66 M70 63 L70 69\" stroke=\"#c9c2b6\" stroke-width=\"2.6\" stroke-linecap=\"round\"/><path d=\"M21 64 Q12 60 9 52\" stroke=\"#e0dbd2\" stroke-width=\"4\" fill=\"none\" stroke-linecap=\"round\"/><path d=\"M11 56 Q9.5 54 9 51.5\" stroke=\"#1d1d1d\" stroke-width=\"4\" fill=\"none\" stroke-linecap=\"round\"/>"
   },
-  "mountain-lion": {
-    "svg": "<path d=\"M28 58 Q28 46 42 44 Q58 41 70 46 Q79 49 79 57 Q79 63 73 64 L73 77 L67 77 L67 64 Q56 66 47 64 L47 77 L41 77 L41 63 Q29 64 28 58 Z\" fill=\"#c2914f\"/><circle cx=\"29\" cy=\"42\" r=\"8.5\" fill=\"#c2914f\"/><path d=\"M23 36.5 Q21 29 26 31 Q29 32 28 35 Z\" fill=\"#c2914f\"/><path d=\"M32 34.5 Q33 27 37 30 Q39 32 36 35 Z\" fill=\"#c2914f\"/><path d=\"M30 49 Q26 52 28 55\" stroke=\"#a37038\" stroke-width=\"1.6\" fill=\"none\"/><ellipse cx=\"22.5\" cy=\"45.5\" rx=\"5\" ry=\"4\" fill=\"#e3c79a\"/><ellipse cx=\"19.5\" cy=\"43.5\" rx=\"1.6\" ry=\"1.2\" fill=\"#4a3018\"/><circle cx=\"27\" cy=\"40.5\" r=\"1.8\" fill=\"#2b1d12\"/><path d=\"M78 54 Q90 58 89 70 Q88 79 80 78\" stroke=\"#c2914f\" stroke-width=\"4.6\" fill=\"none\" stroke-linecap=\"round\"/><circle cx=\"79.5\" cy=\"77.5\" r=\"3.6\" fill=\"#4a3520\"/>"
-  },
   "cottonwood-tree": {
     "svg": "<path d=\"M46 52 L44 86 L38 90 L62 90 L56 86 L54 52 Z\" fill=\"#b3a48a\"/><path d=\"M49 58 L42 48 M51 58 L58 46\" stroke=\"#9a8c72\" stroke-width=\"2.4\"/><ellipse cx=\"50\" cy=\"26\" rx=\"24\" ry=\"16\" fill=\"#5a9444\"/><ellipse cx=\"32\" cy=\"34\" rx=\"13\" ry=\"9\" fill=\"#4a8038\"/><ellipse cx=\"68\" cy=\"34\" rx=\"13\" ry=\"9\" fill=\"#4a8038\"/><ellipse cx=\"50\" cy=\"40\" rx=\"18\" ry=\"9\" fill=\"#69a850\"/><ellipse cx=\"44\" cy=\"20\" rx=\"10\" ry=\"6\" fill=\"#7db35e\"/>"
   },
@@ -566,6 +725,9 @@ const SPECIES_ICONS = {
   "red-tailed-hawk": {
     "svg": "<path d=\"M48 42 Q30 38 12 40 L10 36 L16 36 L14 32 L21 34 L19 29 L27 33 L26 28 Q38 34 48 36 Z\" fill=\"#6b4a2e\"/><path d=\"M52 42 Q70 38 88 40 L90 36 L84 36 L86 32 L79 34 L81 29 L73 33 L74 28 Q62 34 52 36 Z\" fill=\"#6b4a2e\"/><ellipse cx=\"50\" cy=\"44\" rx=\"7\" ry=\"9\" fill=\"#8a6b50\"/><path d=\"M44 46 Q50 49 56 46 L56 49 Q50 52 44 49 Z\" fill=\"#4a3526\"/><circle cx=\"50\" cy=\"33\" r=\"5\" fill=\"#6b4a2e\"/><path d=\"M48.5 28.5 L50 24.5 L51.5 28.5 Q50 27.5 48.5 28.5 Z\" fill=\"#3a3a3a\"/><circle cx=\"48\" cy=\"32\" r=\"1.2\" fill=\"#1d1d12\"/><circle cx=\"52\" cy=\"32\" r=\"1.2\" fill=\"#1d1d12\"/><path d=\"M42 52 L38 68 Q50 74 62 68 L58 52 Q50 57 42 52 Z\" fill=\"#b3402a\"/><path d=\"M45 55 L43 66 M50 57 L50 70 M55 55 L57 66\" stroke=\"#8a2f20\" stroke-width=\"1.4\" fill=\"none\"/>"
   },
+  "grasshopper": {
+    "svg": "<ellipse cx=\"54\" cy=\"52\" rx=\"24\" ry=\"8.5\" fill=\"#6f9a3a\" transform=\"rotate(-6 54 52)\"/><path d=\"M40 47 Q58 43 76 49 Q58 53 40 52 Z\" fill=\"#5f8a30\"/><circle cx=\"28\" cy=\"50\" r=\"7\" fill=\"#7da846\"/><circle cx=\"24\" cy=\"48\" r=\"1.8\" fill=\"#1d2b12\"/><path d=\"M23 45 Q16 37 9 33 M25 44 Q20 34 16 28\" stroke=\"#5f8a30\" stroke-width=\"1.5\" fill=\"none\" stroke-linecap=\"round\"/><path d=\"M58 56 Q74 56 82 44\" stroke=\"#4f7d28\" stroke-width=\"6\" fill=\"none\" stroke-linecap=\"round\"/><path d=\"M80 46 Q87 55 80 65\" stroke=\"#5f8a30\" stroke-width=\"3\" fill=\"none\" stroke-linecap=\"round\"/><path d=\"M44 58 L40 70 M52 58 L50 72\" stroke=\"#5f8a30\" stroke-width=\"2.4\" stroke-linecap=\"round\"/><path d=\"M30 55 Q27 63 31 65 M38 56 Q36 64 40 66\" stroke=\"#5f8a30\" stroke-width=\"2\" fill=\"none\" stroke-linecap=\"round\"/>"
+  },
   "elephant-grass": {
     "svg": "<path d=\"M50 90 Q42 60 30 34\" stroke=\"#4f7d32\" stroke-width=\"3\" fill=\"none\" stroke-linecap=\"round\"/><path d=\"M50 90 Q50 56 46 30\" stroke=\"#5f8f3c\" stroke-width=\"3\" fill=\"none\" stroke-linecap=\"round\"/><path d=\"M50 90 Q58 60 68 36\" stroke=\"#4f7d32\" stroke-width=\"3\" fill=\"none\" stroke-linecap=\"round\"/><path d=\"M48 90 Q38 70 26 54\" stroke=\"#5f8f3c\" stroke-width=\"2.8\" fill=\"none\" stroke-linecap=\"round\"/><path d=\"M54 90 Q66 70 78 52\" stroke=\"#4f7d32\" stroke-width=\"2.8\" fill=\"none\" stroke-linecap=\"round\"/><path d=\"M30 34 Q26 22 30 12 Q34 22 32 34 Z\" fill=\"#d3b573\"/><path d=\"M46 30 Q43 17 47 7 Q51 17 48 30 Z\" fill=\"#d3b573\"/><path d=\"M68 36 Q66 24 70 15 Q74 25 70 37 Z\" fill=\"#d3b573\"/><path d=\"M28 28 L26 24 M32 22 L35 19 M45 20 L42 16 M48 14 L51 11 M67 28 L64 25 M71 22 L74 20\" stroke=\"#c2a45f\" stroke-width=\"1.6\" stroke-linecap=\"round\"/>"
   },
@@ -593,6 +755,9 @@ const SPECIES_ICONS = {
   "dwarf-crocodile": {
     "svg": "<path d=\"M18 62 Q22 56 34 56 L62 56 Q74 57 80 62 Q83 65 80 67 L70 67 Q56 70 40 68 L24 68 Q17 66 18 62 Z\" fill=\"#3d4a3a\"/><path d=\"M78 62 Q90 62 94 57 Q92 68 80 67 Z\" fill=\"#3d4a3a\"/><path d=\"M18 62 Q10 62 8 65 Q10 68 18 67 Z\" fill=\"#3d4a3a\"/><circle cx=\"20\" cy=\"57\" r=\"2.8\" fill=\"#2d3a2c\"/><circle cx=\"20\" cy=\"56.5\" r=\"1.3\" fill=\"#d9b32f\"/><path d=\"M10 65 L11 63.2 M13.5 65.5 L14.5 63.8 M17 66 L18 64.2\" stroke=\"#c9c2a8\" stroke-width=\"1.1\" stroke-linecap=\"round\"/><path d=\"M28 56 L30 52 L32 56 Z M36 56 L38 52 L40 56 Z M44 56 L46 52 L48 56 Z M52 56 L54 52.5 L56 56 Z M60 56 L62 53 L64 56.5 Z\" fill=\"#2d3a2c\"/><path d=\"M86 60 L88 57.5 M90 59.5 L92 57\" stroke=\"#2d3a2c\" stroke-width=\"1.6\" stroke-linecap=\"round\"/><rect x=\"30\" y=\"67\" width=\"5\" height=\"6.5\" fill=\"#2d3a2c\"/><rect x=\"56\" y=\"67.5\" width=\"5\" height=\"6.5\" fill=\"#2d3a2c\"/>"
   },
+  "grey-heron": {
+    "svg": "<ellipse cx=\"54\" cy=\"56\" rx=\"17\" ry=\"11\" fill=\"#9a9ea3\"/><path d=\"M58 50 Q40 44 43 30 Q45 20 38 14\" stroke=\"#b3b6ba\" stroke-width=\"6\" fill=\"none\" stroke-linecap=\"round\"/><circle cx=\"37\" cy=\"13\" r=\"5.2\" fill=\"#c2c5c9\"/><path d=\"M40 9 Q49 7 52 12\" stroke=\"#3a3a40\" stroke-width=\"2.2\" fill=\"none\" stroke-linecap=\"round\"/><path d=\"M33 13 L14 17 L33 17.5 Z\" fill=\"#e0a92f\"/><circle cx=\"36\" cy=\"12.5\" r=\"1.5\" fill=\"#1d1d12\"/><path d=\"M45 40 Q40 50 44 56\" stroke=\"#6f7479\" stroke-width=\"2\" fill=\"none\"/><path d=\"M49 66 L47 88 M59 66 L59 88\" stroke=\"#6b5a3a\" stroke-width=\"2.4\"/><path d=\"M30 84 Q44 80 56 84 Q66 87 74 84\" stroke=\"#88b0c9\" stroke-width=\"2.6\" fill=\"none\" stroke-linecap=\"round\"/>"
+  },
   "mahogany-tree": {
     "svg": "<path d=\"M47 28 L46 72 L36 88 L42 88 L48 75 L52 75 L58 88 L64 88 L54 72 L53 28 Z\" fill=\"#8a6242\"/><ellipse cx=\"50\" cy=\"18\" rx=\"26\" ry=\"10\" fill=\"#4a8038\"/><ellipse cx=\"33\" cy=\"24\" rx=\"12\" ry=\"7\" fill=\"#5a9444\"/><ellipse cx=\"67\" cy=\"24\" rx=\"12\" ry=\"7\" fill=\"#5a9444\"/><ellipse cx=\"50\" cy=\"27\" rx=\"14\" ry=\"6\" fill=\"#3d7034\"/>"
   },
@@ -607,6 +772,9 @@ const SPECIES_ICONS = {
   },
   "leopard": {
     "svg": "<path d=\"M24 56 Q28 48 42 48 L64 48 Q76 50 78 58 Q78 63 73 64 L73 72 L68 72 L68 64 L46 63 L46 72 L41 72 L41 62 Q28 62 24 56 Z\" fill=\"#d9a23a\"/><circle cx=\"24\" cy=\"50\" r=\"7\" fill=\"#d9a23a\"/><circle cx=\"19.5\" cy=\"44\" r=\"2.6\" fill=\"#b3812e\"/><circle cx=\"28.5\" cy=\"43\" r=\"2.6\" fill=\"#b3812e\"/><ellipse cx=\"18\" cy=\"53\" rx=\"4\" ry=\"3\" fill=\"#ecd3a3\"/><ellipse cx=\"15.5\" cy=\"51.5\" rx=\"1.5\" ry=\"1.2\" fill=\"#4a3018\"/><circle cx=\"22\" cy=\"48\" r=\"1.7\" fill=\"#2b1d12\"/><path d=\"M77 56 Q90 58 92 48\" stroke=\"#d9a23a\" stroke-width=\"4\" fill=\"none\" stroke-linecap=\"round\"/><path d=\"M90 52 Q91.5 50 92 47.5\" stroke=\"#4a3018\" stroke-width=\"4\" fill=\"none\" stroke-linecap=\"round\"/><circle cx=\"40\" cy=\"52\" r=\"1.1\" fill=\"#4a3018\"/><circle cx=\"42.5\" cy=\"54.5\" r=\"1.1\" fill=\"#4a3018\"/><circle cx=\"40\" cy=\"56\" r=\"1.1\" fill=\"#4a3018\"/><circle cx=\"51\" cy=\"50.5\" r=\"1.1\" fill=\"#4a3018\"/><circle cx=\"53.5\" cy=\"53\" r=\"1.1\" fill=\"#4a3018\"/><circle cx=\"51\" cy=\"54.5\" r=\"1.1\" fill=\"#4a3018\"/><circle cx=\"61\" cy=\"52\" r=\"1.1\" fill=\"#4a3018\"/><circle cx=\"63.5\" cy=\"54.5\" r=\"1.1\" fill=\"#4a3018\"/><circle cx=\"61\" cy=\"56\" r=\"1.1\" fill=\"#4a3018\"/><circle cx=\"69\" cy=\"56\" r=\"1.1\" fill=\"#4a3018\"/><circle cx=\"71\" cy=\"58.5\" r=\"1.1\" fill=\"#4a3018\"/><circle cx=\"46\" cy=\"58\" r=\"1.1\" fill=\"#4a3018\"/><circle cx=\"56\" cy=\"58.5\" r=\"1.1\" fill=\"#4a3018\"/>"
+  },
+  "giant-pouched-rat": {
+    "svg": "<path d=\"M24 60 Q26 48 44 48 Q66 47 78 54 Q86 59 84 65 Q80 70 70 69 Q72 76 66 78 L62 70 Q44 71 34 68 Q26 66 24 60 Z\" fill=\"#8a7355\"/><ellipse cx=\"42\" cy=\"62\" rx=\"12\" ry=\"7.5\" fill=\"#a89172\"/><circle cx=\"80\" cy=\"49\" r=\"6.5\" fill=\"#8a7355\"/><circle cx=\"73\" cy=\"44\" r=\"4.6\" fill=\"#9a8262\"/><circle cx=\"86\" cy=\"45\" r=\"4.2\" fill=\"#9a8262\"/><path d=\"M84 55 L96 53 L84 51 Z\" fill=\"#7d6648\"/><circle cx=\"88\" cy=\"53\" r=\"1.2\" fill=\"#3a2a1a\"/><circle cx=\"82.5\" cy=\"50.5\" r=\"1.7\" fill=\"#2b1d12\"/><path d=\"M88 56 L97 57 M88 58 L96 60\" stroke=\"#6b5742\" stroke-width=\"0.9\"/><path d=\"M26 62 Q12 64 8 74 Q6 80 11 80\" stroke=\"#b0987a\" stroke-width=\"3.2\" fill=\"none\" stroke-linecap=\"round\"/><path d=\"M34 68 L33 76 M44 70 L44 78 M58 69 L58 77 M66 67 L67 75\" stroke=\"#7d6648\" stroke-width=\"2.6\" stroke-linecap=\"round\"/>"
   },
   "highland-ferns": {
     "svg": "<path d=\"M50 88 Q42 60 28 40\" stroke=\"#4a8038\" stroke-width=\"2.2\" fill=\"none\" stroke-linecap=\"round\"/><path d=\"M50 88 Q52 58 50 34\" stroke=\"#4a8038\" stroke-width=\"2.2\" fill=\"none\" stroke-linecap=\"round\"/><path d=\"M50 88 Q60 62 72 44\" stroke=\"#4a8038\" stroke-width=\"2.2\" fill=\"none\" stroke-linecap=\"round\"/><path d=\"M44 68 L37 66 M46 60 L39 56 M42 74 L35 73 M48 53 L42 48 M44 68 L48 63\" stroke=\"#5a9444\" stroke-width=\"2\" stroke-linecap=\"round\"/><path d=\"M51 66 L44 63 M51 56 L45 52 M51 76 L44 74 M51 46 L46 42 M51 66 L57 62 M51 56 L57 52 M51 46 L56 43 M51 76 L57 73\" stroke=\"#5a9444\" stroke-width=\"2\" stroke-linecap=\"round\"/><path d=\"M59 70 L53 66 M63 62 L56 59 M67 54 L61 50 M63 62 L68 60 M59 70 L65 68\" stroke=\"#5a9444\" stroke-width=\"2\" stroke-linecap=\"round\"/><path d=\"M50 34 Q54 28 51 24 Q48 22 47.5 26 Q47.5 29 50.5 28.5\" stroke=\"#4a8038\" stroke-width=\"2\" fill=\"none\" stroke-linecap=\"round\"/>"
@@ -709,6 +877,9 @@ const SPECIES_ICONS = {
   },
   "eurasian-otter": {
     "svg": "<path d=\"M18 60 Q26 46 44 44 Q62 42 72 50 Q78 55 76 62 Q66 58 52 58 Q34 58 24 66 Q18 68 18 60 Z\" fill=\"#6b4a2e\"/><circle cx=\"20\" cy=\"53\" r=\"6.5\" fill=\"#6b4a2e\"/><circle cx=\"16\" cy=\"47.5\" r=\"2.2\" fill=\"#54381f\"/><circle cx=\"24.5\" cy=\"46.5\" r=\"2.2\" fill=\"#54381f\"/><circle cx=\"18\" cy=\"51\" r=\"1.7\" fill=\"#1d1d12\"/><ellipse cx=\"14\" cy=\"56\" rx=\"3.8\" ry=\"3\" fill=\"#c9a786\"/><ellipse cx=\"12.5\" cy=\"54.5\" rx=\"1.5\" ry=\"1.2\" fill=\"#2b1d12\"/><path d=\"M10 58 L4 57 M10.5 60 L5 61\" stroke=\"#8a6b4a\" stroke-width=\"1\" fill=\"none\"/><path d=\"M24 61 Q28 65 33 64 Q30 58 26 58 Z\" fill=\"#c9a786\"/><path d=\"M74 56 Q86 60 92 70 Q88 73 82 68 Q75 63 71 60 Z\" fill=\"#6b4a2e\"/><path d=\"M34 62 L33 68 M48 60 L48 66 M62 60 L63 66\" stroke=\"#54381f\" stroke-width=\"2.6\" stroke-linecap=\"round\"/><path d=\"M18 76 Q28 72 38 76 Q48 80 58 76 Q68 73 78 76\" stroke=\"#7db3d9\" stroke-width=\"2.8\" fill=\"none\" stroke-linecap=\"round\"/>"
+  },
+  "algae": {
+    "svg": "<ellipse cx=\"50\" cy=\"88\" rx=\"24\" ry=\"4\" fill=\"#2f6b44\"/><path d=\"M34 88 Q30 64 36 44 Q39 34 36 24\" stroke=\"#3f8f5a\" stroke-width=\"3\" fill=\"none\" stroke-linecap=\"round\"/><path d=\"M44 88 Q42 60 48 40 Q51 30 49 22\" stroke=\"#4fa86a\" stroke-width=\"3\" fill=\"none\" stroke-linecap=\"round\"/><path d=\"M54 88 Q58 62 54 42 Q51 32 55 24\" stroke=\"#3f8f5a\" stroke-width=\"3\" fill=\"none\" stroke-linecap=\"round\"/><path d=\"M64 88 Q68 64 64 46 Q61 36 66 28\" stroke=\"#5fb877\" stroke-width=\"3\" fill=\"none\" stroke-linecap=\"round\"/><path d=\"M38 60 Q44 58 48 60 M52 50 Q58 48 62 51 M40 44 Q46 43 50 45\" stroke=\"#6fc488\" stroke-width=\"1.6\" fill=\"none\" stroke-linecap=\"round\"/><circle cx=\"40\" cy=\"34\" r=\"2.4\" fill=\"#9ad9a8\"/><circle cx=\"58\" cy=\"38\" r=\"3\" fill=\"#9ad9a8\"/><circle cx=\"50\" cy=\"27\" r=\"2\" fill=\"#9ad9a8\"/>"
   }
 };
 // === SPECIES_ICONS:END ===
@@ -720,12 +891,13 @@ const SPECIES_ICONS = {
                 title: "Colorado Food Web Journal",
                 apexLabel: "Tertiary Consumers",
                 ribbonColor: "#2c5282",
+                stampLabel: "COLORADO ROCKIES",
                 habitats: {
                     grassland: { name: "Eastern Shortgrass", img: "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=400&q=80", organisms: [{ id: 'g1', name: 'Blue Grama Grass', level: 1, icon: 'blue-grama-grass', notes: "The hardy producer at the base of the prairie web.", predators: ['g2'] }, { id: 'g2', name: 'Prairie Dog', level: 2, icon: 'prairie-dog', notes: "A primary consumer that provides a critical food source.", predators: ['g3', 'g4', 'g5'] }, { id: 'g3', name: 'Black-footed Ferret', level: 3, icon: 'black-footed-ferret', notes: "A specialist secondary consumer.", predators: ['g5'] }, { id: 'g4', name: 'Coyote', level: 3, icon: 'coyote', notes: "An opportunistic secondary consumer.", predators: ['g5'] }, { id: 'g5', name: 'Golden Eagle', level: 4, icon: 'golden-eagle', notes: "The apex predator of the grasslands.", predators: [] }] },
-                    tundra: { name: "Alpine Tundra", img: "https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=400&q=80", organisms: [{ id: 't1', name: 'Lichen', level: 1, icon: 'lichen', notes: "A rugged producer providing essential winter calories.", predators: ['t2', 't3'] }, { id: 't2', name: 'Pika', level: 2, icon: 'pika', notes: "A primary consumer that dries 'hay' piles.", predators: ['t4', 't5'] }, { id: 't3', name: 'Marmot', level: 2, icon: 'marmot', notes: "Large rodents that graze on alpine flowers.", predators: ['t5'] }, { id: 't4', name: 'Ermine', level: 3, icon: 'ermine', notes: "A fierce secondary consumer.", predators: ['t5'] }, { id: 't5', name: 'Mountain Lion', level: 4, icon: 'mountain-lion', notes: "The top predator of the Rockies.", predators: [] }] },
+                    tundra: { name: "Alpine Tundra", img: "https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=400&q=80", organisms: [{ id: 't1', name: 'Lichen', level: 1, icon: 'lichen', notes: "A rugged producer providing essential winter calories.", predators: ['t2', 't3'] }, { id: 't2', name: 'Pika', level: 2, icon: 'pika', notes: "A primary consumer that dries 'hay' piles.", predators: ['t4', 't5'] }, { id: 't3', name: 'Marmot', level: 2, icon: 'marmot', notes: "Large rodents that graze on alpine flowers.", predators: ['t5'] }, { id: 't4', name: 'Ermine', level: 3, icon: 'ermine', notes: "A fierce secondary consumer.", predators: ['t5'] }, { id: 't5', name: 'Golden Eagle', level: 4, icon: 'golden-eagle', notes: "The apex predator soaring above the alpine tundra.", predators: [] }] },
                     riparian: { name: "Riparian Wetland", img: "https://images.unsplash.com/photo-1470770841072-f978cf4d019e?auto=format&fit=crop&w=400&q=80", organisms: [{ id: 'r1', name: 'Cottonwood Tree', level: 1, icon: 'cottonwood-tree', notes: "A massive producer anchoring the riverbank.", predators: ['r2'] }, { id: 'r2', name: 'Aquatic Insects', level: 2, icon: 'aquatic-insects', notes: "Primary consumers recycling fallen leaf litter.", predators: ['r3'] }, { id: 'r3', name: 'Leopard Frog', level: 3, icon: 'leopard-frog', notes: "A secondary consumer hunting near water.", predators: ['r4', 'r5'] }, { id: 'r4', name: 'Garter Snake', level: 3, icon: 'garter-snake', notes: "A stealthy secondary consumer.", predators: ['r5'] }, { id: 'r5', name: 'Great Blue Heron', level: 4, icon: 'great-blue-heron', notes: "A majestic tertiary consumer.", predators: [] }] },
-                    forest: { name: "Montane Ponderosa", img: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=400&q=80", organisms: [{ id: 'f1', name: 'Ponderosa Pine', level: 1, icon: 'ponderosa-pine', notes: "The primary producer of the forest.", predators: ['f2', 'f3'] }, { id: 'f2', name: 'Abert\'s Squirrel', level: 2, icon: 'aberts-squirrel', notes: "Has a symbiotic relationship with these specific pines.", predators: ['f4', 'f5'] }, { id: 'f3', name: 'Steller\'s Jay', level: 2, icon: 'stellers-jay', notes: "An intelligent primary consumer.", predators: ['f4', 'f5'] }, { id: 'f4', name: 'Goshawk', level: 3, icon: 'goshawk', notes: "Navigates thick branches with precision.", predators: ['f5'] }, { id: 'f5', name: 'Bobcat', level: 4, icon: 'bobcat', notes: "The top tertiary consumer of the forest.", predators: [] }] },
-                    shrubland: { name: "Steppe Shrubland", img: "https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?auto=format&fit=crop&w=400&q=80", organisms: [{ id: 's1', name: 'Sagebrush', level: 1, icon: 'sagebrush', notes: "Dominates the arid landscape.", predators: ['s2', 's3'] }, { id: 's2', name: 'Jackrabbit', level: 2, icon: 'jackrabbit', notes: "Fast primary consumer converting shrubs to energy.", predators: ['s4', 's5'] }, { id: 's3', name: 'Sage Thrasher', level: 2, icon: 'sage-thrasher', notes: "Depends on sagebrush for protection.", predators: ['s4', 's5'] }, { id: 's4', name: 'Badger', level: 3, icon: 'badger', notes: "Powerful secondary consumer digging for rodents.", predators: ['s5'] }, { id: 's5', name: 'Red-tailed Hawk', level: 4, icon: 'red-tailed-hawk', notes: "Tertiary consumer watching from the thermals.", predators: [] }] }
+                    forest: { name: "Montane Ponderosa", img: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=400&q=80", organisms: [{ id: 'f1', name: 'Ponderosa Pine', level: 1, icon: 'ponderosa-pine', notes: "The primary producer of the forest.", predators: ['f2', 'f3'] }, { id: 'f2', name: 'Abert\'s Squirrel', level: 2, icon: 'aberts-squirrel', notes: "Has a symbiotic relationship with these specific pines.", predators: ['f4', 'f5'] }, { id: 'f3', name: 'Steller\'s Jay', level: 2, icon: 'stellers-jay', notes: "An intelligent primary consumer.", predators: ['f4', 'f5'] }, { id: 'f4', name: 'Goshawk', level: 3, icon: 'goshawk', notes: "Navigates thick branches with precision.", predators: [] }, { id: 'f5', name: 'Bobcat', level: 4, icon: 'bobcat', notes: "The top tertiary consumer of the forest.", predators: [] }] },
+                    shrubland: { name: "Steppe Shrubland", img: "https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?auto=format&fit=crop&w=400&q=80", organisms: [{ id: 's1', name: 'Sagebrush', level: 1, icon: 'sagebrush', notes: "Dominates the arid landscape.", predators: ['s2', 's6'] }, { id: 's2', name: 'Jackrabbit', level: 2, icon: 'jackrabbit', notes: "Fast primary consumer converting shrubs to energy.", predators: ['s4', 's5'] }, { id: 's3', name: 'Sage Thrasher', level: 3, icon: 'sage-thrasher', notes: "An insect-eating songbird of the sage flats.", predators: ['s5'] }, { id: 's4', name: 'Badger', level: 3, icon: 'badger', notes: "Powerful secondary consumer digging for rodents.", predators: ['s5'] }, { id: 's5', name: 'Red-tailed Hawk', level: 4, icon: 'red-tailed-hawk', notes: "Tertiary consumer watching from the thermals.", predators: [] }, { id: 's6', name: 'Grasshopper', level: 2, icon: 'grasshopper', notes: "Chewing sagebrush leaves on the steppe.", predators: ['s3'] }] }
                 }
             },
             nigeria: {
@@ -733,12 +905,13 @@ const SPECIES_ICONS = {
                 title: "Nigerian Food Web Journal",
                 apexLabel: "Apex Predators",
                 ribbonColor: "#008751",
+                stampLabel: "NIGERIAN HOTSPOTS",
                 habitats: {
                     savanna: { name: "Yankari Savanna", img: "https://images.unsplash.com/photo-1516026672322-bc52d61a55d5?auto=format&fit=crop&w=400&q=80", organisms: [{ id: 'ny1', name: 'Elephant Grass', level: 1, icon: 'elephant-grass', notes: "Tall perennial grass providing base energy.", predators: ['ny2', 'ny3'] }, { id: 'ny2', name: 'Bush Elephant', level: 2, icon: 'bush-elephant', notes: "A massive primary consumer.", predators: ['ny5'] }, { id: 'ny3', name: 'Patas Monkey', level: 2, icon: 'patas-monkey', notes: "A ground-dwelling herbivore.", predators: ['ny4', 'ny5'] }, { id: 'ny4', name: 'Rock Python', level: 3, icon: 'rock-python', notes: "Powerful secondary consumer.", predators: ['ny5'] }, { id: 'ny5', name: 'West African Lion', level: 4, icon: 'west-african-lion', notes: "Apex predator of the savanna.", predators: [] }] },
-                    mangrove: { name: "Niger Delta Mangroves", img: "https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=400&q=80", organisms: [{ id: 'nm1', name: 'Red Mangrove', level: 1, icon: 'red-mangrove', notes: "Root systems sheltering the delta.", predators: ['nm2'] }, { id: 'nm2', name: 'African Manatee', level: 2, icon: 'african-manatee', notes: "Gentle aquatic primary consumer.", predators: ['nm5'] }, { id: 'nm3', name: 'Mudskipper', level: 2, icon: 'mudskipper', notes: "Amphibious fish feeding on algae.", predators: ['nm4', 'nm5'] }, { id: 'nm4', name: 'Dwarf Crocodile', level: 3, icon: 'dwarf-crocodile', notes: "Fierce secondary consumer.", predators: ['nm5'] }, { id: 'nm5', name: 'Great Blue Heron', level: 4, icon: 'great-blue-heron', notes: "Top tertiary consumer of the swamp.", predators: [] }] },
-                    rainforest: { name: "Cross River Rainforest", img: "https://images.unsplash.com/photo-1511497584788-876760111969?auto=format&fit=crop&w=400&q=80", organisms: [{ id: 'nr1', name: 'Mahogany Tree', level: 1, icon: 'mahogany-tree', notes: "Rainforest giant providing canopy fruit.", predators: ['nr2', 'nr3'] }, { id: 'nr2', name: 'Cross River Gorilla', level: 2, icon: 'cross-river-gorilla', notes: "Rarest great ape, primary consumer.", predators: ['nr5'] }, { id: 'nr3', name: 'Grey Parrot', level: 2, icon: 'grey-parrot', notes: "Feeds on seeds and fruit.", predators: ['nr4', 'nr5'] }, { id: 'nr4', name: 'Gaboon Viper', level: 3, icon: 'gaboon-viper', notes: "Stealthy secondary consumer.", predators: ['nr5'] }, { id: 'nr5', name: 'Leopard', level: 4, icon: 'leopard', notes: "Elusive apex predator of the rainforest.", predators: [] }] },
+                    mangrove: { name: "Niger Delta Mangroves", img: "https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=400&q=80", organisms: [{ id: 'nm1', name: 'Red Mangrove', level: 1, icon: 'red-mangrove', notes: "Root systems sheltering the delta.", predators: ['nm2'] }, { id: 'nm2', name: 'African Manatee', level: 2, icon: 'african-manatee', notes: "Gentle giant — so big that almost nothing can hunt it.", predators: [] }, { id: 'nm3', name: 'Mudskipper', level: 2, icon: 'mudskipper', notes: "Amphibious fish feeding on algae.", predators: ['nm4', 'nm5'] }, { id: 'nm4', name: 'Dwarf Crocodile', level: 3, icon: 'dwarf-crocodile', notes: "Fierce secondary consumer.", predators: ['nm5'] }, { id: 'nm5', name: 'Grey Heron', level: 4, icon: 'grey-heron', notes: "Top tertiary consumer of the swamp.", predators: [] }] },
+                    rainforest: { name: "Cross River Rainforest", img: "https://images.unsplash.com/photo-1511497584788-876760111969?auto=format&fit=crop&w=400&q=80", organisms: [{ id: 'nr1', name: 'Mahogany Tree', level: 1, icon: 'mahogany-tree', notes: "Rainforest giant providing canopy fruit.", predators: ['nr2', 'nr3', 'nr6'] }, { id: 'nr2', name: 'Cross River Gorilla', level: 2, icon: 'cross-river-gorilla', notes: "Rarest great ape, primary consumer.", predators: ['nr5'] }, { id: 'nr3', name: 'Grey Parrot', level: 2, icon: 'grey-parrot', notes: "Feeds on seeds and fruit.", predators: ['nr5'] }, { id: 'nr4', name: 'Gaboon Viper', level: 3, icon: 'gaboon-viper', notes: "Stealthy secondary consumer.", predators: ['nr5'] }, { id: 'nr5', name: 'Leopard', level: 4, icon: 'leopard', notes: "Elusive apex predator of the rainforest.", predators: [] }, { id: 'nr6', name: 'Giant Pouched Rat', level: 2, icon: 'giant-pouched-rat', notes: "Forest-floor rodent foraging on fallen seeds.", predators: ['nr4', 'nr5'] }] },
                     highlands: { name: "Gashaka Gumti", img: "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=400&q=80", organisms: [{ id: 'nh1', name: 'Highland Ferns', level: 1, icon: 'highland-ferns', notes: "Adapted to the cooler montane region.", predators: ['nh2', 'nh3'] }, { id: 'nh2', name: 'Chimpanzee', level: 2, icon: 'chimpanzee', notes: "Intelligent primary consumers.", predators: ['nh5'] }, { id: 'nh3', name: 'Yellow-backed Duiker', level: 2, icon: 'yellow-backed-duiker', notes: "Shy highland antelope.", predators: ['nh4', 'nh5'] }, { id: 'nh4', name: 'Golden Cat', level: 3, icon: 'golden-cat', notes: "Secretive predator of highlands.", predators: ['nh5'] }, { id: 'nh5', name: 'Crowned Eagle', level: 4, icon: 'crowned-eagle', notes: "Powerful apex raptor.", predators: [] }] },
-                    sahel: { name: "Lake Chad Sahel", img: "https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?auto=format&fit=crop&w=400&q=80", organisms: [{ id: 'ns1', name: 'Baobab Tree', level: 1, icon: 'baobab-tree', notes: "The 'Tree of Life'.", predators: ['ns2'] }, { id: 'ns2', name: 'Dorcas Gazelle', level: 2, icon: 'dorcas-gazelle', notes: "Grazing on desert grasses.", predators: ['ns4', 'ns5'] }, { id: 'ns3', name: 'Sahel Locust', level: 2, icon: 'sahel-locust', notes: "Converts shrubs to energy.", predators: ['ns4'] }, { id: 'ns4', name: 'Monitor Lizard', level: 3, icon: 'monitor-lizard', notes: "Hunts locusts across the scrub.", predators: ['ns5'] }, { id: 'ns5', name: 'Striped Hyena', level: 4, icon: 'striped-hyena', notes: "Versatile apex scavenger.", predators: [] }] }
+                    sahel: { name: "Lake Chad", img: "https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?auto=format&fit=crop&w=400&q=80", organisms: [{ id: 'ns1', name: 'Baobab Tree', level: 1, icon: 'baobab-tree', notes: "The 'Tree of Life'.", predators: ['ns2'] }, { id: 'ns2', name: 'Dorcas Gazelle', level: 2, icon: 'dorcas-gazelle', notes: "Grazing on desert grasses.", predators: ['ns5'] }, { id: 'ns3', name: 'Sahel Locust', level: 2, icon: 'sahel-locust', notes: "Converts shrubs to energy.", predators: ['ns4'] }, { id: 'ns4', name: 'Monitor Lizard', level: 3, icon: 'monitor-lizard', notes: "Hunts locusts across the scrub.", predators: ['ns5'] }, { id: 'ns5', name: 'Striped Hyena', level: 4, icon: 'striped-hyena', notes: "Versatile apex scavenger.", predators: [] }] }
                 }
             },
             uk: {
@@ -746,12 +919,13 @@ const SPECIES_ICONS = {
                 title: "British Food Web Journal",
                 apexLabel: "Apex Predators",
                 ribbonColor: "#C8102E",
+                stampLabel: "UNITED KINGDOM",
                 habitats: {
                     pinewood: { name: "Caledonian Pinewood", img: "https://images.unsplash.com/photo-1473448912268-2022ce9509d8?auto=format&fit=crop&w=400&q=80", organisms: [{ id: 'ukp1', name: 'Scots Pine', level: 1, icon: 'scots-pine', notes: "Ancient producer of the Highland forest.", predators: ['ukp2', 'ukp3'] }, { id: 'ukp2', name: 'Red Squirrel', level: 2, icon: 'red-squirrel', notes: "Native primary consumer caching pine seeds.", predators: ['ukp4', 'ukp5'] }, { id: 'ukp3', name: 'Capercaillie', level: 2, icon: 'capercaillie', notes: "Huge woodland grouse feeding on pine needles.", predators: ['ukp4', 'ukp5'] }, { id: 'ukp4', name: 'Pine Marten', level: 3, icon: 'pine-marten', notes: "Agile secondary consumer of the canopy.", predators: ['ukp5'] }, { id: 'ukp5', name: 'Golden Eagle', level: 4, icon: 'golden-eagle', notes: "Apex predator soaring over the glens.", predators: [] }] },
                     moorland: { name: "Heather Moorland", img: "https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=400&q=80", organisms: [{ id: 'ukm1', name: 'Heather', level: 1, icon: 'heather', notes: "Purple-flowering producer carpeting the moors.", predators: ['ukm2', 'ukm3'] }, { id: 'ukm2', name: 'Red Grouse', level: 2, icon: 'red-grouse', notes: "Primary consumer found only in Britain and Ireland.", predators: ['ukm4', 'ukm5'] }, { id: 'ukm3', name: 'Mountain Hare', level: 2, icon: 'mountain-hare', notes: "Turns white in winter to evade hunters.", predators: ['ukm4', 'ukm5'] }, { id: 'ukm4', name: 'Stoat', level: 3, icon: 'stoat', notes: "Fearless secondary consumer of the uplands.", predators: ['ukm5'] }, { id: 'ukm5', name: 'Red Fox', level: 4, icon: 'red-fox', notes: "Adaptable apex predator of the moor.", predators: [] }] },
                     downland: { name: "Chalk Downland", img: "https://images.unsplash.com/photo-1472214103451-9374bd1c798e?auto=format&fit=crop&w=400&q=80", organisms: [{ id: 'ukd1', name: 'Meadow Grasses', level: 1, icon: 'meadow-grasses', notes: "Wildflower-rich producers of the southern downs.", predators: ['ukd2', 'ukd3'] }, { id: 'ukd2', name: 'Rabbit', level: 2, icon: 'rabbit', notes: "Grazing keeps the downland turf short.", predators: ['ukd5'] }, { id: 'ukd3', name: 'Field Vole', level: 2, icon: 'field-vole', notes: "Tiny primary consumer hidden in the grass.", predators: ['ukd4', 'ukd5'] }, { id: 'ukd4', name: 'Adder', level: 3, icon: 'adder', notes: "Britain's only venomous snake, hunting voles.", predators: ['ukd5'] }, { id: 'ukd5', name: 'Common Buzzard', level: 4, icon: 'common-buzzard', notes: "Apex raptor circling the open downs.", predators: [] }] },
                     seashore: { name: "Rocky Seashore", img: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=400&q=80", organisms: [{ id: 'uks1', name: 'Kelp', level: 1, icon: 'kelp', notes: "Seaweed producer anchoring the tidal zone.", predators: ['uks2', 'uks3'] }, { id: 'uks2', name: 'Common Limpet', level: 2, icon: 'common-limpet', notes: "Grazes algae from the rocks at high tide.", predators: ['uks4', 'uks5'] }, { id: 'uks3', name: 'Periwinkle', level: 2, icon: 'periwinkle', notes: "Sea snail rasping seaweed from rock pools.", predators: ['uks4', 'uks5'] }, { id: 'uks4', name: 'Shore Crab', level: 3, icon: 'shore-crab', notes: "Scuttling secondary consumer of the shallows.", predators: ['uks5'] }, { id: 'uks5', name: 'Herring Gull', level: 4, icon: 'herring-gull', notes: "Bold apex scavenger of the coastline.", predators: [] }] },
-                    river: { name: "Lowland River", img: "https://images.unsplash.com/photo-1426604966848-d7adac402bff?auto=format&fit=crop&w=400&q=80", organisms: [{ id: 'ukr1', name: 'Common Reed', level: 1, icon: 'common-reed', notes: "Producer lining the slow riverbanks.", predators: ['ukr2', 'ukr3'] }, { id: 'ukr2', name: 'Water Vole', level: 2, icon: 'water-vole', notes: "Britain's beloved 'Ratty', nibbling reeds.", predators: ['ukr5'] }, { id: 'ukr3', name: 'Mayfly Nymph', level: 2, icon: 'mayfly-nymph', notes: "Grazes river plants before hatching to fly.", predators: ['ukr4'] }, { id: 'ukr4', name: 'Brown Trout', level: 3, icon: 'brown-trout', notes: "Secondary consumer rising for mayflies.", predators: ['ukr5'] }, { id: 'ukr5', name: 'Eurasian Otter', level: 4, icon: 'eurasian-otter', notes: "Playful apex predator of the waterway.", predators: [] }] }
+                    river: { name: "Lowland River", img: "https://images.unsplash.com/photo-1426604966848-d7adac402bff?auto=format&fit=crop&w=400&q=80", organisms: [{ id: 'ukr1', name: 'Common Reed', level: 1, icon: 'common-reed', notes: "Producer lining the slow riverbanks.", predators: ['ukr2'] }, { id: 'ukr2', name: 'Water Vole', level: 2, icon: 'water-vole', notes: "Britain's beloved 'Ratty', nibbling reeds.", predators: ['ukr5'] }, { id: 'ukr3', name: 'Mayfly Nymph', level: 2, icon: 'mayfly-nymph', notes: "Scrapes algae from the river stones.", predators: ['ukr4'] }, { id: 'ukr4', name: 'Brown Trout', level: 3, icon: 'brown-trout', notes: "Secondary consumer rising for mayflies.", predators: ['ukr5'] }, { id: 'ukr5', name: 'Eurasian Otter', level: 4, icon: 'eurasian-otter', notes: "Playful apex predator of the waterway.", predators: [] }, { id: 'ukr6', name: 'Algae', level: 1, icon: 'algae', notes: "Slippery green growth coating the river stones.", predators: ['ukr3'] }] }
                 }
             }
         };
@@ -892,11 +1066,20 @@ const SPECIES_ICONS = {
 
             updateLandingBadges() {
                 ['colorado', 'nigeria', 'uk'].forEach(r => {
+                    const region = regionalData[r];
                     const count = this.state.globalProgress[r].completed.length;
+                    const total = Object.keys(region.habitats).length;
                     const el = document.getElementById(`badge-count-${r}`);
-                    const color = regionalData[r].ribbonColor;
-                    el.innerHTML = count > 0 ? getRibbonSVG(40, 60, 20, color) : '';
-                    if (count > 0) el.insertAdjacentHTML('beforeend', `<span class="absolute bottom-0 left-1/2 -translate-x-1/2 text-white font-bold text-xs">${count}</span>`);
+                    const complete = count >= total;
+                    el.classList.toggle('is-complete', complete);
+                    if (complete) {
+                        el.innerHTML = getStampSVG(region.stampLabel, region.ribbonColor, 'land-' + r, { opacity: 0.92 });
+                    } else if (count > 0) {
+                        el.innerHTML = getRibbonSVG(40, 60, 20, region.ribbonColor);
+                        el.insertAdjacentHTML('beforeend', `<span class="absolute bottom-0 left-1/2 -translate-x-1/2 text-white font-bold text-xs">${count}</span>`);
+                    } else {
+                        el.innerHTML = '';
+                    }
                 });
             },
 
@@ -918,7 +1101,24 @@ const SPECIES_ICONS = {
                 });
 
                 const count = this.state.globalProgress[this.state.activeRegion].completed.length;
-                document.getElementById('progress-summary').textContent = `Earned ${count} of 5 badges`;
+                const total = Object.keys(region.habitats).length;
+                document.getElementById('progress-summary').textContent = `Earned ${count} of ${total} badges`;
+
+                // Region-complete postmark: stamp the whole page, animating once if just earned.
+                const stamp = document.getElementById('cover-region-stamp');
+                if (count >= total) {
+                    stamp.innerHTML = getStampSVG(region.stampLabel, region.ribbonColor, 'cover');
+                    stamp.style.display = 'block';
+                    stamp.classList.remove('stamp-press');
+                    if (this._pendingRegionStamp === this.state.activeRegion) {
+                        void stamp.offsetWidth; // restart the keyframes
+                        stamp.classList.add('stamp-press');
+                        this._pendingRegionStamp = null;
+                    }
+                } else {
+                    stamp.style.display = 'none';
+                    stamp.innerHTML = '';
+                }
             },
 
             startHabitat(habitatId) {
@@ -1115,9 +1315,19 @@ const SPECIES_ICONS = {
 
                 if (errs.length === 0) {
                     const prog = this.state.globalProgress[this.state.activeRegion];
+                    const total = Object.keys(regionalData[this.state.activeRegion].habitats).length;
+                    const wasComplete = prog.completed.length >= total;
                     if (!prog.completed.includes(this.state.activeHabitat)) prog.completed.push(this.state.activeHabitat);
-                    document.getElementById('feedback-title').textContent = "Mastery Achieved!";
-                    document.getElementById('feedback-text').textContent = "Expedition findings verified and archived.";
+                    const nowComplete = prog.completed.length >= total;
+                    if (nowComplete && !wasComplete) {
+                        // Final badge of the region — arm the postmark to animate on the cover page.
+                        this._pendingRegionStamp = this.state.activeRegion;
+                        document.getElementById('feedback-title').textContent = "Region Complete!";
+                        document.getElementById('feedback-text').textContent = `All ${total} habitats mastered — your ${regionalData[this.state.activeRegion].stampLabel} expedition is stamped complete!`;
+                    } else {
+                        document.getElementById('feedback-title').textContent = "Mastery Achieved!";
+                        document.getElementById('feedback-text').textContent = "Expedition findings verified and archived.";
+                    }
                     this.renderWorkspaceRibbon();
                 } else {
                     document.getElementById('feedback-title').textContent = "Field Review";
@@ -1164,12 +1374,86 @@ const SPECIES_ICONS = {
 
             showFieldGuide() {
                 const data = regionalData[this.state.activeRegion].habitats[this.state.activeHabitat];
-                document.getElementById('field-guide-content').innerHTML = data.organisms.map(o => `
-                    <div class="border-b pb-4">
-                        ${renderSpeciesIcon(o.icon, o.name)} <strong class="handwritten text-3xl">${o.name}</strong>
-                        <p class="italic text-stone-600">${o.notes}</p>
-                    </div>`).join('');
+                // Reset any popover left over from a previous open so it doesn't flash on reopen.
+                const fgPop = document.getElementById('fg-popover');
+                fgPop.classList.remove('show'); fgPop.innerHTML = ''; this._fgActiveRow = null;
+                document.getElementById('field-guide-content').innerHTML = data.organisms.map(o => {
+                    const hasGuide = !!SPECIES_GUIDE[o.id];
+                    return `
+                    <div class="fg-row${hasGuide ? ' has-guide' : ''}" data-id="${o.id}"${hasGuide ? ` tabindex="0" role="button" aria-label="Field notes for ${o.name}"` : ''}>
+                        <span class="fg-ico">${renderSpeciesIcon(o.icon, o.name)}</span>
+                        <span class="fg-name handwritten text-2xl">${o.name}</span>
+                        <span class="fg-teaser">${o.notes || ''}</span>
+                        ${hasGuide ? '<span class="fg-cue">Field notes</span>' : ''}
+                    </div>`;
+                }).join('');
+                document.getElementById('field-guide-sources').innerHTML =
+                    'Sources (open in a new tab): ' +
+                    FIELD_GUIDE_SOURCES.map(s => `<a href="${s.url}" target="_blank" rel="noopener">${s.name}</a>`).join(' · ') + '.';
+                this.bindFieldGuidePopover();
                 this.modals.guide.classList.add('active');
+            },
+
+            // Hover (desktop) / focus / tap (touch) reveals a floating card with the species'
+            // generalized science + a "Learn more" source link. The card lives on .modal-paper
+            // (not the scrolling list) so it never clips, and stays open while hovered so the link
+            // is clickable.
+            bindFieldGuidePopover() {
+                const pop = document.getElementById('fg-popover');
+                const content = document.getElementById('field-guide-content');
+                const paper = pop.parentElement;
+                let hideTimer = null;
+                const clearHide = () => { if (hideTimer) { clearTimeout(hideTimer); hideTimer = null; } };
+                const hide = () => {
+                    pop.classList.remove('show');
+                    content.querySelectorAll('.fg-row.fg-active').forEach(r => r.classList.remove('fg-active'));
+                    this._fgActiveRow = null;
+                };
+                const scheduleHide = () => { clearHide(); hideTimer = setTimeout(hide, 150); };
+                const show = (row) => {
+                    const g = SPECIES_GUIDE[row.dataset.id];
+                    if (!g) return;
+                    const name = row.querySelector('.fg-name').textContent;
+                    const iconEl = row.querySelector('.fg-ico');
+                    const iconSvg = iconEl ? iconEl.innerHTML : '';
+                    pop.innerHTML =
+                        `<span class="pop-ico">${iconSvg}</span>` +
+                        `<div class="pop-name">${name}</div>` +
+                        `<dl><dt>Where it lives</dt><dd>${g.habitat}</dd>` +
+                        `<dt>${g.isProducer ? 'How it gets energy' : 'What it eats'}</dt><dd>${g.energy}</dd>` +
+                        `<dt>What eats it</dt><dd>${g.eatenBy}</dd></dl>` +
+                        `<a class="pop-more" href="${g.source.url}" target="_blank" rel="noopener">Learn more — ${g.source.name} ↗</a>`;
+                    pop.classList.add('show');
+                    const paperRect = paper.getBoundingClientRect();
+                    const rowRect = row.getBoundingClientRect();
+                    const cue = row.querySelector('.fg-cue');
+                    const top = Math.max(8, Math.min(rowRect.top - paperRect.top + rowRect.height / 2 - pop.offsetHeight / 2, paper.clientHeight - pop.offsetHeight - 8));
+                    // Sit the card just LEFT of the "Field Notes" chip so the chip (and the
+                    // species names) stay visible and clickable rather than being covered.
+                    const rightAnchor = cue ? cue.getBoundingClientRect().left - paperRect.left : paper.clientWidth - 24;
+                    const left = Math.max(12, rightAnchor - pop.offsetWidth - 16);
+                    pop.style.top = top + 'px';
+                    pop.style.left = left + 'px';
+                    content.querySelectorAll('.fg-row.fg-active').forEach(r => r.classList.remove('fg-active'));
+                    row.classList.add('fg-active');
+                    this._fgActiveRow = row;
+                };
+                content.querySelectorAll('.fg-row.has-guide').forEach(row => {
+                    row.onmouseenter = () => { clearHide(); show(row); };
+                    row.onmouseleave = scheduleHide;
+                    row.onfocus = () => { clearHide(); show(row); };
+                    row.onblur = scheduleHide;
+                    // Show (never toggle-hide) on click/tap: a tap fires focus→click, and a
+                    // toggle here would immediately re-close what focus just opened. Dismissal
+                    // happens via blur / mouseleave / Escape / tapping another row.
+                    row.onclick = () => { clearHide(); show(row); };
+                    row.onkeydown = (e) => {
+                        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); show(row); }
+                        else if (e.key === 'Escape') hide();
+                    };
+                });
+                pop.onmouseenter = clearHide;
+                pop.onmouseleave = scheduleHide;
             },
 
             importJournal(e) {
@@ -1221,36 +1505,58 @@ const SPECIES_ICONS = {
                 const totalHabitats = regions.reduce((n, r) => n + Object.keys(regionalData[r].habitats).length, 0);
                 const totalEarned = regions.reduce((n, r) => n + this.state.globalProgress[r].completed.length, 0);
                 const subtitle = totalEarned === totalHabitats ? "Master Naturalist Certificate" : "Expedition Progress Certificate";
-                const regionRows = regions.map(r => {
+
+                // Parchment-colored perforation notches around a stamp's edge (pure SVG shapes —
+                // html2canvas 1.4.1 ignores CSS masks, but rasterizes plain circles fine).
+                const perforations = (w, h) => {
+                    const r = 5.5, pitch = 16, c = '#fdfaf3';
+                    let s = '';
+                    for (let x = pitch / 2; x < w; x += pitch) s += `<circle cx="${x.toFixed(1)}" cy="0" r="${r}" fill="${c}"/><circle cx="${x.toFixed(1)}" cy="${h}" r="${r}" fill="${c}"/>`;
+                    for (let y = pitch / 2; y < h; y += pitch) s += `<circle cx="0" cy="${y.toFixed(1)}" r="${r}" fill="${c}"/><circle cx="${w}" cy="${y.toFixed(1)}" r="${r}" fill="${c}"/>`;
+                    return `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" style="position:absolute; top:0; left:0; overflow:visible; pointer-events:none;">${s}</svg>`;
+                };
+
+                // One region rendered as a landscape postage stamp; a finished region gets the postmark
+                // cancelling it from the top-right corner (ink runs onto the certificate paper).
+                const W = 250, PH = 150, PAD = 14, BH = PH + PAD * 2;
+                const regionStamp = (r) => {
                     const region = regionalData[r];
-                    const mastered = this.state.globalProgress[r].completed;
+                    const count = this.state.globalProgress[r].completed.length;
+                    const total = Object.keys(region.habitats).length;
+                    const complete = count >= total;
+                    const img = region.habitats[Object.keys(region.habitats)[0]].img;
+                    const pips = Array.from({ length: total }, (_, i) => i < count ? '★' : '☆').join('');
                     return `
-                        <div style="width: 100%; margin-top: 12px;">
-                            <div style="display: flex; align-items: baseline; justify-content: center; gap: 14px;">
-                                <span style="font-family: 'Patrick Hand', cursive; font-size: 26px; color: ${region.ribbonColor};">${region.title}</span>
-                                <span style="font-family: 'Special Elite', cursive; font-size: 13px;">${mastered.length} of ${Object.keys(region.habitats).length} badges</span>
+                        <div style="position: relative; width: ${W}px; display: flex; flex-direction: column; align-items: center;">
+                            <div style="position: relative; width: ${W}px;">
+                                <div style="background: #fffdf6; padding: ${PAD}px; box-shadow: 1px 2px 3px rgba(0,0,0,0.25);">
+                                    <div style="position: relative; height: ${PH}px; overflow: hidden; outline: 1px solid rgba(0,0,0,0.25);">
+                                        <img src="${img}" crossorigin="anonymous" style="width: 100%; height: ${PH}px; object-fit: cover; display: block; ${complete ? '' : 'filter: grayscale(1);'}">
+                                        ${complete ? '' : '<div style="position: absolute; inset: 0; background: rgba(247,243,232,0.55);"></div>'}
+                                        <span style="position: absolute; top: 6px; right: 8px; font-family: 'Special Elite', monospace; font-weight: 700; font-size: 13px; color: #fff; text-shadow: 0 1px 2px #000;">${count}/${total}</span>
+                                        <span style="position: absolute; bottom: 6px; left: 0; right: 0; text-align: center; font-family: 'Special Elite', monospace; font-size: 10px; letter-spacing: 1px; color: #fff; text-shadow: 0 1px 2px #000;">${region.stampLabel}</span>
+                                    </div>
+                                </div>
+                                ${perforations(W, BH)}
+                                ${complete ? `<div style="position: absolute; top: -22%; right: -16%; width: 64%;">${getStampSVG(region.stampLabel, region.ribbonColor, 'cert-' + r)}</div>` : ''}
                             </div>
-                            <div style="display: flex; gap: 22px; justify-content: center; margin-top: 6px;">
-                                ${Object.keys(region.habitats).map(k => `
-                                    <div style="display: flex; flex-direction: column; align-items: center; width: 110px;">
-                                        <div style="width: 70px; height: 70px; border-radius: 50%; border: 4px solid var(--journal-border); overflow: hidden; position: relative;">
-                                            ${mastered.includes(k) ? `<div style="position: absolute; top: -4px; right: -4px;">${getRibbonSVG(24, 36, 12, region.ribbonColor)}</div>` : ''}
-                                            <img src="${region.habitats[k].img}" crossorigin="anonymous" style="width: 100%; height: 100%; object-fit: cover; ${mastered.includes(k) ? '' : 'filter: grayscale(1); opacity: 0.35;'}">
-                                        </div>
-                                        <span style="font-family: 'Special Elite', cursive; font-size: 10px; margin-top: 4px; text-align: center; line-height: 1.2;">${region.habitats[k].name}</span>
-                                    </div>`).join('')}
-                            </div>
+                            <div style="font-family: 'Patrick Hand', cursive; font-weight: 700; font-size: 18px; color: ${region.ribbonColor}; margin-top: 14px; text-transform: capitalize;">${region.stampLabel.toLowerCase()}</div>
+                            <div style="font-family: 'Special Elite', monospace; font-size: 15px; letter-spacing: 2px; color: ${complete ? region.ribbonColor : '#b9ad8c'};">${pips}</div>
+                            <div style="font-family: 'Special Elite', monospace; font-size: 10px; opacity: 0.7; margin-top: 2px; color: ${complete ? region.ribbonColor : 'inherit'}; font-weight: ${complete ? 700 : 400};">${complete ? '★ REGION COMPLETE ★' : count + ' of ' + total + ' habitats'}</div>
                         </div>`;
-                }).join('');
+                };
+
                 this.certTemplate.innerHTML = `
-                    <div style="flex: 1; border: 10px solid var(--journal-border); padding: 18px 30px; display: flex; flex-direction: column; align-items: center; width: 100%;">
-                        <h1 style="font-family: 'Patrick Hand', cursive; font-size: 42px; margin: 0;">Global Food Web Expedition</h1>
-                        <p style="font-family: 'Special Elite', cursive; font-size: 15px; letter-spacing: 4px; text-transform: uppercase; margin: 2px 0 8px 0;">${subtitle}</p>
+                    <div style="flex: 1; border: 10px solid var(--journal-border); padding: 26px 30px; display: flex; flex-direction: column; align-items: center; width: 100%; box-sizing: border-box;">
+                        <h1 style="font-family: 'Patrick Hand', cursive; font-size: 44px; margin: 0;">Global Food Web Expedition</h1>
+                        <p style="font-family: 'Special Elite', cursive; font-size: 15px; letter-spacing: 4px; text-transform: uppercase; margin: 2px 0 10px 0;">${subtitle}</p>
                         <div style="border-bottom: 2px dashed #000; min-width: 400px; font-size: 36px; font-family: 'Caveat', cursive; text-align: center;">${name}</div>
-                        <p style="font-family: 'Patrick Hand', cursive; font-size: 19px; margin: 6px 0 0 0;">Has earned ${totalEarned} of ${totalHabitats} merit badges exploring the world's food webs.</p>
-                        ${regionRows}
+                        <p style="font-family: 'Patrick Hand', cursive; font-size: 19px; margin: 8px 0 0 0;">Has earned ${totalEarned} of ${totalHabitats} merit badges exploring the world's food webs.</p>
+                        <div style="display: flex; gap: 56px; justify-content: center; align-items: flex-start; margin: auto 0;">
+                            ${regions.map(regionStamp).join('')}
+                        </div>
                         <div style="margin-top: auto; display: flex; gap: 30px; font-family: 'Special Elite', cursive; font-size: 11px; opacity: 0.6; padding-top: 8px;">
-                            <span>BUILD v3.0.2</span>
+                            <span>BUILD v3.2.0</span>
                             <span>SAVED: ${new Date().toLocaleDateString()}</span>
                         </div>
                     </div>`;
@@ -1258,7 +1564,7 @@ const SPECIES_ICONS = {
                     // Embed the current game progress in the PNG so the certificate can be
                     // re-uploaded via "Load Journal or Certificate" to resume where the explorer left off.
                     const payload = jsonToB64({
-                        version: "3.0.2",
+                        version: "3.2.0",
                         userName: name,
                         globalProgress: this.state.globalProgress
                     });
