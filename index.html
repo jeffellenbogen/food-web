@@ -263,13 +263,14 @@
 
         /* --- Region-complete postmark stamp (#18) --- */
         .region-stamp { pointer-events: none; display: block; width: 100%; height: auto; aspect-ratio: 1 / 1; }
-        #cover-region-stamp { position: absolute; top: 50%; left: 50%; width: 260px; max-width: 58%; transform: translate(-50%,-50%) rotate(-8deg); z-index: 30; pointer-events: none; }
-        .global-badge.is-complete { top: 50%; left: 50%; right: auto; width: 150px; transform: translate(-50%,-50%) rotate(-8deg); z-index: 25; }
+        /* Postmark sits askew over a corner and overhangs onto the blank page, like a postal worker's cancel mark (matches the certificate). */
+        #cover-region-stamp { position: absolute; top: 25%; left: 84%; width: 235px; max-width: 44%; transform: translate(-50%,-50%) rotate(-14deg); z-index: 30; pointer-events: none; }
+        .global-badge.is-complete { top: -16px; right: -16px; left: auto; bottom: auto; width: 130px; transform: rotate(-14deg); z-index: 25; }
         @keyframes stamp-press {
-            0%   { opacity: 0; transform: translate(-50%,-50%) rotate(-8deg) scale(2.3); }
-            55%  { opacity: 1; transform: translate(-50%,-50%) rotate(-8deg) scale(0.9); }
-            74%  { transform: translate(-50%,-50%) rotate(-8deg) scale(1.07); }
-            100% { opacity: 1; transform: translate(-50%,-50%) rotate(-8deg) scale(1); }
+            0%   { opacity: 0; transform: translate(-50%,-50%) rotate(-14deg) scale(2.3); }
+            55%  { opacity: 1; transform: translate(-50%,-50%) rotate(-14deg) scale(0.9); }
+            74%  { transform: translate(-50%,-50%) rotate(-14deg) scale(1.07); }
+            100% { opacity: 1; transform: translate(-50%,-50%) rotate(-14deg) scale(1); }
         }
         #cover-region-stamp.stamp-press { animation: stamp-press 0.5s cubic-bezier(0.2,0.7,0.3,1) both; }
     </style>
@@ -353,7 +354,7 @@
                     </div>
                 </div>
             </div>
-            <div class="version-tag">Build v3.3.1 GLOBAL EXPEDITION</div>
+            <div class="version-tag">Build v3.3.2 GLOBAL EXPEDITION</div>
         </div>
 
         <!-- SCREEN: REGIONAL COVER -->
@@ -373,7 +374,7 @@
                     <p id="download-hint" class="text-sm typewriter opacity-50 mt-4 text-center">Your certificate records every badge earned so far. Re-upload it anytime to continue your expedition.</p>
                 </div>
             </div>
-            <div class="version-tag">Build v3.3.1 GLOBAL EXPEDITION</div>
+            <div class="version-tag">Build v3.3.2 GLOBAL EXPEDITION</div>
         </div>
 
         <!-- SCREEN: WORKSPACE -->
@@ -411,7 +412,7 @@
                     </div>
                 </main>
             </div>
-            <div class="version-tag">Build v3.3.1 GLOBAL EXPEDITION</div>
+            <div class="version-tag">Build v3.3.2 GLOBAL EXPEDITION</div>
         </div>
 
         <div id="modal-field-guide" class="overlay">
@@ -1623,7 +1624,7 @@ const SPECIES_ICONS = {
                             ${regions.map(regionStamp).join('')}
                         </div>
                         <div style="margin-top: auto; display: flex; gap: 30px; font-family: 'Special Elite', cursive; font-size: 11px; opacity: 0.6; padding-top: 8px;">
-                            <span>BUILD v3.3.1</span>
+                            <span>BUILD v3.3.2</span>
                             <span>SAVED: ${new Date().toLocaleDateString()}</span>
                         </div>
                     </div>`;
@@ -1631,7 +1632,7 @@ const SPECIES_ICONS = {
                     // Embed the current game progress in the PNG so the certificate can be
                     // re-uploaded via "Load Journal or Certificate" to resume where the explorer left off.
                     const payload = jsonToB64({
-                        version: "3.3.1",
+                        version: "3.3.2",
                         userName: name,
                         globalProgress: this.state.globalProgress
                     });
