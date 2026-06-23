@@ -61,7 +61,8 @@ across 7 habitats and produced concrete fixes.
 **Fixes (7 habitats):**
 | Habitat | Change |
 |---|---|
-| CO Alpine Tundra | Apex **Mountain Lion → Golden Eagle** (cougars avoid treeless alpine) |
+| CO Alpine Tundra | Apex **Mountain Lion → Bobcat** (cougars avoid treeless alpine & don't hunt pika-sized prey; bobcats do range rocky alpine and hunt small mammals) |
+| CO Montane Ponderosa | Apex **Bobcat → Mountain Lion** (forest is the cougar's accurate home) — paired swap with the tundra so both cats stay and the Golden Eagle isn't repeated within Colorado |
 | CO Montane Ponderosa | Removed implausible **Bobcat → Goshawk** |
 | CO Steppe Shrubland | Added **Grasshopper** (L2); **Sage Thrasher** L2→L3 (it's an insectivore) |
 | Nigeria Niger Delta Mangrove | **Great Blue Heron → Grey Heron** (Americas-only species); removed impossible **Heron → African Manatee** (manatee now a no-predator megaherbivore) |
@@ -73,8 +74,9 @@ across 7 habitats and produced concrete fixes.
 - **4 new icons** authored in `tools/species-icons-art.js` (grasshopper, algae, giant-pouched-rat,
   grey-heron) and built into `index.html` via `node tools/build-species-icons.js`. Great Blue Heron
   stays correct in Colorado's riparian habitat.
-- **`UNUSED_SPECIES` bank** — retired creatures (currently Mountain Lion) kept with art preserved for
-  future habitats. Uses `iconKey` (not `icon`) so the icon-build's organism scan ignores it.
+- **`UNUSED_SPECIES` bank** — a holding spot for retired creatures (art preserved, `iconKey` instead
+  of `icon` so the build's organism scan ignores them). Currently **empty** — after the cat swap above,
+  the Mountain Lion is active in the forest and the Bobcat in the tundra, so nothing is retired.
 - Three habitats now have **6 species** (Shrubland, Rainforest, River); the centering layout and the
   per-habitat badge counts are unaffected.
 - The icon test count guard was updated 75 → **78** organism icon refs.
