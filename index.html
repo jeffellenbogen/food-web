@@ -1000,6 +1000,20 @@ const SPECIES_ICONS = {
 
                 document.querySelectorAll('.closeModal').forEach(btn => btn.onclick = (e) => e.target.closest('.overlay').classList.remove('active'));
 
+                // Esc backs out: first close an open Field-Guide species card, otherwise close the active modal.
+                document.addEventListener('keydown', (e) => {
+                    if (e.key !== 'Escape') return;
+                    const pop = document.getElementById('fg-popover');
+                    if (this.modals.guide.classList.contains('active') && pop && pop.classList.contains('show')) {
+                        pop.classList.remove('show');
+                        document.querySelectorAll('#field-guide-content .fg-row.fg-active').forEach(r => r.classList.remove('fg-active'));
+                        this._fgActiveRow = null;
+                        return;
+                    }
+                    const active = document.querySelector('.overlay.active');
+                    if (active) active.classList.remove('active');
+                });
+
                 this.shelves.forEach(shelf => {
                     shelf.ondragover = (e) => { e.preventDefault(); shelf.classList.add('shelf-drag-over'); };
                     shelf.ondragleave = () => shelf.classList.remove('shelf-drag-over');
@@ -1449,7 +1463,6 @@ const SPECIES_ICONS = {
                     row.onclick = () => { clearHide(); show(row); };
                     row.onkeydown = (e) => {
                         if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); show(row); }
-                        else if (e.key === 'Escape') hide();
                     };
                 });
                 pop.onmouseenter = clearHide;
