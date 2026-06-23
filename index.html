@@ -159,6 +159,27 @@
 
         #modal-feedback .modal-paper { max-width: 460px; padding: 1.25rem 1.5rem; max-height: 85vh; overflow-y: hidden; display: flex; flex-direction: column; }
         #modal-feedback h3 { margin-top: 0; margin-bottom: 0.5rem; font-size: 2.4rem; line-height: 1.1; }
+        /* Field Review feedback: color-coded issue panels + success stamp */
+        .fb-panel { border-radius: 10px; padding: 0.7rem 0.9rem; margin: 0.55rem 0; border-left: 6px solid; font-style: normal; }
+        .fb-panel.placement { background: #fbf0dd; border-color: #d98a2b; }
+        .fb-panel.flow { background: #e7f0f8; border-color: #2c6fa8; }
+        .fb-panel h4 { display: flex; align-items: center; gap: 8px; margin: 0 0 0.35rem; font-family: 'Special Elite', cursive; text-transform: uppercase; font-size: 0.82rem; letter-spacing: 0.05em; }
+        .fb-panel.placement h4 { color: #b3701f; }
+        .fb-panel.flow h4 { color: #235a87; }
+        .fb-panel .fb-icon { width: 22px; height: 22px; flex: none; }
+        .fb-panel ul { margin: 0; padding-left: 1.15rem; }
+        .fb-panel li { font-size: 0.95rem; font-style: normal; line-height: 1.35; margin: 0.18rem 0; }
+        .fb-panel li b { font-weight: 700; }
+        .fb-success { position: relative; padding: 1.6rem 0.5rem 0.6rem; text-align: center; min-height: 210px; display: flex; align-items: center; justify-content: center; }
+        .fb-success .fb-msg { font-style: normal; font-size: 1.05rem; max-width: 60%; }
+        .fb-stamp { position: absolute; top: 48%; left: 50%; width: 200px; transform: translate(-50%,-50%) rotate(-8deg); pointer-events: none; }
+        @keyframes fb-stamp-press {
+            0%   { opacity: 0; transform: translate(-50%,-50%) rotate(-8deg) scale(2.2); }
+            55%  { opacity: 1; transform: translate(-50%,-50%) rotate(-8deg) scale(0.9); }
+            75%  { transform: translate(-50%,-50%) rotate(-8deg) scale(1.06); }
+            100% { opacity: 1; transform: translate(-50%,-50%) rotate(-8deg) scale(1); }
+        }
+        .fb-stamp { animation: fb-stamp-press 0.55s cubic-bezier(0.2,0.7,0.3,1) both; }
 
         #connection-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 40; }
         .connection-group { pointer-events: auto; cursor: default; }
@@ -332,7 +353,7 @@
                     </div>
                 </div>
             </div>
-            <div class="version-tag">Build v3.3.0 GLOBAL EXPEDITION</div>
+            <div class="version-tag">Build v3.3.1 GLOBAL EXPEDITION</div>
         </div>
 
         <!-- SCREEN: REGIONAL COVER -->
@@ -352,7 +373,7 @@
                     <p id="download-hint" class="text-sm typewriter opacity-50 mt-4 text-center">Your certificate records every badge earned so far. Re-upload it anytime to continue your expedition.</p>
                 </div>
             </div>
-            <div class="version-tag">Build v3.3.0 GLOBAL EXPEDITION</div>
+            <div class="version-tag">Build v3.3.1 GLOBAL EXPEDITION</div>
         </div>
 
         <!-- SCREEN: WORKSPACE -->
@@ -390,7 +411,7 @@
                     </div>
                 </main>
             </div>
-            <div class="version-tag">Build v3.3.0 GLOBAL EXPEDITION</div>
+            <div class="version-tag">Build v3.3.1 GLOBAL EXPEDITION</div>
         </div>
 
         <div id="modal-field-guide" class="overlay">
@@ -449,6 +470,7 @@
         const getStampSVG = (label, color, uid, opts = {}) => {
             const c = color || 'var(--ribbon-main)';
             const op = opts.opacity == null ? 0.9 : opts.opacity;
+            const topText = opts.topText || '★ EXPEDITION COMPLETE ★';
             return `
             <svg class="region-stamp" viewBox="0 0 220 220" role="img" aria-label="Expedition complete: ${label}" style="opacity:${op}; overflow:visible;">
                 <defs>
@@ -460,7 +482,7 @@
                     <circle cx="110" cy="110" r="89" stroke-width="1.5"/>
                     <circle cx="110" cy="110" r="44" stroke-width="1.5"/>
                     <g fill="${c}" stroke="none" style="font-family: 'Special Elite', 'Courier New', monospace; font-weight: 700;">
-                        <text font-size="13.5" letter-spacing="2.5"><textPath href="#stamp-top-${uid}" startOffset="50%" text-anchor="middle">★ EXPEDITION COMPLETE ★</textPath></text>
+                        <text font-size="13.5" letter-spacing="2.5"><textPath href="#stamp-top-${uid}" startOffset="50%" text-anchor="middle">${topText}</textPath></text>
                         <text font-size="11.5" letter-spacing="2"><textPath href="#stamp-bot-${uid}" startOffset="50%" text-anchor="middle">${label}</textPath></text>
                         <text x="110" y="126" text-anchor="middle" font-size="48">★</text>
                         <text x="110" y="150" text-anchor="middle" font-size="9" letter-spacing="1">EST. 2026</text>
@@ -1326,39 +1348,57 @@ const SPECIES_ICONS = {
 
             checkJournal() {
                 const data = regionalData[this.state.activeRegion].habitats[this.state.activeHabitat];
+                const region = regionalData[this.state.activeRegion];
                 const hState = this.state.globalProgress[this.state.activeRegion].habitatsState[this.state.activeHabitat];
-                let errs = [];
+
+                // Categorize issues so the feedback can show clearly which TYPE needs work.
+                const placement = [];
                 data.organisms.forEach(o => {
                     const el = document.querySelector(`[data-id="${o.id}"]`);
                     const shelf = el.closest('.trophic-shelf');
-                    if (!shelf) errs.push(`The **${o.name}** is missing from the web.`);
-                    else if (parseInt(shelf.dataset.level) !== o.level) errs.push(`The **${o.name}** is at the wrong trophic level.`);
+                    if (!shelf) placement.push(`Place the <b>${o.name}</b> into a trophic layer.`);
+                    else if (parseInt(shelf.dataset.level) !== o.level) placement.push(`Move the <b>${o.name}</b> to a different layer.`);
                 });
-                if (errs.length === 0) {
-                    data.organisms.forEach(o => o.predators.forEach(pId => {
-                        if (!hState.connections.some(c => c.sourceId === o.id && c.targetId === pId)) errs.push(`Energy flow from **${o.name}** is incomplete.`);
-                    }));
+                const flow = [];
+                if (placement.length === 0) {
+                    // every species is on the right layer — now check the energy arrows
+                    data.organisms.forEach(o => {
+                        if (o.predators.some(pId => !hState.connections.some(c => c.sourceId === o.id && c.targetId === pId)))
+                            flow.push(`Draw the energy arrow leaving the <b>${o.name}</b>.`);
+                    });
+                    const valid = new Set();
+                    data.organisms.forEach(o => o.predators.forEach(p => valid.add(o.id + '>' + p)));
+                    const wrong = hState.connections.filter(c => !valid.has(c.sourceId + '>' + c.targetId)).length;
+                    if (wrong) flow.push(`Remove ${wrong} energy arrow${wrong > 1 ? 's' : ''} that ${wrong > 1 ? "don't" : "doesn't"} belong.`);
                 }
 
-                if (errs.length === 0) {
+                const titleEl = document.getElementById('feedback-title');
+                const bodyEl = document.getElementById('feedback-text');
+
+                if (placement.length === 0 && flow.length === 0) {
                     const prog = this.state.globalProgress[this.state.activeRegion];
-                    const total = Object.keys(regionalData[this.state.activeRegion].habitats).length;
+                    const total = Object.keys(region.habitats).length;
                     const wasComplete = prog.completed.length >= total;
                     if (!prog.completed.includes(this.state.activeHabitat)) prog.completed.push(this.state.activeHabitat);
-                    const nowComplete = prog.completed.length >= total;
-                    if (nowComplete && !wasComplete) {
-                        // Final badge of the region — arm the postmark to animate on the cover page.
-                        this._pendingRegionStamp = this.state.activeRegion;
-                        document.getElementById('feedback-title').textContent = "Region Complete!";
-                        document.getElementById('feedback-text').textContent = `All ${total} habitats mastered — your ${regionalData[this.state.activeRegion].stampLabel} expedition is stamped complete!`;
-                    } else {
-                        document.getElementById('feedback-title').textContent = "Mastery Achieved!";
-                        document.getElementById('feedback-text').textContent = "Expedition findings verified and archived.";
-                    }
+                    const justFinishedRegion = prog.completed.length >= total && !wasComplete;
+                    if (justFinishedRegion) this._pendingRegionStamp = this.state.activeRegion; // arm cover-page animation
+                    titleEl.textContent = justFinishedRegion ? "Region Complete!" : "Habitat Mastered!";
+                    const topText = justFinishedRegion ? '★ EXPEDITION COMPLETE ★' : '★ HABITAT MASTERED ★';
+                    const msg = justFinishedRegion
+                        ? `All ${total} habitats mastered — your ${region.stampLabel} expedition is complete!`
+                        : `Every species is on its layer and every energy arrow is correct.`;
+                    bodyEl.innerHTML = `<div class="fb-success"><span class="fb-msg">${msg}</span><span class="fb-stamp">${getStampSVG(region.stampLabel, region.ribbonColor, 'feedback', { topText })}</span></div>`;
                     this.renderWorkspaceRibbon();
                 } else {
-                    document.getElementById('feedback-title').textContent = "Field Review";
-                    document.getElementById('feedback-text').innerHTML = errs.slice(0, 3).join("<br><br>");
+                    titleEl.textContent = "Field Review";
+                    const layersIcon = `<svg class="fb-icon" viewBox="0 0 24 24" fill="none" stroke="#d98a2b" stroke-width="2" stroke-linejoin="round"><path d="M12 3 3 8l9 5 9-5-9-5Z"/><path d="M3 13l9 5 9-5"/></svg>`;
+                    const arrowIcon = `<svg class="fb-icon" viewBox="0 0 24 24" fill="none" stroke="#2c6fa8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 19 19 5"/><path d="M9 5h10v10"/></svg>`;
+                    let html = '';
+                    if (placement.length)
+                        html += `<div class="fb-panel placement"><h4>${layersIcon} Trophic layers — ${placement.length} to fix</h4><ul>${placement.map(s => `<li>${s}</li>`).join('')}</ul></div>`;
+                    if (flow.length)
+                        html += `<div class="fb-panel flow"><h4>${arrowIcon} Energy flow arrows — ${flow.length} to fix</h4><ul>${flow.map(s => `<li>${s}</li>`).join('')}</ul></div>`;
+                    bodyEl.innerHTML = html;
                 }
                 this.modals.feedback.classList.add('active');
             },
@@ -1583,7 +1623,7 @@ const SPECIES_ICONS = {
                             ${regions.map(regionStamp).join('')}
                         </div>
                         <div style="margin-top: auto; display: flex; gap: 30px; font-family: 'Special Elite', cursive; font-size: 11px; opacity: 0.6; padding-top: 8px;">
-                            <span>BUILD v3.3.0</span>
+                            <span>BUILD v3.3.1</span>
                             <span>SAVED: ${new Date().toLocaleDateString()}</span>
                         </div>
                     </div>`;
@@ -1591,7 +1631,7 @@ const SPECIES_ICONS = {
                     // Embed the current game progress in the PNG so the certificate can be
                     // re-uploaded via "Load Journal or Certificate" to resume where the explorer left off.
                     const payload = jsonToB64({
-                        version: "3.3.0",
+                        version: "3.3.1",
                         userName: name,
                         globalProgress: this.state.globalProgress
                     });
