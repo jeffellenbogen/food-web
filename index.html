@@ -265,7 +265,7 @@
         .region-stamp { pointer-events: none; display: block; width: 100%; height: auto; aspect-ratio: 1 / 1; }
         /* Postmark sits askew over a corner and overhangs onto the blank page, like a postal worker's cancel mark (matches the certificate). */
         #cover-region-stamp { position: absolute; top: -18px; left: 80%; width: 185px; max-width: 36%; transform: translate(-50%,-50%) rotate(-14deg); z-index: 30; pointer-events: none; }
-        .global-badge.is-complete { top: auto; bottom: 20px; left: 50%; right: auto; width: 140px; transform: translateX(-50%) rotate(-13deg); z-index: 25; }
+        .region-postmark { position: absolute; bottom: 20px; left: 50%; right: auto; width: 140px; transform: translateX(-50%) rotate(-13deg); z-index: 25; pointer-events: none; }
         @keyframes stamp-press {
             0%   { opacity: 0; transform: translate(-50%,-50%) rotate(-14deg) scale(2.3); }
             55%  { opacity: 1; transform: translate(-50%,-50%) rotate(-14deg) scale(0.9); }
@@ -354,7 +354,7 @@
                     </div>
                 </div>
             </div>
-            <div class="version-tag">Build v3.4.1 GLOBAL EXPEDITION</div>
+            <div class="version-tag">Build v3.4.2 GLOBAL EXPEDITION</div>
         </div>
 
         <!-- SCREEN: REGIONAL COVER -->
@@ -374,7 +374,7 @@
                     <p id="download-hint" class="text-sm typewriter opacity-50 mt-4 text-center">Your certificate records every badge earned so far. Re-upload it anytime to continue your expedition.</p>
                 </div>
             </div>
-            <div class="version-tag">Build v3.4.1 GLOBAL EXPEDITION</div>
+            <div class="version-tag">Build v3.4.2 GLOBAL EXPEDITION</div>
         </div>
 
         <!-- SCREEN: WORKSPACE -->
@@ -412,7 +412,7 @@
                     </div>
                 </main>
             </div>
-            <div class="version-tag">Build v3.4.1 GLOBAL EXPEDITION</div>
+            <div class="version-tag">Build v3.4.2 GLOBAL EXPEDITION</div>
         </div>
 
         <div id="modal-field-guide" class="overlay">
@@ -1170,14 +1170,21 @@ const SPECIES_ICONS = {
                     const total = Object.keys(region.habitats).length;
                     const el = document.getElementById(`badge-count-${r}`);
                     const complete = count >= total;
-                    el.classList.toggle('is-complete', complete);
-                    if (complete) {
-                        el.innerHTML = getStampSVG(region.stampLabel, region.ribbonColor, 'land-' + r, { opacity: 0.92 });
-                    } else if (count > 0) {
+                    // Corner count ribbon — always reflects habitats completed (1..total); stays visible even when the region is fully complete.
+                    if (count > 0) {
                         el.innerHTML = getRibbonSVG(40, 60, 20, region.ribbonColor);
                         el.insertAdjacentHTML('beforeend', `<span class="absolute bottom-0 left-1/2 -translate-x-1/2 text-white font-bold text-xs">${count}</span>`);
                     } else {
                         el.innerHTML = '';
+                    }
+                    // Completion postmark — a separate mark over the title, shown only when the whole region is complete (so the ribbon and the stamp coexist).
+                    const card = el.closest('.destination-card');
+                    let stamp = card.querySelector('.region-postmark');
+                    if (complete) {
+                        if (!stamp) { stamp = document.createElement('div'); stamp.className = 'region-postmark'; card.appendChild(stamp); }
+                        stamp.innerHTML = getStampSVG(region.stampLabel, region.ribbonColor, 'land-' + r, { opacity: 0.92 });
+                    } else if (stamp) {
+                        stamp.remove();
                     }
                 });
             },
@@ -1673,7 +1680,7 @@ const SPECIES_ICONS = {
                             ${regions.map(regionStamp).join('')}
                         </div>
                         <div style="margin-top: auto; display: flex; gap: 30px; font-family: 'Special Elite', cursive; font-size: 11px; opacity: 0.6; padding-top: 8px;">
-                            <span>BUILD v3.4.1</span>
+                            <span>BUILD v3.4.2</span>
                             <span>SAVED: ${new Date().toLocaleDateString()}</span>
                         </div>
                     </div>`;
@@ -1681,7 +1688,7 @@ const SPECIES_ICONS = {
                     // Embed the current game progress in the PNG so the certificate can be
                     // re-uploaded via "Load Journal or Certificate" to resume where the explorer left off.
                     const payload = jsonToB64({
-                        version: "3.4.1",
+                        version: "3.4.2",
                         userName: name,
                         globalProgress: this.state.globalProgress
                     });
