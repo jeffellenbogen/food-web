@@ -180,6 +180,13 @@
             100% { opacity: 1; transform: translate(-50%,-50%) rotate(-8deg) scale(1); }
         }
         .fb-stamp { animation: fb-stamp-press 0.55s cubic-bezier(0.2,0.7,0.3,1) both; }
+        .fb-panel li i { font-style: italic; }
+        .fb-more { list-style: none; margin-left: -0.55rem; font-style: italic; opacity: 0.7; font-size: 0.88rem; }
+        /* Tiles a hint refers to glow until the next Check or until the tile is moved. */
+        @keyframes fbGlow { 0%, 100% { box-shadow: 0 0 0 0 rgba(0,0,0,0); } 50% { box-shadow: 0 0 0 5px var(--fbg); } }
+        .sidebar-item.fb-glow-layer, .sidebar-item.fb-glow-flow { border-radius: 8px; animation: fbGlow 1.25s ease-in-out infinite; }
+        .sidebar-item.fb-glow-layer { --fbg: rgba(217,138,43,0.5); outline: 2px solid #d98a2b; }
+        .sidebar-item.fb-glow-flow { --fbg: rgba(44,111,168,0.5); outline: 2px solid #2c6fa8; }
 
         #connection-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 40; }
         .connection-group { pointer-events: auto; cursor: default; }
@@ -246,20 +253,20 @@
         .fg-row.has-guide:hover, .fg-row.has-guide:focus-visible, .fg-row.fg-active { background: rgba(44,82,130,0.09); outline: none; }
         .fg-row .fg-ico { flex: none; width: 34px; text-align: center; }
         .fg-row .fg-ico svg { width: 30px !important; height: 30px !important; transform: scale(1.25); }
-        .fg-row .fg-name { flex: none; }
-        .fg-teaser { flex: 1; min-width: 0; font-size: 0.82rem; font-style: italic; color: #6b6256; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        .fg-cue { flex: none; font-size: 0.58rem; font-weight: bold; color: #2c5282; border: 1px solid #2c5282; border-radius: 10px; padding: 1px 8px; text-transform: uppercase; letter-spacing: 0.04em; transition: background 0.15s, color 0.15s; }
+        .fg-row .fg-name { flex: none; font-size: 1.3em; }
+        .fg-teaser { flex: 1; min-width: 0; font-size: 1.07rem; font-style: italic; color: #6b6256; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .fg-cue { flex: none; font-size: 0.75rem; font-weight: bold; color: #2c5282; border: 1px solid #2c5282; border-radius: 10px; padding: 1px 8px; text-transform: uppercase; letter-spacing: 0.04em; transition: background 0.15s, color 0.15s; }
         .fg-row.has-guide:hover .fg-cue, .fg-row.fg-active .fg-cue { background: #2c5282; color: #fff; }
-        .fg-sources { margin-top: 14px; padding-top: 10px; border-top: 2px solid rgba(0,0,0,0.15); font-size: 0.7rem; line-height: 1.5; color: #6b6256; font-family: 'Special Elite', cursive; }
+        .fg-sources { margin-top: 14px; padding-top: 10px; border-top: 2px solid rgba(0,0,0,0.15); font-size: 0.91rem; line-height: 1.5; color: #6b6256; font-family: 'Special Elite', cursive; }
         .fg-sources a { color: #2c5282; text-decoration: underline; }
-        #fg-popover { position: absolute; z-index: 60; width: 250px; max-width: 72%; background: #fffdf5; border: 2px solid var(--journal-border); box-shadow: 4px 4px 0 rgba(0,0,0,0.2); padding: 12px 14px; border-radius: 3px; display: none; }
+        #fg-popover { position: absolute; z-index: 60; width: 290px; max-width: 82%; max-height: 70vh; overflow-y: auto; background: #fffdf5; border: 2px solid var(--journal-border); box-shadow: 4px 4px 0 rgba(0,0,0,0.2); padding: 12px 14px; border-radius: 3px; display: none; }
         #fg-popover.show { display: block; }
         #fg-popover .pop-ico { float: right; width: 84px; height: 84px; margin: -2px -2px 2px 10px; text-align: center; pointer-events: none; overflow: visible; }
         #fg-popover .pop-ico svg { width: 80px !important; height: 80px !important; display: inline-block; vertical-align: top; }
-        #fg-popover .pop-name { font-weight: bold; font-size: 1rem; border-bottom: 1px solid #ddd; padding-bottom: 4px; margin-bottom: 4px; overflow: hidden; }
-        #fg-popover dt { font-size: 0.58rem; text-transform: uppercase; letter-spacing: 0.04em; color: #8a7f63; font-weight: bold; margin-top: 8px; }
-        #fg-popover dd { font-size: 0.85rem; margin: 1px 0 0 0; line-height: 1.35; }
-        #fg-popover .pop-more { display: inline-block; margin-top: 10px; font-size: 0.8rem; font-weight: bold; color: #2c5282; text-decoration: underline; }
+        #fg-popover .pop-name { font-weight: bold; font-size: 1.3rem; border-bottom: 1px solid #ddd; padding-bottom: 4px; margin-bottom: 4px; overflow: hidden; }
+        #fg-popover dt { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.04em; color: #8a7f63; font-weight: bold; margin-top: 8px; }
+        #fg-popover dd { font-size: 1.1rem; margin: 1px 0 0 0; line-height: 1.35; }
+        #fg-popover .pop-more { display: inline-block; margin-top: 10px; font-size: 1.04rem; font-weight: bold; color: #2c5282; text-decoration: underline; }
 
         /* --- Region-complete postmark stamp (#18) --- */
         .region-stamp { pointer-events: none; display: block; width: 100%; height: auto; aspect-ratio: 1 / 1; }
@@ -354,7 +361,7 @@
                     </div>
                 </div>
             </div>
-            <div class="version-tag">Build v3.4.2 GLOBAL EXPEDITION</div>
+            <div class="version-tag">Build v3.4.3 GLOBAL EXPEDITION</div>
         </div>
 
         <!-- SCREEN: REGIONAL COVER -->
@@ -374,7 +381,7 @@
                     <p id="download-hint" class="text-sm typewriter opacity-50 mt-4 text-center">Your certificate records every badge earned so far. Re-upload it anytime to continue your expedition.</p>
                 </div>
             </div>
-            <div class="version-tag">Build v3.4.2 GLOBAL EXPEDITION</div>
+            <div class="version-tag">Build v3.4.3 GLOBAL EXPEDITION</div>
         </div>
 
         <!-- SCREEN: WORKSPACE -->
@@ -412,7 +419,7 @@
                     </div>
                 </main>
             </div>
-            <div class="version-tag">Build v3.4.2 GLOBAL EXPEDITION</div>
+            <div class="version-tag">Build v3.4.3 GLOBAL EXPEDITION</div>
         </div>
 
         <div id="modal-field-guide" class="overlay">
@@ -1408,25 +1415,63 @@ const SPECIES_ICONS = {
                 const region = regionalData[this.state.activeRegion];
                 const hState = this.state.globalProgress[this.state.activeRegion].habitatsState[this.state.activeHabitat];
 
-                // Categorize issues so the feedback can show clearly which TYPE needs work.
+                const orgs = data.organisms;
+                const byId = id => orgs.find(o => o.id === id);
+                const maxLevel = Math.max(...orgs.map(o => o.level));
+                this.clearFeedbackGlow();
+
+                // --- Placement: conceptual nudges framed by the species' TRUE trophic level
+                //     (level-based, so oddballs like the no-predator Manatee stay correct). ---
                 const placement = [];
-                data.organisms.forEach(o => {
+                orgs.forEach(o => {
                     const el = document.querySelector(`[data-id="${o.id}"]`);
-                    const shelf = el.closest('.trophic-shelf');
-                    if (!shelf) placement.push(`Place the <b>${o.name}</b> into a trophic layer.`);
-                    else if (parseInt(shelf.dataset.level) !== o.level) placement.push(`Move the <b>${o.name}</b> to a different layer.`);
+                    const shelf = el ? el.closest('.trophic-shelf') : null;
+                    if (shelf && parseInt(shelf.dataset.level) === o.level) return;
+                    let text;
+                    if (!shelf)
+                        text = `🌱 The <b>${o.name}</b> isn't on a layer yet — drag it onto the shelf where it belongs.`;
+                    else if (o.level === 1)
+                        text = `🤔 The <b>${o.name}</b> is on the wrong layer. It makes its own food from sunlight — and that's where every food chain <i>begins</i>. Where should it go?`;
+                    else if (o.level === maxLevel)
+                        text = `🤔 The <b>${o.name}</b> is on the wrong layer. It's a top predator at the very end of the chain. Where does that belong?`;
+                    else if (o.level === 2)
+                        text = `🤔 The <b>${o.name}</b> is on the wrong layer. It feeds on producers — the plants and algae. Which layer eats the food-makers directly? Peek at its Field Guide notes.`;
+                    else
+                        text = `🤔 The <b>${o.name}</b> is on the wrong layer. It hunts other animals that eat plants. Open its Field Guide notes — what it eats and what hunts it will point you to the right shelf.`;
+                    placement.push({ text, id: o.id });
                 });
+
+                // --- Energy flow: only once every species is on its layer; framed by the EATER,
+                //     to teach that animals don't eat everything on the layer below them. ---
                 const flow = [];
                 if (placement.length === 0) {
-                    // every species is on the right layer — now check the energy arrows
-                    data.organisms.forEach(o => {
-                        if (o.predators.some(pId => !hState.connections.some(c => c.sourceId === o.id && c.targetId === pId)))
-                            flow.push(`Draw the energy arrow leaving the <b>${o.name}</b>.`);
-                    });
                     const valid = new Set();
-                    data.organisms.forEach(o => o.predators.forEach(p => valid.add(o.id + '>' + p)));
-                    const wrong = hState.connections.filter(c => !valid.has(c.sourceId + '>' + c.targetId)).length;
-                    if (wrong) flow.push(`Remove ${wrong} energy arrow${wrong > 1 ? 's' : ''} that ${wrong > 1 ? "don't" : "doesn't"} belong.`);
+                    orgs.forEach(o => o.predators.forEach(p => valid.add(o.id + '>' + p)));
+                    const isValid = (s, t) => valid.has(s + '>' + t);
+                    const drawn = hState.connections;
+
+                    // 1) Backward arrows first (drawn predator->prey instead of prey->predator).
+                    const backward = new Set();
+                    drawn.forEach(c => {
+                        if (!isValid(c.sourceId, c.targetId) && isValid(c.targetId, c.sourceId)) {
+                            backward.add(c.sourceId + '>' + c.targetId);
+                            const eater = byId(c.sourceId); // dragged FROM the eater toward its food
+                            flow.push({ text: `🔄 The arrow from the <b>${eater.name}</b> points the wrong way — energy flows <i>toward</i> the animal that eats. Who's the meal here?`, id: eater.id });
+                        }
+                    });
+
+                    // 2) Per eater: an arrow from a food it doesn't eat, or a missing food it does eat.
+                    orgs.forEach(E => {
+                        const actualFoods = orgs.filter(f => f.predators.includes(E.id)).map(f => f.id);
+                        const incoming = drawn.filter(c => c.targetId === E.id && !backward.has(c.sourceId + '>' + c.targetId));
+                        const drawnFoods = incoming.map(c => c.sourceId);
+                        const hasExtra = incoming.some(c => !actualFoods.includes(c.sourceId));
+                        const missing = actualFoods.filter(fid => !drawnFoods.includes(fid) && !backward.has(E.id + '>' + fid));
+                        if (hasExtra)
+                            flow.push({ text: `🔗 Take another look at what the <b>${E.name}</b> eats — animals don't eat <i>every</i> food on the layer below them. One arrow connects it to a food it doesn't actually eat. Check its notes, then remove that link.`, id: E.id });
+                        if (missing.length)
+                            flow.push({ text: `🔗 The <b>${E.name}</b> eats more than you've shown so far. Check its Field Guide — there's another food it really eats that still needs an arrow.`, id: E.id });
+                    });
                 }
 
                 const titleEl = document.getElementById('feedback-title');
@@ -1450,12 +1495,20 @@ const SPECIES_ICONS = {
                     titleEl.textContent = "Field Review";
                     const layersIcon = `<svg class="fb-icon" viewBox="0 0 24 24" fill="none" stroke="#d98a2b" stroke-width="2" stroke-linejoin="round"><path d="M12 3 3 8l9 5 9-5-9-5Z"/><path d="M3 13l9 5 9-5"/></svg>`;
                     const arrowIcon = `<svg class="fb-icon" viewBox="0 0 24 24" fill="none" stroke="#2c6fa8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 19 19 5"/><path d="M9 5h10v10"/></svg>`;
-                    let html = '';
-                    if (placement.length)
-                        html += `<div class="fb-panel placement"><h4>${layersIcon} Trophic layers — ${placement.length} to fix</h4><ul>${placement.map(s => `<li>${s}</li>`).join('')}</ul></div>`;
-                    if (flow.length)
-                        html += `<div class="fb-panel flow"><h4>${arrowIcon} Energy flow arrows — ${flow.length} to fix</h4><ul>${flow.map(s => `<li>${s}</li>`).join('')}</ul></div>`;
-                    bodyEl.innerHTML = html;
+                    const CAP = 3; // focus a young learner on a few fixes at a time
+                    const glow = [];
+                    const panel = (items, cls, icon, label, kind) => {
+                        const shown = items.slice(0, CAP);
+                        shown.forEach(it => glow.push({ id: it.id, kind }));
+                        const more = items.length - shown.length;
+                        const moreNote = more > 0 ? `<li class="fb-more">…and ${more} more to check after these.</li>` : '';
+                        return `<div class="fb-panel ${cls}"><h4>${icon} ${label} — ${items.length} to fix</h4><ul>${shown.map(it => `<li>${it.text}</li>`).join('')}${moreNote}</ul></div>`;
+                    };
+                    // Placement and flow never co-occur (flow is only computed once placement is clean).
+                    bodyEl.innerHTML = placement.length
+                        ? panel(placement, 'placement', layersIcon, 'Trophic layers', 'layer')
+                        : panel(flow, 'flow', arrowIcon, 'Energy flow arrows', 'flow');
+                    this.highlightTiles(glow);
                 }
                 this.modals.feedback.classList.add('active');
             },
@@ -1471,7 +1524,17 @@ const SPECIES_ICONS = {
                 });
             },
 
-            markAsUnchecked() { this.btnCheck.classList.add('needs-check'); },
+            markAsUnchecked() { this.btnCheck.classList.add('needs-check'); this.clearFeedbackGlow(); },
+            highlightTiles(entries) {
+                this.clearFeedbackGlow();
+                entries.forEach(e => {
+                    const el = document.querySelector(`[data-id="${e.id}"]`);
+                    if (el) el.classList.add(e.kind === 'flow' ? 'fb-glow-flow' : 'fb-glow-layer');
+                });
+            },
+            clearFeedbackGlow() {
+                document.querySelectorAll('.fb-glow-layer, .fb-glow-flow').forEach(el => el.classList.remove('fb-glow-layer', 'fb-glow-flow'));
+            },
             clearLinks() { 
                 const hState = this.state.globalProgress[this.state.activeRegion].habitatsState[this.state.activeHabitat];
                 hState.connections = []; 
@@ -1680,7 +1743,7 @@ const SPECIES_ICONS = {
                             ${regions.map(regionStamp).join('')}
                         </div>
                         <div style="margin-top: auto; display: flex; gap: 30px; font-family: 'Special Elite', cursive; font-size: 11px; opacity: 0.6; padding-top: 8px;">
-                            <span>BUILD v3.4.2</span>
+                            <span>BUILD v3.4.3</span>
                             <span>SAVED: ${new Date().toLocaleDateString()}</span>
                         </div>
                     </div>`;
@@ -1688,7 +1751,7 @@ const SPECIES_ICONS = {
                     // Embed the current game progress in the PNG so the certificate can be
                     // re-uploaded via "Load Journal or Certificate" to resume where the explorer left off.
                     const payload = jsonToB64({
-                        version: "3.4.2",
+                        version: "3.4.3",
                         userName: name,
                         globalProgress: this.state.globalProgress
                     });
