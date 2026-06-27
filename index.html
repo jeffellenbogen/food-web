@@ -267,6 +267,11 @@
         #fg-popover dt { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.04em; color: #8a7f63; font-weight: bold; margin-top: 8px; }
         #fg-popover dd { font-size: 1.1rem; margin: 1px 0 0 0; line-height: 1.35; }
         #fg-popover .pop-more { display: inline-block; margin-top: 10px; font-size: 1.04rem; font-weight: bold; color: #2c5282; text-decoration: underline; }
+        /* Read-aloud speaker button inside the species detail popover (accessibility / early readers). */
+        .pop-speak { display: inline-flex; align-items: center; justify-content: center; vertical-align: middle; margin-right: 8px; width: 28px; height: 28px; padding: 0; border-radius: 50%; border: 1.5px solid #2c5282; background: #eaf1f8; color: #2c5282; font-size: 14px; line-height: 1; cursor: pointer; transition: background 0.15s, color 0.15s; }
+        .pop-speak:hover { background: #2c5282; color: #fff; }
+        .pop-speak.speaking { background: #2c5282; color: #fff; animation: popSpeakPulse 1s ease-in-out infinite; }
+        @keyframes popSpeakPulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(44,82,130,0.45); } 50% { box-shadow: 0 0 0 5px rgba(44,82,130,0.18); } }
 
         /* --- Region-complete postmark stamp (#18) --- */
         .region-stamp { pointer-events: none; display: block; width: 100%; height: auto; aspect-ratio: 1 / 1; }
@@ -361,7 +366,7 @@
                     </div>
                 </div>
             </div>
-            <div class="version-tag">Build v3.4.3 GLOBAL EXPEDITION</div>
+            <div class="version-tag">Build v3.4.4 GLOBAL EXPEDITION</div>
         </div>
 
         <!-- SCREEN: REGIONAL COVER -->
@@ -381,7 +386,7 @@
                     <p id="download-hint" class="text-sm typewriter opacity-50 mt-4 text-center">Your certificate records every badge earned so far. Re-upload it anytime to continue your expedition.</p>
                 </div>
             </div>
-            <div class="version-tag">Build v3.4.3 GLOBAL EXPEDITION</div>
+            <div class="version-tag">Build v3.4.4 GLOBAL EXPEDITION</div>
         </div>
 
         <!-- SCREEN: WORKSPACE -->
@@ -419,7 +424,7 @@
                     </div>
                 </main>
             </div>
-            <div class="version-tag">Build v3.4.3 GLOBAL EXPEDITION</div>
+            <div class="version-tag">Build v3.4.4 GLOBAL EXPEDITION</div>
         </div>
 
         <div id="modal-field-guide" class="overlay">
@@ -1085,7 +1090,7 @@ const SPECIES_ICONS = {
                 
                 document.getElementById('input-import-journal').onchange = (e) => this.importJournal(e);
 
-                document.querySelectorAll('.closeModal').forEach(btn => btn.onclick = (e) => e.target.closest('.overlay').classList.remove('active'));
+                document.querySelectorAll('.closeModal').forEach(btn => btn.onclick = (e) => { e.target.closest('.overlay').classList.remove('active'); this.stopSpeech(); });
 
                 // Esc backs out: first close an open Field-Guide species card, otherwise close the active modal.
                 document.addEventListener('keydown', (e) => {
@@ -1103,7 +1108,7 @@ const SPECIES_ICONS = {
                         return;
                     }
                     const active = document.querySelector('.overlay.active');
-                    if (active) active.classList.remove('active');
+                    if (active) { active.classList.remove('active'); this.stopSpeech(); }
                 });
 
                 this.shelves.forEach(shelf => {
@@ -1564,6 +1569,7 @@ const SPECIES_ICONS = {
                 // Reset any popover left over from a previous open so it doesn't flash on reopen.
                 const fgPop = document.getElementById('fg-popover');
                 fgPop.classList.remove('show'); fgPop.innerHTML = ''; this._fgActiveRow = null;
+                this.stopSpeech();
                 document.getElementById('field-guide-content').innerHTML = data.organisms.map(o => {
                     const hasGuide = !!SPECIES_GUIDE[o.id];
                     return `
@@ -1604,14 +1610,26 @@ const SPECIES_ICONS = {
                     const name = row.querySelector('.fg-name').textContent;
                     const iconEl = row.querySelector('.fg-ico');
                     const iconSvg = iconEl ? iconEl.innerHTML : '';
+                    const eatsLabel = g.isProducer ? 'How it gets energy' : 'What it eats';
+                    const canSpeak = 'speechSynthesis' in window;
+                    const speakBtn = canSpeak ? `<button type="button" class="pop-speak" aria-label="Read these notes aloud" title="Read aloud">🔊</button>` : '';
+                    const speakText = `${name}. Where it lives: ${g.habitat} ${eatsLabel}: ${g.energy} What eats it: ${g.eatenBy}`;
                     pop.innerHTML =
                         `<span class="pop-ico">${iconSvg}</span>` +
-                        `<div class="pop-name">${name}</div>` +
+                        `<div class="pop-name">${speakBtn}${name}</div>` +
                         `<dl><dt>Where it lives</dt><dd>${g.habitat}</dd>` +
-                        `<dt>${g.isProducer ? 'How it gets energy' : 'What it eats'}</dt><dd>${g.energy}</dd>` +
+                        `<dt>${eatsLabel}</dt><dd>${g.energy}</dd>` +
                         `<dt>What eats it</dt><dd>${g.eatenBy}</dd></dl>` +
                         `<a class="pop-more" href="${g.source.url}" target="_blank" rel="noopener">Learn more — ${g.source.name} ↗</a>`;
                     pop.classList.add('show');
+                    const sb = pop.querySelector('.pop-speak');
+                    if (sb) {
+                        sb.onclick = (e) => { e.stopPropagation(); this.toggleSpeak(speakText, sb, row.dataset.id); };
+                        // Keep the playing state visible if this species is still being read aloud on re-hover.
+                        if (this._fgSpeakingId === row.dataset.id && window.speechSynthesis && window.speechSynthesis.speaking) {
+                            sb.classList.add('speaking'); sb.setAttribute('aria-label', 'Stop reading');
+                        }
+                    }
                     const paperRect = paper.getBoundingClientRect();
                     const rowRect = row.getBoundingClientRect();
                     const cue = row.querySelector('.fg-cue');
@@ -1641,6 +1659,45 @@ const SPECIES_ICONS = {
                 });
                 pop.onmouseenter = clearHide;
                 pop.onmouseleave = scheduleHide;
+            },
+
+            // Read a species' notes aloud via the browser's built-in speech (no network/library).
+            // Tap toggles: same species stops; a different species replaces it.
+            toggleSpeak(text, btn, id) {
+                const synth = window.speechSynthesis;
+                if (!synth) return;
+                const wasThis = this._fgSpeakingId === id && (synth.speaking || synth.pending);
+                const wasSpeaking = synth.speaking || synth.pending;
+                synth.cancel();
+                this._clearSpeakBtns();
+                this._fgSpeakingId = null;
+                if (wasThis) return; // tapped the one already playing → just stop
+                const u = new SpeechSynthesisUtterance(text);
+                u.rate = 0.92; // a touch slower for young listeners
+                u.onend = u.onerror = () => {
+                    btn.classList.remove('speaking');
+                    btn.setAttribute('aria-label', 'Read these notes aloud');
+                    if (this._fgSpeakingId === id) this._fgSpeakingId = null;
+                };
+                const start = () => {
+                    btn.classList.add('speaking');
+                    btn.setAttribute('aria-label', 'Stop reading');
+                    this._fgSpeakingId = id;
+                    synth.speak(u);
+                };
+                // Chrome can choke on cancel()+speak() back-to-back; give it a beat if it was busy.
+                if (wasSpeaking) setTimeout(start, 60); else start();
+            },
+            _clearSpeakBtns() {
+                document.querySelectorAll('.pop-speak.speaking').forEach(b => {
+                    b.classList.remove('speaking');
+                    b.setAttribute('aria-label', 'Read these notes aloud');
+                });
+            },
+            stopSpeech() {
+                if (window.speechSynthesis) window.speechSynthesis.cancel();
+                this._fgSpeakingId = null;
+                this._clearSpeakBtns();
             },
 
             importJournal(e) {
@@ -1743,7 +1800,7 @@ const SPECIES_ICONS = {
                             ${regions.map(regionStamp).join('')}
                         </div>
                         <div style="margin-top: auto; display: flex; gap: 30px; font-family: 'Special Elite', cursive; font-size: 11px; opacity: 0.6; padding-top: 8px;">
-                            <span>BUILD v3.4.3</span>
+                            <span>BUILD v3.4.4</span>
                             <span>SAVED: ${new Date().toLocaleDateString()}</span>
                         </div>
                     </div>`;
@@ -1751,7 +1808,7 @@ const SPECIES_ICONS = {
                     // Embed the current game progress in the PNG so the certificate can be
                     // re-uploaded via "Load Journal or Certificate" to resume where the explorer left off.
                     const payload = jsonToB64({
-                        version: "3.4.3",
+                        version: "3.4.4",
                         userName: name,
                         globalProgress: this.state.globalProgress
                     });
