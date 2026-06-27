@@ -272,6 +272,10 @@
         .pop-speak:hover { background: #2c5282; color: #fff; }
         .pop-speak.speaking { background: #2c5282; color: #fff; animation: popSpeakPulse 1s ease-in-out infinite; }
         @keyframes popSpeakPulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(44,82,130,0.45); } 50% { box-shadow: 0 0 0 5px rgba(44,82,130,0.18); } }
+        .fg-audio { display: flex; align-items: center; flex-wrap: wrap; gap: 6px 14px; margin: -2px 0 12px; font-family: 'Special Elite', cursive; font-size: 0.8rem; color: #6b6256; }
+        .fg-audio-label { font-weight: bold; color: #2c5282; }
+        .fg-audio-field { display: inline-flex; align-items: center; gap: 5px; }
+        .fg-audio select { font-family: inherit; font-size: 0.8rem; padding: 2px 4px; border: 1px solid #b9ad8c; border-radius: 4px; background: #fffdf5; color: #4a4234; max-width: 190px; }
 
         /* --- Region-complete postmark stamp (#18) --- */
         .region-stamp { pointer-events: none; display: block; width: 100%; height: auto; aspect-ratio: 1 / 1; }
@@ -366,7 +370,7 @@
                     </div>
                 </div>
             </div>
-            <div class="version-tag">Build v3.4.4 GLOBAL EXPEDITION</div>
+            <div class="version-tag">Build v3.4.5 GLOBAL EXPEDITION</div>
         </div>
 
         <!-- SCREEN: REGIONAL COVER -->
@@ -386,7 +390,7 @@
                     <p id="download-hint" class="text-sm typewriter opacity-50 mt-4 text-center">Your certificate records every badge earned so far. Re-upload it anytime to continue your expedition.</p>
                 </div>
             </div>
-            <div class="version-tag">Build v3.4.4 GLOBAL EXPEDITION</div>
+            <div class="version-tag">Build v3.4.5 GLOBAL EXPEDITION</div>
         </div>
 
         <!-- SCREEN: WORKSPACE -->
@@ -424,12 +428,23 @@
                     </div>
                 </main>
             </div>
-            <div class="version-tag">Build v3.4.4 GLOBAL EXPEDITION</div>
+            <div class="version-tag">Build v3.4.5 GLOBAL EXPEDITION</div>
         </div>
 
         <div id="modal-field-guide" class="overlay">
             <div class="modal-paper">
                 <h3 class="typewriter text-2xl border-b-2 border-stone-800 mb-4 pb-2">Field Research Notes</h3>
+                <div id="fg-audio-controls" class="fg-audio">
+                    <span class="fg-audio-label">🔊 Read-aloud</span>
+                    <label class="fg-audio-field">Voice <select id="fg-voice"></select></label>
+                    <label class="fg-audio-field">Speed
+                        <select id="fg-speed">
+                            <option value="0.75">Slow</option>
+                            <option value="0.95">Normal</option>
+                            <option value="1.2">Fast</option>
+                        </select>
+                    </label>
+                </div>
                 <div id="field-guide-content" class="max-h-[55vh] overflow-y-auto pr-4"></div>
                 <div id="field-guide-sources" class="fg-sources"></div>
                 <button class="btn-ink mt-4 w-full closeModal uppercase">Back to Notebook</button>
@@ -1083,6 +1098,7 @@ const SPECIES_ICONS = {
                 };
 
                 document.getElementById('btn-field-guide').onclick = () => this.showFieldGuide();
+                this.setupTts();
                 document.getElementById('btn-food-web-101').onclick = () => this.modals.logic.classList.add('active');
                 document.getElementById('mode-switch').onclick = () => this.setTool(this.state.tool === 'arrange' ? 'links' : 'arrange');
                 document.getElementById('btn-clear-links').onclick = () => { this.clearLinks(); this.markAsUnchecked(); this.syncCompletionStatus(); };
@@ -1613,7 +1629,12 @@ const SPECIES_ICONS = {
                     const eatsLabel = g.isProducer ? 'How it gets energy' : 'What it eats';
                     const canSpeak = 'speechSynthesis' in window;
                     const speakBtn = canSpeak ? `<button type="button" class="pop-speak" aria-label="Read these notes aloud" title="Read aloud">🔊</button>` : '';
-                    const speakText = `${name}. Where it lives: ${g.habitat} ${eatsLabel}: ${g.energy} What eats it: ${g.eatenBy}`;
+                    const speakParts = [
+                        { text: name + '.' },
+                        { text: 'Where it lives.', heading: true }, { text: g.habitat },
+                        { text: eatsLabel + '.', heading: true }, { text: g.energy },
+                        { text: 'What eats it.', heading: true }, { text: g.eatenBy }
+                    ];
                     pop.innerHTML =
                         `<span class="pop-ico">${iconSvg}</span>` +
                         `<div class="pop-name">${speakBtn}${name}</div>` +
@@ -1624,7 +1645,7 @@ const SPECIES_ICONS = {
                     pop.classList.add('show');
                     const sb = pop.querySelector('.pop-speak');
                     if (sb) {
-                        sb.onclick = (e) => { e.stopPropagation(); this.toggleSpeak(speakText, sb, row.dataset.id); };
+                        sb.onclick = (e) => { e.stopPropagation(); this.toggleSpeak(speakParts, sb, row.dataset.id); };
                         // Keep the playing state visible if this species is still being read aloud on re-hover.
                         if (this._fgSpeakingId === row.dataset.id && window.speechSynthesis && window.speechSynthesis.speaking) {
                             sb.classList.add('speaking'); sb.setAttribute('aria-label', 'Stop reading');
@@ -1663,7 +1684,7 @@ const SPECIES_ICONS = {
 
             // Read a species' notes aloud via the browser's built-in speech (no network/library).
             // Tap toggles: same species stops; a different species replaces it.
-            toggleSpeak(text, btn, id) {
+            toggleSpeak(parts, btn, id) {
                 const synth = window.speechSynthesis;
                 if (!synth) return;
                 const wasThis = this._fgSpeakingId === id && (synth.speaking || synth.pending);
@@ -1672,18 +1693,30 @@ const SPECIES_ICONS = {
                 this._clearSpeakBtns();
                 this._fgSpeakingId = null;
                 if (wasThis) return; // tapped the one already playing → just stop
-                const u = new SpeechSynthesisUtterance(text);
-                u.rate = 0.92; // a touch slower for young listeners
-                u.onend = u.onerror = () => {
+                const voice = this.getTtsVoice();
+                const rate = this.getTtsRate();
+                const done = () => {
                     btn.classList.remove('speaking');
                     btn.setAttribute('aria-label', 'Read these notes aloud');
                     if (this._fgSpeakingId === id) this._fgSpeakingId = null;
                 };
+                // One short utterance per piece: headings get a higher pitch (and a slightly
+                // slower rate) so the listener clearly hears the heading before its section.
+                // Splitting into short utterances also dodges Chrome's long-utterance cutoff.
+                const utterances = parts.map(p => {
+                    const u = new SpeechSynthesisUtterance(p.text);
+                    if (voice) u.voice = voice;
+                    u.rate = p.heading ? Math.max(0.6, rate - 0.1) : rate;
+                    u.pitch = p.heading ? 1.4 : 1.0;
+                    u.onerror = done;
+                    return u;
+                });
+                utterances[utterances.length - 1].onend = done;
                 const start = () => {
                     btn.classList.add('speaking');
                     btn.setAttribute('aria-label', 'Stop reading');
                     this._fgSpeakingId = id;
-                    synth.speak(u);
+                    utterances.forEach(u => synth.speak(u));
                 };
                 // Chrome can choke on cancel()+speak() back-to-back; give it a beat if it was busy.
                 if (wasSpeaking) setTimeout(start, 60); else start();
@@ -1698,6 +1731,45 @@ const SPECIES_ICONS = {
                 if (window.speechSynthesis) window.speechSynthesis.cancel();
                 this._fgSpeakingId = null;
                 this._clearSpeakBtns();
+            },
+            // Populate the read-aloud voice/speed pickers from the device's available voices,
+            // remember the choice, and auto-pick a nicer-sounding default.
+            setupTts() {
+                const wrap = document.getElementById('fg-audio-controls');
+                const sel = document.getElementById('fg-voice');
+                const speed = document.getElementById('fg-speed');
+                if (!('speechSynthesis' in window)) { if (wrap) wrap.style.display = 'none'; return; }
+                let savedVoice = null, savedSpeed = null;
+                try { savedVoice = localStorage.getItem('fw-tts-voice'); savedSpeed = localStorage.getItem('fw-tts-speed'); } catch (e) {}
+                if (speed) speed.value = savedSpeed || '0.95';
+                const populate = () => {
+                    if (!sel) return;
+                    let voices = window.speechSynthesis.getVoices();
+                    const en = voices.filter(v => /^en/i.test(v.lang));
+                    voices = en.length ? en : voices;
+                    if (!voices.length) return;
+                    sel.innerHTML = voices.map(v => `<option value="${v.name.replace(/"/g, '')}">${v.name}${/^en-GB/i.test(v.lang) ? ' (UK)' : ''}</option>`).join('');
+                    const prefer = ['samantha', 'alex', 'daniel', 'karen', 'moira', 'tessa', 'fiona', 'aaron', 'zoe', 'google us english', 'google uk english female', 'natural'];
+                    let pick = (savedVoice && voices.find(v => v.name === savedVoice))
+                        || voices.find(v => prefer.some(p => v.name.toLowerCase().includes(p)))
+                        || voices.find(v => /en-US/i.test(v.lang))
+                        || voices[0];
+                    if (pick) sel.value = pick.name;
+                };
+                populate();
+                window.speechSynthesis.onvoiceschanged = populate;
+                if (sel) sel.onchange = () => { try { localStorage.setItem('fw-tts-voice', sel.value); } catch (e) {} };
+                if (speed) speed.onchange = () => { try { localStorage.setItem('fw-tts-speed', speed.value); } catch (e) {} };
+            },
+            getTtsVoice() {
+                const sel = document.getElementById('fg-voice');
+                if (!sel || !window.speechSynthesis) return null;
+                return window.speechSynthesis.getVoices().find(v => v.name === sel.value) || null;
+            },
+            getTtsRate() {
+                const speed = document.getElementById('fg-speed');
+                const r = speed ? parseFloat(speed.value) : 0.95;
+                return isNaN(r) ? 0.95 : r;
             },
 
             importJournal(e) {
@@ -1800,7 +1872,7 @@ const SPECIES_ICONS = {
                             ${regions.map(regionStamp).join('')}
                         </div>
                         <div style="margin-top: auto; display: flex; gap: 30px; font-family: 'Special Elite', cursive; font-size: 11px; opacity: 0.6; padding-top: 8px;">
-                            <span>BUILD v3.4.4</span>
+                            <span>BUILD v3.4.5</span>
                             <span>SAVED: ${new Date().toLocaleDateString()}</span>
                         </div>
                     </div>`;
@@ -1808,7 +1880,7 @@ const SPECIES_ICONS = {
                     // Embed the current game progress in the PNG so the certificate can be
                     // re-uploaded via "Load Journal or Certificate" to resume where the explorer left off.
                     const payload = jsonToB64({
-                        version: "3.4.4",
+                        version: "3.4.5",
                         userName: name,
                         globalProgress: this.state.globalProgress
                     });
