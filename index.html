@@ -373,7 +373,7 @@
                     </div>
                 </div>
             </div>
-            <div class="version-tag">Build v3.5.1 GLOBAL EXPEDITION</div>
+            <div class="version-tag">Build v3.5.2 GLOBAL EXPEDITION</div>
         </div>
 
         <!-- SCREEN: REGIONAL COVER -->
@@ -393,7 +393,7 @@
                     <p id="download-hint" class="text-sm typewriter opacity-50 mt-4 text-center">Your certificate records every badge earned so far. Re-upload it anytime to continue your expedition.</p>
                 </div>
             </div>
-            <div class="version-tag">Build v3.5.1 GLOBAL EXPEDITION</div>
+            <div class="version-tag">Build v3.5.2 GLOBAL EXPEDITION</div>
         </div>
 
         <!-- SCREEN: WORKSPACE -->
@@ -431,7 +431,7 @@
                     </div>
                 </main>
             </div>
-            <div class="version-tag">Build v3.5.1 GLOBAL EXPEDITION</div>
+            <div class="version-tag">Build v3.5.2 GLOBAL EXPEDITION</div>
         </div>
 
         <div id="modal-field-guide" class="overlay">
@@ -1116,13 +1116,16 @@ const SPECIES_ICONS = {
                     if (e.key !== 'Escape') return;
                     const pop = document.getElementById('fg-popover');
                     const speaking = window.speechSynthesis && window.speechSynthesis.speaking;
-                    // While notes are being read aloud, Esc stops the audio AND leaves the Field Guide.
-                    if (this.modals.guide.classList.contains('active') && speaking) {
+                    // While notes are being read aloud, Esc stops the audio and closes the species
+                    // detail card — but stays in the Field Guide.
+                    if (this.modals.guide.classList.contains('active') && (speaking || (window.speechSynthesis && window.speechSynthesis.paused))) {
                         this.stopSpeech();
                         if (pop) pop.classList.remove('show');
                         document.querySelectorAll('#field-guide-content .fg-row.fg-active').forEach(r => r.classList.remove('fg-active'));
                         this._fgActiveRow = null;
-                        this.modals.guide.classList.remove('active');
+                        this._fgSuppressShow = true;
+                        clearTimeout(this._fgSuppressTimer);
+                        this._fgSuppressTimer = setTimeout(() => { this._fgSuppressShow = false; }, 250);
                         return;
                     }
                     if (this.modals.guide.classList.contains('active') && pop && pop.classList.contains('show')) {
@@ -1138,6 +1141,19 @@ const SPECIES_ICONS = {
                     }
                     const active = document.querySelector('.overlay.active');
                     if (active) { active.classList.remove('active'); this.stopSpeech(); }
+                });
+
+                // Spacebar pauses / resumes the read-aloud while the Field Guide is open.
+                // (Ignored when a form control like the voice/speed picker is focused.)
+                document.addEventListener('keydown', (e) => {
+                    if (e.code !== 'Space' && e.key !== ' ') return;
+                    if (!this.modals.guide.classList.contains('active')) return;
+                    const ae = document.activeElement;
+                    if (ae && /^(select|input|textarea)$/i.test(ae.tagName)) return;
+                    const synth = window.speechSynthesis;
+                    if (!synth || (!synth.speaking && !synth.paused)) return;
+                    e.preventDefault();
+                    if (synth.paused) synth.resume(); else synth.pause();
                 });
 
                 this.shelves.forEach(shelf => {
@@ -1660,11 +1676,11 @@ const SPECIES_ICONS = {
                     }
                     const paperRect = paper.getBoundingClientRect();
                     const rowRect = row.getBoundingClientRect();
-                    const cue = row.querySelector('.fg-cue');
+                    const anchorEl = row.querySelector('.speak-pill') || row.querySelector('.fg-cue');
                     const top = Math.max(8, Math.min(rowRect.top - paperRect.top + rowRect.height / 2 - pop.offsetHeight / 2, paper.clientHeight - pop.offsetHeight - 8));
-                    // Sit the card just LEFT of the "Field Notes" chip so the chip (and the
-                    // species names) stay visible and clickable rather than being covered.
-                    const rightAnchor = cue ? cue.getBoundingClientRect().left - paperRect.left : paper.clientWidth - 24;
+                    // Sit the card just LEFT of the row's right-hand controls (the Listen button and
+                    // Field Notes chip) so they stay clickable rather than being covered.
+                    const rightAnchor = anchorEl ? anchorEl.getBoundingClientRect().left - paperRect.left : paper.clientWidth - 24;
                     const left = Math.max(12, rightAnchor - pop.offsetWidth - 16);
                     pop.style.top = top + 'px';
                     pop.style.left = left + 'px';
@@ -1803,7 +1819,9 @@ const SPECIES_ICONS = {
                     if (!opts.length) all.filter(v => /^en/i.test(v.lang)).forEach(v => opts.push({ name: v.name, label: v.name }));
                     if (!opts.length) return;
                     sel.innerHTML = opts.map(o => `<option value="${o.name.replace(/"/g, '')}">${o.label}</option>`).join('');
-                    sel.value = (savedVoice && opts.some(o => o.name === savedVoice)) ? savedVoice : opts[0].name;
+                    sel.value = (savedVoice && opts.some(o => o.name === savedVoice))
+                        ? savedVoice
+                        : ((opts.find(o => /google us english/i.test(o.name)) || opts[0]).name);
                 };
                 populate();
                 window.speechSynthesis.onvoiceschanged = populate;
@@ -1921,7 +1939,7 @@ const SPECIES_ICONS = {
                             ${regions.map(regionStamp).join('')}
                         </div>
                         <div style="margin-top: auto; display: flex; gap: 30px; font-family: 'Special Elite', cursive; font-size: 11px; opacity: 0.6; padding-top: 8px;">
-                            <span>BUILD v3.5.1</span>
+                            <span>BUILD v3.5.2</span>
                             <span>SAVED: ${new Date().toLocaleDateString()}</span>
                         </div>
                     </div>`;
@@ -1929,7 +1947,7 @@ const SPECIES_ICONS = {
                     // Embed the current game progress in the PNG so the certificate can be
                     // re-uploaded via "Load Journal or Certificate" to resume where the explorer left off.
                     const payload = jsonToB64({
-                        version: "3.5.1",
+                        version: "3.5.2",
                         userName: name,
                         globalProgress: this.state.globalProgress
                     });
