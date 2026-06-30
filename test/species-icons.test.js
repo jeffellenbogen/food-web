@@ -50,7 +50,7 @@ assert.ok(fallback.includes('aria-label="Ghost"'), 'fallback should still label 
 
 // 3. Every organism's icon key exists in the registry, and no emoji remain.
 const iconKeys = [...html.matchAll(/icon:\s*'([^']+)'/g)].map(m => m[1]);
-assert.strictEqual(iconKeys.length, 78, 'expected exactly 78 organism icon refs, got ' + iconKeys.length);
+assert.strictEqual(iconKeys.length, 90, 'expected exactly 90 organism icon refs, got ' + iconKeys.length);
 for (const key of iconKeys) {
     assert.ok(/^[a-z0-9-]+$/.test(key), 'icon key should be a slug, got: ' + key);
     assert.ok(SPECIES_ICONS[key], 'no registry entry for organism icon: ' + key);
@@ -72,10 +72,16 @@ function distinct(keys) {
         seen.add(sig);
     }
 }
-distinct(['black-footed-ferret', 'ermine', 'stoat', 'pine-marten']);   // mustelids
+distinct(['black-footed-ferret', 'ermine', 'stoat', 'pine-marten', 'least-weasel']);   // mustelids
 distinct(['pika', 'prairie-dog', 'marmot', 'field-vole', 'water-vole']); // small rodents
-distinct(['golden-eagle', 'crowned-eagle', 'goshawk', 'red-tailed-hawk', 'common-buzzard']); // raptors
+distinct(['golden-eagle', 'crowned-eagle', 'goshawk', 'red-tailed-hawk', 'common-buzzard', 'hen-harrier']); // raptors
 distinct(['garter-snake', 'rock-python', 'gaboon-viper', 'adder']);    // snakes
+distinct(['red-fox', 'gray-fox']);                                     // foxes
+distinct(['striped-hyena', 'spotted-hyena']);                          // hyenas
+distinct(['capercaillie', 'red-grouse', 'white-tailed-ptarmigan']);    // game birds
+distinct(['brown-trout', 'longnose-dace']);                            // fish
+distinct(['shore-crab', 'fiddler-crab']);                              // crabs
+distinct(['kelp', 'algae', 'sea-lettuce']);                            // seaweeds/algae
 
 // 5. No two species anywhere share the same svg markup.
 const sigs = new Map();
