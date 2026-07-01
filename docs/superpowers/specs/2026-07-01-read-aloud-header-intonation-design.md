@@ -85,6 +85,15 @@ flag consumed when the gap timer fires. That work is out of scope for this relea
 - **Listening sign-off:** the final intonation judgment is the user's, ideally on both
   a Google voice (pitch ignored) and a macOS voice (pitch honored).
 
+## Revision — v3.5.4 (2026-07-01)
+
+**§1 is superseded.** Field testing found every voice mispronounced sentence-final
+"live" in "Where does it live?" as /laɪv/ (live-as-in-alive). Spoken headers reverted
+to the on-screen labels verbatim — "Where it lives." / "What it eats." / "How it gets
+energy." / "What eats it." — which pronounce reliably ("it lives" reads as the verb,
+confirmed across v3.4.5–v3.5.2 in the field). §2 (pitch 1.1) is retained and remains
+the fix for the original cartoonish-header complaint.
+
 ## Out of scope
 
 - Any change to on-screen Field Guide labels.

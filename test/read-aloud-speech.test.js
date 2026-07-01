@@ -25,26 +25,30 @@ const o = make(guide);
 let passed = 0;
 function test(name, fn) { fn(); passed++; console.log('  ok - ' + name); }
 
-test('producer: name first, question headings, bodies verbatim', () => {
+test('producer: name first, label-verbatim headings, bodies verbatim', () => {
     assert.deepStrictEqual(o.buildSpeakParts('fern', 'Highland Ferns'), [
         { text: 'Highland Ferns.' },
-        { text: 'Where does it live?', heading: true }, { text: 'HAB-TEXT' },
-        { text: 'How does it get energy?', heading: true }, { text: 'ENERGY-TEXT' },
-        { text: 'What eats it?', heading: true }, { text: 'EATEN-TEXT' }
+        { text: 'Where it lives.', heading: true }, { text: 'HAB-TEXT' },
+        { text: 'How it gets energy.', heading: true }, { text: 'ENERGY-TEXT' },
+        { text: 'What eats it.', heading: true }, { text: 'EATEN-TEXT' }
     ]);
 });
 
-test('consumer: eats-question variant', () => {
+test('consumer: eats-label variant', () => {
     const parts = o.buildSpeakParts('chimp', 'Chimpanzee');
-    assert.strictEqual(parts[3].text, 'What does it eat?');
+    assert.strictEqual(parts[3].text, 'What it eats.');
     assert.strictEqual(parts[3].heading, true);
 });
 
-test('every heading is a question', () => {
-    const parts = o.buildSpeakParts('fern', 'X').concat(o.buildSpeakParts('chimp', 'Y'));
-    const headings = parts.filter(p => p.heading);
-    assert.strictEqual(headings.length, 6);
-    headings.forEach(h => assert.ok(h.text.endsWith('?'), '"' + h.text + '" should end with ?'));
+// Speech must mirror the on-screen <dt> labels: question phrasing ("Where does it
+// live?") made every voice mispronounce sentence-final "live" as live-as-in-alive.
+test('headings mirror the on-screen section labels', () => {
+    const headings = o.buildSpeakParts('fern', 'X').concat(o.buildSpeakParts('chimp', 'Y'))
+        .filter(p => p.heading).map(p => p.text);
+    assert.deepStrictEqual(headings, [
+        'Where it lives.', 'How it gets energy.', 'What eats it.',
+        'Where it lives.', 'What it eats.', 'What eats it.'
+    ]);
 });
 
 test('unknown species returns null', () => {

@@ -373,7 +373,7 @@
                     </div>
                 </div>
             </div>
-            <div class="version-tag">Build v3.5.3 GLOBAL EXPEDITION</div>
+            <div class="version-tag">Build v3.5.4 GLOBAL EXPEDITION</div>
         </div>
 
         <!-- SCREEN: REGIONAL COVER -->
@@ -393,7 +393,7 @@
                     <p id="download-hint" class="text-sm typewriter opacity-50 mt-4 text-center">Your certificate records every badge earned so far. Re-upload it anytime to continue your expedition.</p>
                 </div>
             </div>
-            <div class="version-tag">Build v3.5.3 GLOBAL EXPEDITION</div>
+            <div class="version-tag">Build v3.5.4 GLOBAL EXPEDITION</div>
         </div>
 
         <!-- SCREEN: WORKSPACE -->
@@ -431,7 +431,7 @@
                     </div>
                 </main>
             </div>
-            <div class="version-tag">Build v3.5.3 GLOBAL EXPEDITION</div>
+            <div class="version-tag">Build v3.5.4 GLOBAL EXPEDITION</div>
         </div>
 
         <div id="modal-field-guide" class="overlay">
@@ -1715,17 +1715,19 @@ const SPECIES_ICONS = {
                     `<svg class="speak-ico" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M5 9v6h4l5 4V5L9 9H5z"/><path d="M17 9.5a3 3 0 010 5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>` +
                     `<span class="speak-label">Listen</span></button>`;
             },
-            // Build the spoken pieces: name, then each section as a question heading + its body.
-            // Questions get a natural rising contour on every voice (screen labels are unchanged).
+            // Build the spoken pieces: name, then each section heading + its body. Headings must
+            // mirror the on-screen labels verbatim: question phrasing ("Where does it live?") made
+            // every voice mispronounce sentence-final "live" as live-as-in-alive, while "it lives"
+            // reads reliably as the verb (habitat sense).
             buildSpeakParts(id, name) {
                 const g = SPECIES_GUIDE[id];
                 if (!g) return null;
-                const eatsQuestion = g.isProducer ? 'How does it get energy?' : 'What does it eat?';
+                const eatsLabel = g.isProducer ? 'How it gets energy' : 'What it eats';
                 return [
                     { text: name + '.' },
-                    { text: 'Where does it live?', heading: true }, { text: g.habitat },
-                    { text: eatsQuestion, heading: true }, { text: g.energy },
-                    { text: 'What eats it?', heading: true }, { text: g.eatenBy }
+                    { text: 'Where it lives.', heading: true }, { text: g.habitat },
+                    { text: eatsLabel + '.', heading: true }, { text: g.energy },
+                    { text: 'What eats it.', heading: true }, { text: g.eatenBy }
                 ];
             },
             // Read a species' notes aloud (browser speech, no network/library). Toggles: tapping the
@@ -1941,7 +1943,7 @@ const SPECIES_ICONS = {
                             ${regions.map(regionStamp).join('')}
                         </div>
                         <div style="margin-top: auto; display: flex; gap: 30px; font-family: 'Special Elite', cursive; font-size: 11px; opacity: 0.6; padding-top: 8px;">
-                            <span>BUILD v3.5.3</span>
+                            <span>BUILD v3.5.4</span>
                             <span>SAVED: ${new Date().toLocaleDateString()}</span>
                         </div>
                     </div>`;
@@ -1949,7 +1951,7 @@ const SPECIES_ICONS = {
                     // Embed the current game progress in the PNG so the certificate can be
                     // re-uploaded via "Load Journal or Certificate" to resume where the explorer left off.
                     const payload = jsonToB64({
-                        version: "3.5.3",
+                        version: "3.5.4",
                         userName: name,
                         globalProgress: this.state.globalProgress
                     });
