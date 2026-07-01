@@ -1744,14 +1744,15 @@ const SPECIES_ICONS = {
                 const voice = this.getTtsVoice();
                 const rate = this.getTtsRate();
                 const done = () => { this._setSpeakState(id, false); if (this._fgSpeakingId === id) this._fgSpeakingId = null; };
-                // One short utterance per piece: headings get a higher pitch (and slightly slower
-                // rate) so the heading is clearly heard before its section. Short utterances also
-                // dodge Chrome's long-utterance cutoff.
+                // One short utterance per piece: headings are questions, so every voice gives them
+                // a natural rising contour (Google network voices ignore pitch entirely); voices
+                // that honor pitch add a gentle 1.1 lift on top. Short utterances also dodge
+                // Chrome's long-utterance cutoff.
                 const utterances = parts.map(p => {
                     const u = new SpeechSynthesisUtterance(p.text);
                     if (voice) u.voice = voice;
                     u.rate = p.heading ? Math.max(0.6, rate - 0.1) : rate;
-                    u.pitch = p.heading ? 1.4 : 1.0;
+                    u.pitch = p.heading ? 1.1 : 1.0;
                     u.onerror = done;
                     return u;
                 });

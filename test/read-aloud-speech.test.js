@@ -51,4 +51,15 @@ test('unknown species returns null', () => {
     assert.strictEqual(o.buildSpeakParts('nope', 'Ghost'), null);
 });
 
+// --- Prosody: the shipped source must use a gentle 1.1 heading pitch, old rate dip intact ---
+test('heading pitch is a gentle 1.1 lift', () => {
+    assert.ok(/u\.pitch = p\.heading \? 1\.1 : 1\.0;/.test(html),
+        'expected `u.pitch = p.heading ? 1.1 : 1.0;` in index.html');
+});
+
+test('heading rate dip is unchanged', () => {
+    assert.ok(/u\.rate = p\.heading \? Math\.max\(0\.6, rate - 0\.1\) : rate;/.test(html),
+        'expected the Math.max(0.6, rate - 0.1) heading rate dip to remain');
+});
+
 console.log('read-aloud-speech: ' + passed + ' tests OK');
