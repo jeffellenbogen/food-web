@@ -1715,16 +1715,17 @@ const SPECIES_ICONS = {
                     `<svg class="speak-ico" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M5 9v6h4l5 4V5L9 9H5z"/><path d="M17 9.5a3 3 0 010 5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>` +
                     `<span class="speak-label">Listen</span></button>`;
             },
-            // Build the spoken pieces: name, then each section as a higher-pitch heading + its body.
+            // Build the spoken pieces: name, then each section as a question heading + its body.
+            // Questions get a natural rising contour on every voice (screen labels are unchanged).
             buildSpeakParts(id, name) {
                 const g = SPECIES_GUIDE[id];
                 if (!g) return null;
-                const eatsLabel = g.isProducer ? 'How it gets energy' : 'What it eats';
+                const eatsQuestion = g.isProducer ? 'How does it get energy?' : 'What does it eat?';
                 return [
                     { text: name + '.' },
-                    { text: 'Where it lives.', heading: true }, { text: g.habitat },
-                    { text: eatsLabel + '.', heading: true }, { text: g.energy },
-                    { text: 'What eats it.', heading: true }, { text: g.eatenBy }
+                    { text: 'Where does it live?', heading: true }, { text: g.habitat },
+                    { text: eatsQuestion, heading: true }, { text: g.energy },
+                    { text: 'What eats it?', heading: true }, { text: g.eatenBy }
                 ];
             },
             // Read a species' notes aloud (browser speech, no network/library). Toggles: tapping the
